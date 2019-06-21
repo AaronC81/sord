@@ -1,18 +1,31 @@
 require 'sord/logging'
 
 module Sord
+  # Contains methods to convert YARD types to Sorbet types.
   module TypeConverter
+    # A regular expression which matches Ruby namespaces and identifiers. 
+    # "Foo", "Foo::Bar", and "::Foo::Bar" are all matches, whereas "Foo.Bar"
+    # or "Foo#bar" are not.
     SIMPLE_TYPE_REGEX =
       /(?:\:\:)?[a-zA-Z_][a-zA-Z_0-9]*(?:\:\:[a-zA-Z_][a-zA-Z_0-9]*)*/
 
     # TODO: does not support mulitple type arguments (e.g. Hash<A, B>)
+    # A regular expression which matches a Ruby namespace immediately followed
+    # by another Ruby namespace in angle brackets. This is the format usually
+    # used in YARD to model generic types, such as "Array<String>".
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})<(#{SIMPLE_TYPE_REGEX})>/
 
     # TODO: Hash
+    # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
-    def self.yard_to_sorbet(yard, item=nil, &blk)
+    # Converts a YARD type into a Sorbet type.
+    # @param [Boolean, Array, String] yard The YARD type.
+    # @param [YARD::CodeObjects::Base] item The CodeObject which the YARD type
+    #   is associated with. This is used for logging and can be nil, but this
+    #   will lead to less informative log messages.
+    def self.yard_to_sorbet(yard, item=nil)
       case yard
       when nil
         "T.untyped"
@@ -25,6 +38,7 @@ module Sord
           ? yard_to_sorbet(yard.first, item, &blk)
           : "T.any(#{yard.map { |x| yard_to_sorbet(x, item, &blk) }.join(', ')})"
       when /^#{SIMPLE_TYPE_REGEX}$/
+        # If this doesn't begi with an uppercase letter, warn
         if /^[_a-z]/ === yard
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
