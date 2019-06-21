@@ -7,6 +7,19 @@ module Sord
     # The callables should take three parameters: (kind, msg, item).
     @@hooks = []
 
+    # @return [Boolean] Whether log messages should be printed or not. This is
+    #   used for testing.
+    def self.silent?
+      @@silent || false
+    end
+
+    # Sets whether log messages should be printed or not.
+    # @param [Boolean] value
+    # @return [void]
+    def self.silent=(value)
+      @@silent = value
+    end
+
     # A generic log message writer which is called by all other specific logging
     # methods. This shouldn't be called outside of the Logging class itself.
     # @param [Symbol] kind The kind of log message this is.
@@ -19,9 +32,9 @@ module Sord
     #  specified.
     def self.generic(kind, header, msg, item)
       if item
-        puts "#{header} (#{item.path.light_white}) #{msg}"
+        puts "#{header} (#{item.path.light_white}) #{msg}" unless silent?
       else
-        puts "#{header} #{msg}"
+        puts "#{header} #{msg}" unless silent?
       end
 
       invoke_hooks(kind, msg, item)
