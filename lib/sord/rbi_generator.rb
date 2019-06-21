@@ -31,7 +31,7 @@ module Sord
     def warn(msg, item)
       puts "#{'[WARN]'.yellow} #{msg}"
       puts "         In #{item.path}".light_white
-      rbi_contents << "\# sord warning: #{msg}"
+      rbi_contents << "  \# sord warning: #{msg}"
     end
 
     def add_methods(item)
