@@ -40,15 +40,26 @@ module Sord
         count_object
 
         parameter_list = meth.parameters.map do |name, default|
-          # TODO: is it possible to differentiate between no default, and the 
-          # default being nil?
           "#{name}#{default && " = #{default}"}"
         end.join(", ")
 
-        params_list = meth.tags('param').map do |param|
-          "#{param.name}: #{TypeConverter.yard_to_sorbet(param.types) { |x|
-            warn(x, meth)
-          }}"
+        parameter_names_to_tags = meth.parameters.map do |name, _|
+          [name, meth.tags('param').find { |p| p.name == name }]
+        end.to_h
+
+        # TODO: if it's a _= method, infer from the _ method
+        sig_params_list = parameter_names_to_tags.map do |name, tag|
+          if tag
+            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types) { |x|
+              warn(x, meth)
+            }}"
+          elsif name.start_with? '*'
+            # TODO: is there a YARD definition for this?
+            "args: T::Array[T.any]"
+          else
+            warn("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            "#{name}: T.untyped"
+          end
         end.join(", ")
 
         return_tags = meth.tags('return')
@@ -65,7 +76,7 @@ module Sord
 
         prefix = meth.scope == :class ? 'self.' : ''
 
-        rbi_contents << "  sig { params(#{params_list}).#{returns} }"
+        rbi_contents << "  sig { params(#{sig_params_list}).#{returns} }"
 
         rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
       end
