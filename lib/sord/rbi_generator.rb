@@ -2,7 +2,7 @@
 require 'yard'
 
 module Sord
-  class Converter
+  class RbiGenerator
     attr_reader :rbi_contents
 
     def initialize
@@ -15,23 +15,27 @@ module Sord
         : "T.any(#{types.join(', ')})"
     end
 
+    def add_mixins(item)
+      extends = item.instance_mixins
+      includes = item.class_mixins
+
+      extends.each do |this_extend|
+        rbi_contents << "  extend #{this_extend.path}"
+      end
+      includes.each do |this_include|
+        rbi_contents << "  include #{this_include.path}"
+      end
+    end
+
     def run
       # Get YARD ready
       YARD::Registry.load!
 
       # Populate the RBI with modules first
       YARD::Registry.all(:module).each do |item|
-        extends = item.instance_mixins
-        includes = item.class_mixins
-
         rbi_contents << "module #{item.path}"
 
-        extends.each do |this_extend|
-          rbi_contents << "  extend #{this_extend.path}"
-        end
-        includes.each do |this_include|
-          rbi_contents << "  include #{this_include.path}"
-        end
+        add_mixins(item)
 
         rbi_contents << "end"
       end
@@ -40,16 +44,10 @@ module Sord
       YARD::Registry.all(:class).each do |item|
         # Generate core class definition stuff
         superclass = (item.superclass if item.superclass.to_s != "Object")
-        extends = item.instance_mixins
-        includes = item.class_mixins
 
         rbi_contents << "class #{item.path} #{"< #{superclass}" if superclass}" 
-        extends.each do |this_extend|
-          rbi_contents << "  extend #{this_extend.path}"
-        end
-        includes.each do |this_include|
-          rbi_contents << "  include #{this_include.path}"
-        end
+        
+        add_mixins(item)
 
         # TODO: constants?
         item.meths.each do |meth|
