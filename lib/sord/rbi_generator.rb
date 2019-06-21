@@ -1,18 +1,19 @@
 # typed: true
 require 'yard'
+require 'sord/type_converter'
+require 'colorize'
 
 module Sord
   class RbiGenerator
-    attr_reader :rbi_contents
+    attr_reader :rbi_contents, :object_count
 
     def initialize
       @rbi_contents = []
+      @object_count = 0
     end
 
-    def anyize(types)
-      types.length == 1 \
-        ? types.first
-        : "T.any(#{types.join(', ')})"
+    def count_object
+      @object_count += 1
     end
 
     def add_mixins(item)
@@ -27,64 +28,73 @@ module Sord
       end
     end
 
+    def warn(msg, item)
+      puts "#{'[WARN]'.yellow} #{msg}"
+      puts "         In #{item.path}".light_white
+      rbi_contents << "\# sord warning: #{msg}"
+    end
+
+    def add_methods(item)
+      item.meths.each do |meth|
+        count_object
+
+        parameter_list = meth.parameters.map do |name, default|
+          # TODO: is it possible to differentiate between no default, and the 
+          # default being nil?
+          "#{name} = #{default.nil? ? 'nil' : default}"
+        end.join(", ")
+
+        params_list = meth.tags('param').map do |param|
+          "#{param.name}: #{TypeConverter.yard_to_sorbet(param.types) { |x|
+            warn(x, meth)
+          }}"
+        end.join(", ")
+
+        returns = meth.tags('return').length == 0 \
+          ? "void"
+          : "returns(#{
+            TypeConverter.yard_to_sorbet(meth.tag('return').types) { |x|
+              warn(x, meth)
+            }})"
+
+        prefix = meth.scope == :class ? 'self.' : ''
+
+        rbi_contents << "  sig { params(#{params_list}).#{returns} }"
+
+        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
+      end
+    end
+
     def run
       # Get YARD ready
       YARD::Registry.load!
 
+      # TODO: constants?
+
       # Populate the RBI with modules first
       YARD::Registry.all(:module).each do |item|
+        count_object
+        
         rbi_contents << "module #{item.path}"
-
         add_mixins(item)
-
+        add_methods(item)
         rbi_contents << "end"
       end
 
       # Now populate with classes
       YARD::Registry.all(:class).each do |item|
-        # Generate core class definition stuff
+        count_object
+
         superclass = (item.superclass if item.superclass.to_s != "Object")
-
         rbi_contents << "class #{item.path} #{"< #{superclass}" if superclass}" 
-        
         add_mixins(item)
-
-        # TODO: constants?
-        item.meths.each do |meth|
-          parameter_list = meth.parameters.map do |name, default|
-            # TODO: is it possible to differentiate between no default, and the 
-            # default being nil?
-            "#{name} = #{default.nil? ? 'nil' : default}"
-          end.join(", ")
-
-          # TODO: This needs to be more rigid - convert Array<X> to T::Array[X], convert 'nil' in an Any to T.nilable, warn about invalid looking types and add comments above them, etc.
-          params_list = meth.tags('param').map do |param|
-            next "#{param.name}: T.untyped" if param.types.nil?
-
-            type = anyize(param.types)
-            "#{param.name}: #{type}"
-          end.join(", ")
-
-          case meth.tags('return').length
-          when 0
-            returns = "void"
-          when 1
-            returns = "returns(#{anyize(meth.tag('return').types)})"
-          else
-            returns = "returns(#{anyize(meth.tags('return').flat_map(&:types))})"
-          end
-
-          prefix = meth.scope == :class ? 'self.' : ''
-
-          rbi_contents << "  sig { params(#{params_list}).#{returns} }"
-
-          rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
-        end
-
+        add_methods(item)        
         rbi_contents << "end"
       end
 
       puts rbi_contents
+
+      puts "#{'[DONE]'.green} Processed #{object_count} objects"
     end
   end
 end
