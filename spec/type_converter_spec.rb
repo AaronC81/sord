@@ -25,7 +25,7 @@ describe Sord::TypeConverter do
         expect {
           expect(subject.yard_to_sorbet('String')).to eq 'String'
           expect(subject.yard_to_sorbet('::Kernel::Array')).to eq '::Kernel::Array'
-        }.not_to log
+        }.to not_log
       end
 
       it 'returns it with a warning if it looks like a non-namespace' do
@@ -54,7 +54,7 @@ describe Sord::TypeConverter do
         expect {
           expect(subject.yard_to_sorbet('bool')).to eq 'T::Boolean'
           expect(subject.yard_to_sorbet('Boolean')).to eq 'T::Boolean'
-        }.not_to log
+        }.to not_log
       end
 
       context 'with type parameters' do
@@ -62,7 +62,21 @@ describe Sord::TypeConverter do
           expect {
             expect(subject.yard_to_sorbet('Array<String>')).to eq 'T::Array[String]'
             expect(subject.yard_to_sorbet('Set<String>')).to eq 'T::Set[String]'
-          }.not_to log
+          }.to not_log
+        end
+
+        it 'handles whitespace' do
+          expect {
+            expect(subject.yard_to_sorbet('Array < String >')).to eq 'T::Array[String]'
+          }.to not_log
+        end
+
+        it 'handles correctly-formed two-argument type parameters' do
+          #expect {
+            expect(subject.yard_to_sorbet('Hash<String, Integer>')).to eq 'T::Hash[String, Integer]'
+            expect(subject.yard_to_sorbet('Hash<Hash<String, Symbol>, Hash<Array<Symbol>, Integer>>')).to eq \
+              'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
+          #}.to not_log
         end
 
         it 'returns a replacement constant with a warning if it is not a known generic' do

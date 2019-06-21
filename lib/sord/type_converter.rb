@@ -9,16 +9,47 @@ module Sord
     SIMPLE_TYPE_REGEX =
       /(?:\:\:)?[a-zA-Z_][a-zA-Z_0-9]*(?:\:\:[a-zA-Z_][a-zA-Z_0-9]*)*/
 
-    # TODO: does not support mulitple type arguments (e.g. Hash<A, B>)
     # A regular expression which matches a Ruby namespace immediately followed
     # by another Ruby namespace in angle brackets. This is the format usually
     # used in YARD to model generic types, such as "Array<String>".
     GENERIC_TYPE_REGEX =
-      /(#{SIMPLE_TYPE_REGEX})<(#{SIMPLE_TYPE_REGEX})>/
+      /(#{SIMPLE_TYPE_REGEX})\s*<\s*(.*)\s*>/
 
-    # TODO: Hash
     # An array of built-in generic types supported by Sorbet.
-    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
+    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
+
+    # Given a string of YARD type parameters (without angle brackets), splits
+    # the string into an array of each type parameter.
+    # @param [String] params The type parameters.
+    # @return [Array<String>] The split type parameters.
+    def self.split_type_parameters(params)
+      result = []
+      buffer = ""
+      current_bracketing_level = 0
+      character_pointer = 0
+      
+      while character_pointer < params.length
+        should_buffer = true
+
+        current_bracketing_level += 1 if params[character_pointer] == ?<
+        current_bracketing_level -= 1 if params[character_pointer] == ?>
+
+        if params[character_pointer] == ?,
+          if current_bracketing_level == 0
+            result << buffer.strip
+            buffer = ""
+            should_buffer = false
+          end
+        end
+
+        buffer += params[character_pointer] if should_buffer
+        character_pointer += 1
+      end
+
+      result << buffer.strip
+
+      result
+    end
 
     # Converts a YARD type into a Sorbet type.
     # @param [Boolean, Array, String] yard The YARD type.
@@ -45,14 +76,11 @@ module Sord
         yard
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
-        type_parameter = $2
+        type_parameters = $2
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
-          if /^[_a-z]/ === type_parameter
-            Logging.warn("#{type_parameter} is probably not a type, but using anyway", item)
-          end  
-
-          "T::#{generic_type}[#{yard_to_sorbet(type_parameter, item)}]"
+          "T::#{generic_type}[#{
+            split_type_parameters(type_parameters).map { |x| yard_to_sorbet(x, item) }.join(', ')}]"
         else
           Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
