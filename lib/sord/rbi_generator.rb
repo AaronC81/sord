@@ -54,7 +54,7 @@ module Sord
             # TODO: is there a YARD definition for this?
             "args: T::Array[T.any]"
           else
-            Logging.warn("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            Logging.infer("no YARD type given for #{name.inspect}, using T.untyped", meth)
             "#{name}: T.untyped"
           end
         end.join(", ")
@@ -107,9 +107,9 @@ module Sord
       raise "no filename specified" unless filename
       File.write(filename, rbi_contents.join(?\n))
 
-      puts "#{'[DONE]'.green} Processed #{object_count} objects"
+      Logging.done("Processed #{object_count} objects")
     rescue
-      puts "#{'[ERR ]'.red} #{$!}"
+      Logging.error($!)
       $@.each do |line|
         puts "         #{line}".light_white
       end
