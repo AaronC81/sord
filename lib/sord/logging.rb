@@ -23,7 +23,7 @@ module Sord
     end
 
     def self.infer(msg, item=nil)
-      generic(:error, '[INFER]'.light_blue, msg, item)
+      generic(:infer, '[INFER]'.light_blue, msg, item)
     end
 
     def self.omit(msg, item=nil)
