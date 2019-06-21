@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 require 'sord'
 
-Sord.run
+Sord::Converter.new.run
