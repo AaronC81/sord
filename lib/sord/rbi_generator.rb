@@ -9,7 +9,7 @@ module Sord
     attr_reader :rbi_contents, :object_count
 
     def initialize
-      @rbi_contents = ['# typed: true']
+      @rbi_contents = ['# typed: strong']
       @object_count = 0
 
       Logging.add_hook do |type, msg, item|
