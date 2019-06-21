@@ -29,8 +29,7 @@ module Sord
     end
 
     def warn(msg, item)
-      puts "#{'[WARN]'.yellow} #{msg}"
-      puts "         In #{item.path}".light_white
+      puts "#{'[WARN]'.yellow} (#{item.path.light_white}) #{msg}"
       rbi_contents << "  \# sord warning: #{msg}"
     end
 
