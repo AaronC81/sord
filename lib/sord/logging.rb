@@ -26,6 +26,10 @@ module Sord
       generic(:error, '[INFER]'.light_blue, msg, item)
     end
 
+    def self.omit(msg, item=nil)
+      generic(:omit, '[OMIT ]'.magenta, msg, item)
+    end
+
     def self.done(msg, item=nil)
       generic(:done, '[DONE ]'.green, msg, item)
     end

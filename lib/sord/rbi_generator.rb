@@ -54,7 +54,7 @@ module Sord
             # TODO: is there a YARD definition for this?
             "args: T::Array[T.any]"
           else
-            Logging.infer("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
             "#{name}: T.untyped"
           end
         end.join(", ")
