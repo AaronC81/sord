@@ -22,9 +22,20 @@ RSpec::Matchers.define :log do |kind|
       call_parameters << a
     end
     
-    actual.call
+    actual.call && call_parameters.length == 1 && (kind.nil? || call_parameters.first.first == kind)
+  end
 
-    call_parameters.length == 1 && (kind.nil? || call_parameters.first.first == kind)
+  supports_block_expectations
+end
+
+RSpec::Matchers.define :not_log do |kind|
+  match do |actual|
+    call_parameters = []
+    Sord::Logging.add_hook do |*a|
+      call_parameters << a
+    end
+    
+    actual.call && call_parameters.length == 0
   end
 
   supports_block_expectations
