@@ -2,13 +2,13 @@ require 'sord/version'
 require 'yard'
 
 module Sord
-  def run
-    def anyize(types)
-      types.length == 1 \
-        ? types.first
-        : "T.any(#{types.join(', ')})"
-    end
+  def self.anyize(types)
+    types.length == 1 \
+      ? types.first
+      : "T.any(#{types.join(', ')})"
+  end
 
+  def self.run
     # TODO: need to consider includes/extends
     rbi_contents = []
 
