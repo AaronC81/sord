@@ -12,6 +12,8 @@ module Sord
 
     def self.yard_to_sorbet(yard, &blk)
       case yard
+      when nil
+        "T.untyped"
       when Array
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types
