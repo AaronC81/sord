@@ -15,7 +15,7 @@ Sord has the following features:
   - Gracefully handles missing YARD types (`T.untyped`)
   - Can infer setter parameter type from the corresponding getter's return type
   - Recognises mixins (`include` and `extend`)
-  - Support for single-argument generic types such as `Array` (no hashes yet)
+  - Support for generic types such as `Array<T>` and `Hash<K, V>`
 
 ## Usage
 
