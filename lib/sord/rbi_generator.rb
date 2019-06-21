@@ -8,7 +8,7 @@ module Sord
     attr_reader :rbi_contents, :object_count
 
     def initialize
-      @rbi_contents = []
+      @rbi_contents = ['# typed: true']
       @object_count = 0
     end
 
@@ -35,13 +35,14 @@ module Sord
     end
 
     def add_methods(item)
+      # TODO: block documentation
       item.meths.each do |meth|
         count_object
 
         parameter_list = meth.parameters.map do |name, default|
           # TODO: is it possible to differentiate between no default, and the 
           # default being nil?
-          "#{name} = #{default.nil? ? 'nil' : default}"
+          "#{name}#{default && " = #{default}"}"
         end.join(", ")
 
         params_list = meth.tags('param').map do |param|
@@ -50,12 +51,17 @@ module Sord
           }}"
         end.join(", ")
 
-        returns = meth.tags('return').length == 0 \
-          ? "void"
-          : "returns(#{
+        return_tags = meth.tags('return')
+        returns = if return_tags.length == 0
+          "void"
+        elsif return_tags.length == 1 && return_tags.first.types.first.downcase == "void"
+          "void"
+        else
+          "returns(#{
             TypeConverter.yard_to_sorbet(meth.tag('return').types) { |x|
               warn(x, meth)
             }})"
+        end
 
         prefix = meth.scope == :class ? 'self.' : ''
 
