@@ -53,6 +53,21 @@ module Sord
           elsif name.start_with? '*'
             # TODO: is there a YARD definition for this?
             "args: T::Array[T.any]"
+          elsif meth.path.end_with? '='
+            # Look for the matching getter method
+            getter_path = meth.path[0...-1]
+            getter = item.meths.find { |m| m.path == getter_path }
+
+            unless getter
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+              next "#{name}: T.untyped"
+            end
+
+            inferred_type = TypeConverter.yard_to_sorbet(
+              getter.tags('return').flat_map(&:types), meth)
+            
+            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            "#{name}: #{inferred_type}"
           else
             Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
             "#{name}: T.untyped"
