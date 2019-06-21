@@ -108,6 +108,7 @@ end
   - Module scoping is an issue - if `Example::Person` is replaced with `Person`
     in the YARD comments in the above example, Sorbet won't be able to resolve
     it.
+  - Tests!!
 
 ## Contributing
 
