@@ -5,22 +5,37 @@ require 'colorize'
 require 'sord/logging'
 
 module Sord
+  # Converts the current working directory's YARD registry into an RBI file.
   class RbiGenerator
-    attr_reader :rbi_contents, :object_count
+    # @return [Array<String>] The lines of the generated RBI file so far.
+    attr_reader :rbi_contents
+    
+    # @return [Integer] The number of objects this generator has processed so 
+    #   far.
+    attr_reader :object_count
 
+    # Create a new RBI generator.
+    # @return [RbiGenerator]
     def initialize
       @rbi_contents = ['# typed: strong']
       @object_count = 0
 
+      # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
         rbi_contents << "  # sord #{type} - #{msg}"
       end
     end
 
+    # Increment the object counter.
+    # @return [void]
     def count_object
       @object_count += 1
     end
 
+    # Given a YARD CodeObject, add lines defining its mixins (that is, extends
+    # and includes) to the current RBI file.
+    # @param [YARD::CodeObjects::Base] item
+    # @return [void]
     def add_mixins(item)
       extends = item.instance_mixins
       includes = item.class_mixins
@@ -33,8 +48,13 @@ module Sord
       end
     end
 
+    # Given a YARD NamespaceObject, add lines defining its methods and their
+    # signatures to the current RBI file.
+    # @param [YARD::CodeObjects::NamespaceObject] item
+    # @return [void]
     def add_methods(item)
       # TODO: block documentation
+
       item.meths.each do |meth|
         count_object
 
@@ -42,11 +62,12 @@ module Sord
           "#{name}#{default && " = #{default}"}"
         end.join(", ")
 
+        # This is better than iterating over YARD's "@param" tags directly 
+        # because it includes parameters without documentation
         parameter_names_to_tags = meth.parameters.map do |name, _|
           [name, meth.tags('param').find { |p| p.name == name }]
         end.to_h
 
-        # TODO: if it's a _= method, infer from the _ method
         sig_params_list = parameter_names_to_tags.map do |name, tag|
           if tag
             "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth)}"
@@ -91,6 +112,9 @@ module Sord
       end
     end
 
+    # Generates the RBI file and writes it to the given file path.
+    # @param [String] filename
+    # @return [void]
     def run(filename)
       # Get YARD ready
       YARD::Registry.load!
