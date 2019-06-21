@@ -2,6 +2,7 @@
 require 'yard'
 require 'sord/type_converter'
 require 'colorize'
+require 'sord/logging'
 
 module Sord
   class RbiGenerator
@@ -10,6 +11,10 @@ module Sord
     def initialize
       @rbi_contents = ['# typed: true']
       @object_count = 0
+
+      Logging.add_hook do |type, msg, item|
+        rbi_contents << "  # sord #{type} - #{msg}"
+      end
     end
 
     def count_object
@@ -28,11 +33,6 @@ module Sord
       end
     end
 
-    def warn(msg, item)
-      puts "#{'[WARN]'.yellow} (#{item.path.light_white}) #{msg}"
-      rbi_contents << "  \# sord warning: #{msg}"
-    end
-
     def add_methods(item)
       # TODO: block documentation
       item.meths.each do |meth|
@@ -49,14 +49,12 @@ module Sord
         # TODO: if it's a _= method, infer from the _ method
         sig_params_list = parameter_names_to_tags.map do |name, tag|
           if tag
-            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types) { |x|
-              warn(x, meth)
-            }}"
+            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth)}"
           elsif name.start_with? '*'
             # TODO: is there a YARD definition for this?
             "args: T::Array[T.any]"
           else
-            warn("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            Logging.warn("no YARD type given for #{name.inspect}, using T.untyped", meth)
             "#{name}: T.untyped"
           end
         end.join(", ")
@@ -67,10 +65,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags.first.types.first.downcase == "void"
           "void"
         else
-          "returns(#{
-            TypeConverter.yard_to_sorbet(meth.tag('return').types) { |x|
-              warn(x, meth)
-            }})"
+          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth)})"
         end
 
         prefix = meth.scope == :class ? 'self.' : ''

@@ -1,3 +1,5 @@
+require 'sord/logging'
+
 module Sord
   module TypeConverter
     SIMPLE_TYPE_REGEX =
@@ -10,7 +12,7 @@ module Sord
     # TODO: Hash
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
-    def self.yard_to_sorbet(yard, &blk)
+    def self.yard_to_sorbet(yard, item=nil, &blk)
       case yard
       when nil
         "T.untyped"
@@ -24,7 +26,7 @@ module Sord
           : "T.any(#{yard.map { |x| yard_to_sorbet(x, &blk) }.join(', ')})"
       when /^#{SIMPLE_TYPE_REGEX}$/
         if /^[_a-z]/ === yard
-          yield "#{yard} is probably not a type, but using anyway"
+          Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
         yard
       when /^#{GENERIC_TYPE_REGEX}$/
@@ -33,16 +35,16 @@ module Sord
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
           if /^[_a-z]/ === type_parameter
-            yield "#{type_parameter} is probably not a type, but using anyway"
+            Logging.warn("#{type_parameter} is probably not a type, but using anyway", item)
           end  
 
           "T::#{generic_type}[#{yard_to_sorbet(type_parameter, &blk)}]"
         else
-          yield "unsupported generic type #{generic_type.inspect} in #{yard.inspect}"
+          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
         end
       else
-        yield "#{yard.inspect} does not appear to be a type"
+        Logging.warn("#{yard.inspect} does not appear to be a type", item)
         "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
       end
     end
