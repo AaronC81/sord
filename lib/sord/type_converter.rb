@@ -35,10 +35,10 @@ module Sord
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types
         yard.length == 1 \
-          ? yard_to_sorbet(yard.first, item, &blk)
-          : "T.any(#{yard.map { |x| yard_to_sorbet(x, item, &blk) }.join(', ')})"
+          ? yard_to_sorbet(yard.first, item)
+          : "T.any(#{yard.map { |x| yard_to_sorbet(x, item) }.join(', ')})"
       when /^#{SIMPLE_TYPE_REGEX}$/
-        # If this doesn't begi with an uppercase letter, warn
+        # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
@@ -52,7 +52,7 @@ module Sord
             Logging.warn("#{type_parameter} is probably not a type, but using anyway", item)
           end  
 
-          "T::#{generic_type}[#{yard_to_sorbet(type_parameter, item, &blk)}]"
+          "T::#{generic_type}[#{yard_to_sorbet(type_parameter, item)}]"
         else
           Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
