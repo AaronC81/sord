@@ -65,7 +65,7 @@ module Sord
       end
     end
 
-    def run
+    def run(filename)
       # Get YARD ready
       YARD::Registry.load!
 
@@ -92,9 +92,16 @@ module Sord
         rbi_contents << "end"
       end
 
-      puts rbi_contents
+      # Write the file
+      raise "no filename specified" unless filename
+      File.write(filename, rbi_contents.join(?\n))
 
       puts "#{'[DONE]'.green} Processed #{object_count} objects"
+    rescue
+      puts "#{'[ERR ]'.red} #{$!}"
+      $@.each do |line|
+        puts "         #{line}".light_white
+      end
     end
   end
 end

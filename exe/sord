@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 require 'sord'
 
-Sord::RbiGenerator.new.run
+Sord::RbiGenerator.new.run($*[0])
