@@ -88,9 +88,13 @@ module Sord
               getter.tags('return').flat_map(&:types), meth)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            # Get rid of : on keyword arguments.
+            name = name.chop if name.end_with?(':')
             "#{name}: #{inferred_type}"
           else
             Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            # Get rid of : on keyword arguments.
+            name = name.chop if name.end_with?(':')
             "#{name}: T.untyped"
           end
         end.join(", ")
