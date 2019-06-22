@@ -131,6 +131,8 @@ module Sord
     # @param [String] filename
     # @return [void]
     def run(filename)
+      raise "No filename specified" unless filename
+
       # Get YARD ready
       YARD::Registry.load!
 
@@ -158,7 +160,6 @@ module Sord
       end
 
       # Write the file
-      raise "no filename specified" unless filename
       File.write(filename, rbi_contents.join(?\n))
 
       Logging.done("Processed #{object_count} objects")
