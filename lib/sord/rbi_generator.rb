@@ -84,6 +84,9 @@ module Sord
           elsif name.start_with? '*'
             # TODO: is there a YARD definition for this?
             "args: T::Array[T.any]"
+          elsif name.start_with? '&'
+            # Cut the ampersand from the block parameter name.
+            "#{name[1..-1]}: T.untyped"
           elsif meth.path.end_with? '='
             # Look for the matching getter method
             getter_path = meth.path[0...-1]
