@@ -32,8 +32,11 @@ module Sord
       while character_pointer < params.length
         should_buffer = true
 
-        current_bracketing_level += 1 if params[character_pointer] == '<'
-        current_bracketing_level -= 1 if params[character_pointer] == '>'
+        current_bracketing_level += 1 if ['<', '{'].include?(params[character_pointer])
+        # Decrease bracketing level by 1 when encountering `>` or `}`, unless
+        # the previous character is `=` (to prevent hash rockets from causing
+        # nesting problems).
+        current_bracketing_level -= 1 if ['>', '}'].include?(params[character_pointer]) && params[character_pointer - 1] != '='
 
         # Handle commas as separators.
         # e.g. Hash<Symbol, String>
