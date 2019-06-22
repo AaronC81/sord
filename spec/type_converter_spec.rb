@@ -101,6 +101,16 @@ describe Sord::TypeConverter do
           expect(subject.yard_to_sorbet('Hash<Hash<String, Symbol>, Hash<Array<Symbol>, Integer>>')).to eq \
             'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
         end
+        
+        it 'handles correctly-formed two-argument type parameters with hash rockets' do
+          expect(subject.yard_to_sorbet('Hash<String=>Symbol>')).to eq 'T::Hash[String, Symbol]'
+          expect(subject.yard_to_sorbet('Hash{String=>Symbol}')).to eq 'T::Hash[String, Symbol]'
+          expect(subject.yard_to_sorbet('Hash{String => Symbol}')).to eq 'T::Hash[String, Symbol]'
+          expect(subject.yard_to_sorbet('Hash<Hash{String => Symbol}, Hash<Array<Symbol>, Integer>>')).to eq \
+            'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
+          expect(subject.yard_to_sorbet('Hash{Hash{String => Symbol} => Hash{Array<Symbol> => Integer}}')).to eq \
+            'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
+        end
 
         it 'returns a replacement constant with a warning if it is not a known generic' do
           expect {
