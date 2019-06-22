@@ -59,7 +59,17 @@ module Sord
         count_object
 
         parameter_list = meth.parameters.map do |name, default|
-          "#{name}#{default && " = #{default}"}"
+          # Handle these three main cases:
+          # - def method(param) or def method(param:)
+          # - def method(param: 'default')
+          # - def method(param = 'default')
+          if default.nil?
+            "#{name}"
+          elsif !default.nil? && name.end_with?(':')
+            "#{name} #{default}"
+          else
+            "#{name} = #{default}"
+          end
         end.join(", ")
 
         # This is better than iterating over YARD's "@param" tags directly 
