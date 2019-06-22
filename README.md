@@ -107,12 +107,12 @@ end
     `Enumerable`.
   - Module scoping is an issue - if `Example::Person` is replaced with `Person`
     in the YARD comments in the above example, Sorbet won't be able to resolve
-    it.
+    it. _This can be solved by making definitions syntactically heirarchical._
   - Tests!!
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sord. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/sord. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -120,4 +120,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Sord project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/sord/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Sord project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/AaronC81/sord/blob/master/CODE_OF_CONDUCT.md).
