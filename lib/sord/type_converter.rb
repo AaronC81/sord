@@ -12,7 +12,7 @@ module Sord
     # A regular expression which matches a Ruby namespace immediately followed
     # by another Ruby namespace in angle brackets. This is the format usually
     # used in YARD to model generic types, such as "Array<String>",
-    # "Hash<String, Symbol>", Hash{String => Symbol}, etc.
+    # "Hash<String, Symbol>", "Hash{String => Symbol}", etc.
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
 
