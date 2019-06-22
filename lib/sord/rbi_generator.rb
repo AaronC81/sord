@@ -108,7 +108,7 @@ module Sord
 
         rbi_contents << "  sig { params(#{sig_params_list}).#{returns} }"
 
-        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
+        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}); end"
       end
     end
 
