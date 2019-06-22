@@ -11,9 +11,10 @@ module Sord
 
     # A regular expression which matches a Ruby namespace immediately followed
     # by another Ruby namespace in angle brackets. This is the format usually
-    # used in YARD to model generic types, such as "Array<String>".
+    # used in YARD to model generic types, such as "Array<String>",
+    # "Hash<String, Symbol>", "Hash{String => Symbol}", etc.
     GENERIC_TYPE_REGEX =
-      /(#{SIMPLE_TYPE_REGEX})\s*<\s*(.*)\s*>/
+      /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
 
     # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
@@ -31,11 +32,27 @@ module Sord
       while character_pointer < params.length
         should_buffer = true
 
-        current_bracketing_level += 1 if params[character_pointer] == ?<
-        current_bracketing_level -= 1 if params[character_pointer] == ?>
+        current_bracketing_level += 1 if ['<', '{'].include?(params[character_pointer])
+        # Decrease bracketing level by 1 when encountering `>` or `}`, unless
+        # the previous character is `=` (to prevent hash rockets from causing
+        # nesting problems).
+        current_bracketing_level -= 1 if ['>', '}'].include?(params[character_pointer]) && params[character_pointer - 1] != '='
 
-        if params[character_pointer] == ?,
+        # Handle commas as separators.
+        # e.g. Hash<Symbol, String>
+        if params[character_pointer] == ','
           if current_bracketing_level == 0
+            result << buffer.strip
+            buffer = ""
+            should_buffer = false
+          end
+        end
+
+        # Handle hash rockets as separators.
+        # e.g. Hash<Symbol => String>
+        if params[character_pointer] == '=' && params[character_pointer + 1] == '>'
+          if current_bracketing_level == 0
+            character_pointer += 1
             result << buffer.strip
             buffer = ""
             should_buffer = false

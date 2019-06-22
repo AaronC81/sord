@@ -3,6 +3,7 @@ PATH
   specs:
     sord (0.4.1)
       colorize
+      commander (~> 4.4)
       sorbet-runtime
       yard
 
@@ -37,7 +38,7 @@ GEM
     simplecov-html (0.10.2)
     sorbet (0.4.4254)
       sorbet-static (= 0.4.4254)
-    sorbet-runtime (0.4.4293)
+    sorbet-runtime (0.4.4294)
     sorbet-static (0.4.4254-x86_64-linux)
     yard (0.9.19)
 
@@ -46,7 +47,6 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 2.0)
-  commander (~> 4.4)
   rake (~> 10.0)
   rspec (~> 3.0)
   simplecov
