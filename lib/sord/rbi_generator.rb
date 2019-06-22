@@ -15,15 +15,16 @@ module Sord
     attr_reader :object_count
 
     # Create a new RBI generator.
+    # @param [Hash] options
     # @return [RbiGenerator]
-    def initialize
+    def initialize(options)
       @rbi_contents = ['# typed: strong']
       @object_count = 0
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
         rbi_contents << "  # sord #{type} - #{msg}"
-      end
+      end if options.comments
     end
 
     # Increment the object counter.

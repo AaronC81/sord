@@ -1,4 +1,25 @@
 #!/usr/bin/env ruby
 require 'sord'
+require 'commander/import'
 
-Sord::RbiGenerator.new.run($*[0])
+program :name, 'sord'
+program :version, Sord::VERSION
+program :description, 'Generate Sorbet RBIs from YARD documentation'
+
+default_command :gen
+command :gen do |c|
+  c.syntax = 'sord gen <output-file> [options]'
+  c.description = 'Generates an RBI file from this directory\'s YARD docs'
+  c.option '--[no-]comments', 'Disables informational/warning comments in the RBI file'
+
+  c.action do |args, options|
+    options.default comments: true
+
+    if args.length != 1
+      Sord::Logging.error('Must specify filename')
+      exit 1
+    end
+
+    Sord::RbiGenerator.new(options).run(args.first)
+  end
+end
