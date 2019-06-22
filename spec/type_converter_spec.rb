@@ -60,6 +60,13 @@ describe Sord::TypeConverter do
           'T::Boolean'
       end
 
+      it 'converts types with nil to nilable' do
+        expect(subject.yard_to_sorbet(['String', 'Integer', 'nil'])).to eq \
+          'T.nilable(T.any(String, Integer))'
+        expect(subject.yard_to_sorbet(['String', 'nil'])).to eq \
+          'T.nilable(String)'
+      end
+
       context 'with type parameters' do
         it 'handles correctly-formed one-argument type parameters' do
           expect(subject.yard_to_sorbet('Array<String>')).to eq 'T::Array[String]'

@@ -58,15 +58,20 @@ module Sord
     #   will lead to less informative log messages.
     def self.yard_to_sorbet(yard, item=nil)
       case yard
-      when nil
+      when nil # Type not specified
         "T.untyped"
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         "T::Boolean"
       when Array
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types
-        types = yard.map { |x| yard_to_sorbet(x, item) }.uniq
-        types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
+        types = yard
+          .reject { |x| x == 'nil' }
+          .map { |x| yard_to_sorbet(x, item) }
+          .uniq
+        result = types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
+        result = "T.nilable(#{result})" if yard.include?('nil')
+        result
       when /^#{SIMPLE_TYPE_REGEX}$/
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
