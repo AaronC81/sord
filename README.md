@@ -99,6 +99,18 @@ class Example::Person
 end
 ```
 
+## Things to be aware of
+
+The general rule of thumb for type conversions is:
+
+  - If Sord understands the YARD type, then it is converted into the Sorbet type.
+  - If the YARD type is missing, Sord fills in `T.untyped`.
+  - If the YARD type can't be understood, Sord creates an undefined Ruby constant
+    with a similar name to the unknown YARD type. For example, the obviously
+    invalid YARD type `A%B` will become a constant called `SORD_ERROR_AB`.
+    You should search through your resulting RBI to find and fix and 
+    `SORD_ERROR`s.
+
 ## Things to work on
 
   - I'm not 100% sure how this handles undocumented methods and classes.
