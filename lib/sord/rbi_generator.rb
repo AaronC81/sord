@@ -106,7 +106,8 @@ module Sord
 
         prefix = meth.scope == :class ? 'self.' : ''
 
-        rbi_contents << "  sig { params(#{sig_params_list}).#{returns} }"
+        sig = sig_params_list.empty? ? "  sig { #{returns} }" : "  sig { params(#{sig_params_list}).#{returns} }"
+        rbi_contents << sig
 
         rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
       end
