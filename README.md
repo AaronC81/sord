@@ -113,6 +113,8 @@ The general rule of thumb for type conversions is:
 
 ## Things to work on
 
+  - No support whatsoever for blocks (they appear to cause syntax errors in RBI
+    currently)
   - I'm not 100% sure how this handles undocumented methods and classes.
   - More inference systems would be nice.
   - This won't generate type parameter definitions for things which mix-in
