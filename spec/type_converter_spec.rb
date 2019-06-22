@@ -22,10 +22,8 @@ describe Sord::TypeConverter do
 
     context 'when given a String' do
       it 'returns it without logs if it is simple and a namespace/class' do
-        expect {
-          expect(subject.yard_to_sorbet('String')).to eq 'String'
-          expect(subject.yard_to_sorbet('::Kernel::Array')).to eq '::Kernel::Array'
-        }.to not_log
+        expect(subject.yard_to_sorbet('String')).to eq 'String'
+        expect(subject.yard_to_sorbet('::Kernel::Array')).to eq '::Kernel::Array'
       end
 
       it 'returns it with a warning if it looks like a non-namespace' do
@@ -50,33 +48,32 @@ describe Sord::TypeConverter do
         }.to log :warn
       end
 
-      it 'coerces booleans' do
-        expect {
-          expect(subject.yard_to_sorbet('bool')).to eq 'T::Boolean'
-          expect(subject.yard_to_sorbet('Boolean')).to eq 'T::Boolean'
-        }.to not_log
+      it 'coerces \'boolean\' and its variants' do
+        expect(subject.yard_to_sorbet('bool')).to eq 'T::Boolean'
+        expect(subject.yard_to_sorbet('Boolean')).to eq 'T::Boolean'
+      end
+
+      it 'coerces boolean literals' do
+        expect(subject.yard_to_sorbet('true')).to eq 'T::Boolean'
+        expect(subject.yard_to_sorbet('false')).to eq 'T::Boolean'
+        expect(subject.yard_to_sorbet(['true', 'false'])).to eq \
+          'T::Boolean'
       end
 
       context 'with type parameters' do
         it 'handles correctly-formed one-argument type parameters' do
-          expect {
-            expect(subject.yard_to_sorbet('Array<String>')).to eq 'T::Array[String]'
-            expect(subject.yard_to_sorbet('Set<String>')).to eq 'T::Set[String]'
-          }.to not_log
+          expect(subject.yard_to_sorbet('Array<String>')).to eq 'T::Array[String]'
+          expect(subject.yard_to_sorbet('Set<String>')).to eq 'T::Set[String]'
         end
 
         it 'handles whitespace' do
-          expect {
-            expect(subject.yard_to_sorbet('Array < String >')).to eq 'T::Array[String]'
-          }.to not_log
+          expect(subject.yard_to_sorbet('Array < String >')).to eq 'T::Array[String]'
         end
 
         it 'handles correctly-formed two-argument type parameters' do
-          #expect {
-            expect(subject.yard_to_sorbet('Hash<String, Integer>')).to eq 'T::Hash[String, Integer]'
-            expect(subject.yard_to_sorbet('Hash<Hash<String, Symbol>, Hash<Array<Symbol>, Integer>>')).to eq \
-              'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
-          #}.to not_log
+          expect(subject.yard_to_sorbet('Hash<String, Integer>')).to eq 'T::Hash[String, Integer]'
+          expect(subject.yard_to_sorbet('Hash<Hash<String, Symbol>, Hash<Array<Symbol>, Integer>>')).to eq \
+            'T::Hash[T::Hash[String, Symbol], T::Hash[T::Array[Symbol], Integer]]'
         end
 
         it 'returns a replacement constant with a warning if it is not a known generic' do

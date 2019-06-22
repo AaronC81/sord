@@ -60,14 +60,13 @@ module Sord
       case yard
       when nil
         "T.untyped"
-      when  "bool", "Bool", "boolean", "Boolean", ["true", "false"], ["false", "true"]
+      when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         "T::Boolean"
       when Array
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types
-        yard.length == 1 \
-          ? yard_to_sorbet(yard.first, item)
-          : "T.any(#{yard.map { |x| yard_to_sorbet(x, item) }.join(', ')})"
+        types = yard.map { |x| yard_to_sorbet(x, item) }.uniq
+        types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
       when /^#{SIMPLE_TYPE_REGEX}$/
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
