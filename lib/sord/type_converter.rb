@@ -65,8 +65,6 @@ module Sord
 
       result << buffer.strip
 
-      puts result.inspect
-
       result
     end
 
