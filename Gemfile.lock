@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sord (0.3.0)
+    sord (0.4.1)
       colorize
       sorbet-runtime
       yard
