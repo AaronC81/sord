@@ -107,12 +107,12 @@ end
     `Enumerable`.
   - Module scoping is an issue - if `Example::Person` is replaced with `Person`
     in the YARD comments in the above example, Sorbet won't be able to resolve
-    it.
+    it. _This can be solved by making definitions syntactically heirarchical._
   - Tests!!
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sord. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/sord. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
