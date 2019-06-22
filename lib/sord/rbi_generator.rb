@@ -123,7 +123,7 @@ module Sord
         sig = sig_params_list.empty? ? "  sig { #{returns} }" : "  sig { params(#{sig_params_list}).#{returns} }"
         rbi_contents << sig
 
-        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}) end"
+        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}); end"
       end
     end
 
