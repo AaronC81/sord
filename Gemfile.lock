@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sord (0.1.0)
+    sord (0.2.1)
       colorize
       sorbet-runtime
       yard
@@ -11,6 +11,8 @@ GEM
   specs:
     colorize (0.8.1)
     diff-lcs (1.3)
+    docile (1.3.2)
+    json (2.2.0)
     rake (10.5.0)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
@@ -25,6 +27,11 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.2)
+    simplecov (0.16.1)
+      docile (~> 1.1)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     sorbet (0.4.4254)
       sorbet-static (= 0.4.4254)
     sorbet-runtime (0.4.4254)
@@ -38,6 +45,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   rake (~> 10.0)
   rspec (~> 3.0)
+  simplecov
   sorbet
   sord!
 
