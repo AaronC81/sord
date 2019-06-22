@@ -67,6 +67,21 @@ describe Sord::TypeConverter do
           'T.nilable(String)'
       end
 
+      it 'supports self' do
+        # Create a stub object which partially behaves like a CodeObject method
+        stub_method = Module.new do
+          def self.parent
+            Module.new do
+              def self.path
+                "Foo::Bar"
+              end
+            end
+          end
+        end
+
+        expect(subject.yard_to_sorbet('self', stub_method)).to eq 'Foo::Bar'
+      end
+
       context 'with type parameters' do
         it 'handles correctly-formed one-argument type parameters' do
           expect(subject.yard_to_sorbet('Array<String>')).to eq 'T::Array[String]'
