@@ -92,6 +92,10 @@ describe Sord::TypeConverter do
           expect(subject.yard_to_sorbet('Set<String>')).to eq 'T::Set[String]'
         end
 
+        it 'uses T.any if multiple arguments are specified to a one-argument type parameter' do
+          expect(subject.yard_to_sorbet('Array<String, Integer>')).to eq 'T::Array[T.any(String, Integer)]'
+        end
+
         it 'handles whitespace' do
           expect(subject.yard_to_sorbet('Array < String >')).to eq 'T::Array[String]'
         end

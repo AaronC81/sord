@@ -18,6 +18,7 @@ module Sord
 
     # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
+    SORBET_SINGLE_ARG_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
     # Given a string of YARD type parameters (without angle brackets), splits
     # the string into an array of each type parameter.
@@ -105,8 +106,13 @@ module Sord
         type_parameters = $2
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
-          "T::#{generic_type}[#{
-            split_type_parameters(type_parameters).map { |x| yard_to_sorbet(x, item) }.join(', ')}]"
+          parameters = split_type_parameters(type_parameters)
+            .map { |x| yard_to_sorbet(x, item) }
+          if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
+            "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
+          else
+            "T::#{generic_type}[#{parameters.join(', ')}]"
+          end
         else
           Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
