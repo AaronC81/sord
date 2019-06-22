@@ -111,19 +111,6 @@ The general rule of thumb for type conversions is:
     You should search through your resulting RBI to find and fix and 
     `SORD_ERROR`s.
 
-## Things to work on
-
-  - No support whatsoever for blocks (they appear to cause syntax errors in RBI
-    currently)
-  - I'm not 100% sure how this handles undocumented methods and classes.
-  - More inference systems would be nice.
-  - This won't generate type parameter definitions for things which mix-in
-    `Enumerable`.
-  - Module scoping is an issue - if `Example::Person` is replaced with `Person`
-    in the YARD comments in the above example, Sorbet won't be able to resolve
-    it. _This can be solved by making definitions syntactically heirarchical._
-  - Tests!!
-
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/AaronC81/sord. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
