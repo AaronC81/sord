@@ -53,6 +53,17 @@ module Sord
       generic(:warn, '[WARN ]'.yellow, msg, item)
     end
 
+    # Print a duck-typing message. This should be used when the YARD 
+    # documentation contains duck typing, which isn't supported by Sorbet, so
+    # it is substituted for something different.
+    # @param [String] msg The log message to write.
+    # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
+    #  is associated with, if any. This is shown before the log message if it is
+    #  specified.
+    def self.duck(msg, item=nil)
+      generic(:ducl, '[DUCK ]'.cyan, msg, item)
+    end
+
     # Print an error message. This should be used for things which require the
     # current process to stop.
     # @param [String] msg The log message to write.

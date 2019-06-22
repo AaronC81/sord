@@ -80,6 +80,9 @@ module Sord
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
         yard
+      when /^\##{SIMPLE_TYPE_REGEX}$/
+        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
+        'T.untyped'
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
         type_parameters = $2

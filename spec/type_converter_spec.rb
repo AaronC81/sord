@@ -67,6 +67,10 @@ describe Sord::TypeConverter do
           'T.nilable(String)'
       end
 
+      it 'converts duck types to T.untyped' do
+        expect(subject.yard_to_sorbet('#to_s')).to eq 'T.untyped'
+      end
+
       it 'supports self' do
         # Create a stub object which partially behaves like a CodeObject method
         stub_method = Module.new do
