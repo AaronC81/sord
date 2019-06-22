@@ -7,10 +7,13 @@ module Sord
     # The callables should take three parameters: (kind, msg, item).
     @@hooks = []
 
+    # Whether log messages should be printed or not.
+    @@silent = false
+    
     # @return [Boolean] Whether log messages should be printed or not. This is
     #   used for testing.
     def self.silent?
-      @@silent || false
+      @@silent
     end
 
     # Sets whether log messages should be printed or not.
