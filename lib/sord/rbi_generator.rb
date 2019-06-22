@@ -75,16 +75,17 @@ module Sord
 
         # This is better than iterating over YARD's "@param" tags directly 
         # because it includes parameters without documentation
+        # (The gsubs allow for better splat-argument compatibility)
         parameter_names_to_tags = meth.parameters.map do |name, _|
-          [name, meth.tags('param').find { |p| p.name == name }]
+          [name, meth.tags('param')
+            .find { |p| p.name.gsub('*', '') == name.gsub('*', '') }]
         end.to_h
 
         sig_params_list = parameter_names_to_tags.map do |name, tag|
+          name = name.gsub('*', '')
+
           if tag
             "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth)}"
-          elsif name.start_with? '*'
-            # TODO: is there a YARD definition for this?
-            "args: T::Array[T.any]"
           elsif name.start_with? '&'
             # Cut the ampersand from the block parameter name.
             "#{name[1..-1]}: T.untyped"
