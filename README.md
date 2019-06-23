@@ -89,22 +89,22 @@ The `test.rbi` file then contains a complete RBI file for `test.rb`:
 ```ruby
 # typed: strong
 module Example
-  class Person
-    sig { params(name: String, age: Integer).returns(Example::Person) }
-    def initialize(name, age); end
-    sig { returns(String) }
-    def name(); end
-    # sord infer - inferred type of parameter "value" as String using getter's return type
-    sig { params(value: String).returns(String) }
-    def name=(value); end
-    sig { returns(Integer) }
-    def age(); end
-    # sord infer - inferred type of parameter "value" as Integer using getter's return type
-    sig { params(value: Integer).returns(Integer) }
-    def age=(value); end
-    sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
-    def self.construct_randomly(possible_names, possible_ages); end
-  end
+class Person
+  sig { params(name: String, age: Integer).returns(Example::Person) }
+  def initialize(name, age); end
+  sig { returns(String) }
+  def name(); end
+  # sord infer - inferred type of parameter "value" as String using getter's return type
+  sig { params(value: String).returns(String) }
+  def name=(value); end
+  sig { returns(Integer) }
+  def age(); end
+  # sord infer - inferred type of parameter "value" as Integer using getter's return type
+  sig { params(value: Integer).returns(Integer) }
+  def age=(value); end
+  sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
+  def self.construct_randomly(possible_names, possible_ages); end
+end
 end
 ```
 
