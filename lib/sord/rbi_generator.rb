@@ -175,7 +175,7 @@ module Sord
     rescue
       Logging.error($!)
       $@.each do |line|
-        puts "         #{line}".light_white
+        puts "         #{line}"
       end
     end
   end
