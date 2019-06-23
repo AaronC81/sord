@@ -59,6 +59,12 @@ module Sord
       item.meths.each do |meth|
         count_object
 
+        # If the method is an alias, skip it so we don't define it as a
+        # separate method. Sorbet will handle it automatically.
+        if meth.is_alias?
+          next
+        end
+
         parameter_list = meth.parameters.map do |name, default|
           # Handle these three main cases:
           # - def method(param) or def method(param:)
