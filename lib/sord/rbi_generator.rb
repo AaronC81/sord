@@ -177,6 +177,12 @@ module Sord
       # Write the file
       File.write(filename, rbi_contents.join(?\n))
 
+      if object_count.zero?
+        Logging.warn("No objects processed.")
+        Logging.warn("Have you definitely generated the YARD documentation for this project?")
+        Logging.warn("Run `yard` to generate docs.")
+      end
+
       Logging.done("Processed #{object_count} objects")
     rescue
       Logging.error($!)
