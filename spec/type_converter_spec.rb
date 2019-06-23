@@ -32,16 +32,6 @@ describe Sord::TypeConverter do
         }.to log :warn
       end
 
-      it 'returns a replacement constant with a warning if it is not an identifier' do
-        expect {
-          expect(subject.yard_to_sorbet(':foo')).to eq 'SORD_ERROR_foo'
-        }.to log :warn
-
-        expect {
-          expect(subject.yard_to_sorbet(':=^*abc&"(@')).to eq 'SORD_ERROR_abc'
-        }.to log :warn
-      end
-
       it 'can handle empty strings' do
         expect {
           expect(subject.yard_to_sorbet('')).to eq 'SORD_ERROR_'
@@ -65,6 +55,15 @@ describe Sord::TypeConverter do
           'T.nilable(T.any(String, Integer))'
         expect(subject.yard_to_sorbet(['String', 'nil'])).to eq \
           'T.nilable(String)'
+      end
+
+      it 'converts literals to their types' do
+        expect(subject.yard_to_sorbet([':up', ':down'])).to eq 'Symbol'
+        expect(subject.yard_to_sorbet(['String', ':up', ':down'])).to eq \
+          'T.any(String, Symbol)'
+        expect(subject.yard_to_sorbet('3')).to eq 'Integer'
+        expect(subject.yard_to_sorbet('3.14')).to eq 'Float'
+        expect(subject.yard_to_sorbet('\'foo\'')).to eq 'String'
       end
 
       it 'converts duck types to T.untyped' do
