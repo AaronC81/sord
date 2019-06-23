@@ -73,6 +73,10 @@ describe Sord::TypeConverter do
         expect(subject.yard_to_sorbet('#foo&#bar')).to eq 'T.untyped'
       end
 
+      it 'does not convert invalid duck types' do
+        expect(subject.yard_to_sorbet('#foo&bar')).to eq 'SORD_ERROR_foobar'
+      end
+
       it 'supports self' do
         # Create a stub object which partially behaves like a CodeObject method
         stub_method = Module.new do
