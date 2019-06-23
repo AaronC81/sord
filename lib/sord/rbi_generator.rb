@@ -132,6 +132,9 @@ module Sord
       end
     end
 
+    # Given a YARD NamespaceObject, add lines defining its mixins, methods
+    # and children to the RBI file.
+    # @param [YARD::CodeObjects::NamespaceObject] item
     def add_namespace(item)
       count_object
 
@@ -159,6 +162,8 @@ module Sord
       YARD::Registry.load!
 
       # TODO: constants?
+
+      # Generate top-level modules, which recurses to all modules
       YARD::Registry.root.children
         .select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
