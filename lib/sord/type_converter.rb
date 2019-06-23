@@ -16,6 +16,11 @@ module Sord
     # "Hash<String, Symbol>", "Hash{String => Symbol}", etc.
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
+    
+    # Match duck types which require the object implement one or more methods,
+    # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
+    DUCK_TYPE_REGEX =
+      /^\##{SIMPLE_TYPE_REGEX}(?:( ?\& ?\#)*[a-zA-Z_][a-zA-Z_0-9]*)*$/
 
     # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
@@ -99,7 +104,7 @@ module Sord
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
         yard
-      when /^\##{SIMPLE_TYPE_REGEX}$/
+      when DUCK_TYPE_REGEX
         Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
         'T.untyped'
       when /^#{GENERIC_TYPE_REGEX}$/
