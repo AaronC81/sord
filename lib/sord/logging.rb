@@ -35,7 +35,7 @@ module Sord
     #  specified.
     def self.generic(kind, header, msg, item)
       if item
-        puts "#{header} (#{item.path.light_white}) #{msg}" unless silent?
+        puts "#{header} (#{item.path.bold}) #{msg}" unless silent?
       else
         puts "#{header} #{msg}" unless silent?
       end
