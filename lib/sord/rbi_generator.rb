@@ -132,6 +132,23 @@ module Sord
       end
     end
 
+    def add_namespace(item)
+      count_object
+
+      if item.type == :class && item.superclass.to_s != "Object"
+        rbi_contents << "class #{item.name} < #{item.superclass.path}" 
+      else
+        rbi_contents << "#{item.type} #{item.name}"
+      end
+      add_mixins(item)
+      add_methods(item)
+
+      item.children.select { |x| [:class, :module].include?(x.type) }
+        .each { |child| add_namespace(child) }
+
+      rbi_contents << "end"
+    end
+
     # Generates the RBI file and writes it to the given file path.
     # @param [String] filename
     # @return [void]
@@ -142,27 +159,9 @@ module Sord
       YARD::Registry.load!
 
       # TODO: constants?
-
-      # Populate the RBI with modules first
-      YARD::Registry.all(:module).each do |item|
-        count_object
-        
-        rbi_contents << "module #{item.path}"
-        add_mixins(item)
-        add_methods(item)
-        rbi_contents << "end"
-      end
-
-      # Now populate with classes
-      YARD::Registry.all(:class).each do |item|
-        count_object
-
-        superclass = (item.superclass if item.superclass.to_s != "Object")
-        rbi_contents << "class #{item.path} #{"< #{superclass}" if superclass}" 
-        add_mixins(item)
-        add_methods(item)        
-        rbi_contents << "end"
-      end
+      YARD::Registry.root.children
+        .select { |x| [:class, :module].include?(x.type) }
+        .each { |child| add_namespace(child) }
 
       # Write the file
       File.write(filename, rbi_contents.join(?\n))
