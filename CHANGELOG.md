@@ -4,11 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
-TODO
+### Added
+- A warning message is now shown if the YARD registry has no objects. (#31)
+- Integer, Float and Symbol literals are now supported as types. (#26)
+- Add support for multi-method YARD duck types. (#38)
+
+### Changed
+- Paths to log message items are now bold rather than white, so that they can be seen on white terminals. (#28)
+- Alias methods are now ignored. (#34)
+- Remove Gemfile.lock. (#33)
 
 ## [0.6.0] - 2019-06-23
 ### Added
-- Namespaces are now nested inside eachother in the RBI file, fixing many constant scoping issues. (#25)
+- Namespaces are now nested inside each other in the RBI file, fixing many constant scoping issues. (#25)
 
 ### Changed
 - Move unfinished tasks from README to GitHub issues.
