@@ -116,8 +116,25 @@ module Sord
           if tag
             "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth)}"
           elsif name.start_with? '&'
-            # Cut the ampersand from the block parameter name.
-            "#{name[1..-1]}: T.untyped"
+            # Cut the ampersand from the block parameter name
+            name = name.gsub('&', '')
+
+            # Find yieldparams and yieldreturn
+            yieldparams = meth.tags('yieldparam')
+            yieldreturn = meth.tag('yieldreturn')&.types
+
+            # Create strings
+            params_string = yieldparams.map do |param|
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth)}"
+            end.join(', ')
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn)
+
+            # Create proc types, if possible
+            if yieldparams.empty? && yieldreturn.nil?
+              "#{name}: T.untyped"
+            else
+              "#{name}: T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
+            end
           elsif meth.path.end_with? '='
             # Look for the matching getter method
             getter_path = meth.path[0...-1]
