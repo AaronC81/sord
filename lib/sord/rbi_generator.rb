@@ -12,7 +12,9 @@ module Sord
     
     # @return [Integer] The number of objects this generator has processed so 
     #   far.
-    attr_reader :object_count
+    def object_count
+      @namespace_count + @method_count
+    end
 
     # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The 
     #   errors encountered by by the generator. Each element is of the form
@@ -24,7 +26,8 @@ module Sord
     # @return [RbiGenerator]
     def initialize(options)
       @rbi_contents = ['# typed: strong']
-      @object_count = 0
+      @namespace_count = 0
+      @method_count = 0
       @warnings = []
 
       # Hook the logger so that messages are added as comments to the RBI file
@@ -39,10 +42,16 @@ module Sord
       end
     end
 
-    # Increment the object counter.
+    # Increment the namespace counter.
     # @return [void]
-    def count_object
-      @object_count += 1
+    def count_namespace
+      @namespace_count += 1
+    end
+
+    # Increment the method counter.
+    # @return [void]
+    def count_method
+      @method_count += 1
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
@@ -71,7 +80,7 @@ module Sord
       # TODO: block documentation
 
       item.meths.each do |meth|
-        count_object
+        count_method
 
         # If the method is an alias, skip it so we don't define it as a
         # separate method. Sorbet will handle it automatically.
@@ -157,7 +166,7 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @param [Integer] indent_level
     def add_namespace(item, indent_level = 0)
-      count_object
+      count_namespace
 
       if item.type == :class && item.superclass.to_s != "Object"
         rbi_contents << "#{'  ' * indent_level}class #{item.name} < #{item.superclass.path}" 
@@ -198,7 +207,7 @@ module Sord
         Logging.warn("Run `yard` to generate docs.")
       end
 
-      Logging.done("Processed #{object_count} objects")
+      Logging.done("Processed #{object_count} objects (#{@namespace_count} namespaces and #{@method_count} methods)")
 
       Logging.hooks.clear
 
