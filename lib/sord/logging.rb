@@ -60,6 +60,17 @@ module Sord
       generic(:warn, '[WARN ]'.yellow, msg, item, indent_level)
     end
 
+    # Print an info message. This should be used for generic informational
+    # messages which the user doesn't need to act on.
+    # @param [String] msg The log message to write.
+    # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
+    #  is associated with, if any. This is shown before the log message if it is
+    #  specified.
+    # @param [Integer] indent_level The level at which to indent the code.
+    def self.info(msg, item = nil, indent_level = 0)
+      generic(:info, '[INFO ]', msg, item, indent_level)
+    end
+
     # Print a duck-typing message. This should be used when the YARD 
     # documentation contains duck typing, which isn't supported by Sorbet, so
     # it is substituted for something different.
