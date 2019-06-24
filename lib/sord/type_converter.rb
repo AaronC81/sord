@@ -122,7 +122,7 @@ module Sord
         # Check for literals
         from_yaml = YAML.load(yard) rescue nil
         return from_yaml.class.to_s \
-          if [Symbol, String, Float, Integer].include?(from_yaml.class)
+          if [Symbol, Float, Integer].include?(from_yaml.class)
 
         Logging.warn("#{yard.inspect} does not appear to be a type", item)
         "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
