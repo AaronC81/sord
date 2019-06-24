@@ -10,13 +10,24 @@ default_command :gen
 command :gen do |c|
   c.syntax = 'sord gen <output-file> [options]'
   c.description = 'Generates an RBI file from this directory\'s YARD docs'
-  c.option '--[no-]comments', 'Disables informational/warning comments in the RBI file'
+  c.option '--[no-]comments', 'Controls informational/warning comments in the RBI file'
+  c.option '--[no-]regenerate', 'Controls whether YARD is executed before Sord runs'
 
   c.action do |args, options|
-    options.default comments: true
+    options.default comments: true, regenerate: true
 
     if args.length != 1
       Sord::Logging.error('Must specify filename')
+      exit 1
+    end
+
+    begin
+      Sord::Logging.info('Running YARD...')
+      `yard`
+    rescue Errno::ENOENT
+      Sord::Logging.error('The YARD tool could not be found on your PATH.')
+      Sord::Logging.error('You may need to run \'gem install yard\'.')
+      Sord::Logging.error('If documentation has already been generated, pass --no-regenerate to Sord.')
       exit 1
     end
 
