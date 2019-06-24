@@ -21,14 +21,16 @@ command :gen do |c|
       exit 1
     end
 
-    begin
-      Sord::Logging.info('Running YARD...')
-      `yard`
-    rescue Errno::ENOENT
-      Sord::Logging.error('The YARD tool could not be found on your PATH.')
-      Sord::Logging.error('You may need to run \'gem install yard\'.')
-      Sord::Logging.error('If documentation has already been generated, pass --no-regenerate to Sord.')
-      exit 1
+    if options.regenerate
+      begin
+        Sord::Logging.info('Running YARD...')
+        `yard`
+      rescue Errno::ENOENT
+        Sord::Logging.error('The YARD tool could not be found on your PATH.')
+        Sord::Logging.error('You may need to run \'gem install yard\'.')
+        Sord::Logging.error('If documentation has already been generated, pass --no-regenerate to Sord.')
+        exit 1
+      end
     end
 
     Sord::RbiGenerator.new(options).run(args.first)
