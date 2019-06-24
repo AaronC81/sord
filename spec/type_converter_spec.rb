@@ -68,6 +68,7 @@ describe Sord::TypeConverter do
 
       it 'converts duck types to T.untyped' do
         expect(subject.yard_to_sorbet('#to_s')).to eq 'T.untyped'
+        expect(subject.yard_to_sorbet('#setter=')).to eq 'T.untyped'
         expect(subject.yard_to_sorbet('#foo & #bar')).to eq 'T.untyped'
         expect(subject.yard_to_sorbet('#foo & #foo_bar & #baz')).to eq 'T.untyped'
         expect(subject.yard_to_sorbet('#foo&#bar')).to eq 'T.untyped'
@@ -146,6 +147,8 @@ describe Sord::TypeConverter do
           expect(subject.yard_to_sorbet('foo&bar')).to eq 'SORD_ERROR_foobar'
           expect(subject.yard_to_sorbet('foo&#bar')).to eq 'SORD_ERROR_foobar'
           expect(subject.yard_to_sorbet('#foo&bar')).to eq 'SORD_ERROR_foobar'
+          expect(subject.yard_to_sorbet('#foo-bar')).to eq 'SORD_ERROR_foobar'
+          expect(subject.yard_to_sorbet('#=foobar')).to eq 'SORD_ERROR_foobar'
         end
 
         it 'SORD_ERROR for invalid hashes with uneven curly braces' do
