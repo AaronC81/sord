@@ -3,6 +3,7 @@ require 'yard'
 require 'sord/type_converter'
 require 'colorize'
 require 'sord/logging'
+require 'sord/lsp_resolver'
 
 module Sord
   # Converts the current working directory's YARD registry into an RBI file.
@@ -210,6 +211,9 @@ module Sord
       Logging.done("Processed #{object_count} objects (#{@namespace_count} namespaces and #{@method_count} methods)")
 
       Logging.hooks.clear
+
+      Logging.info("Running experimental LSP inference step...")
+      LspResolver.new.replace_unresolvable_constants(filename)
 
       unless warnings.empty?
         Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
