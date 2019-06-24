@@ -8,12 +8,13 @@ module Sord
     # "Foo", "Foo::Bar", and "::Foo::Bar" are all matches, whereas "Foo.Bar"
     # or "Foo#bar" are not.
     SIMPLE_TYPE_REGEX =
-      /(?:\:\:)?[a-zA-Z_][a-zA-Z_0-9]*(?:\:\:[a-zA-Z_][a-zA-Z_0-9]*)*/
+      /(?:\:\:)?[a-zA-Z_][\w]*(?:\:\:[a-zA-Z_][\w]*)*/
 
     # A regular expression which matches a Ruby namespace immediately followed
-    # by another Ruby namespace in angle brackets. This is the format usually
-    # used in YARD to model generic types, such as "Array<String>",
-    # "Hash<String, Symbol>", "Hash{String => Symbol}", etc.
+    # by another Ruby namespace in angle brackets or curly braces.
+    # This is the format usually used in YARD to model generic
+    # types, such as "Array<String>", "Hash<String, Symbol>",
+    # "Hash{String => Symbol}", etc.
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
     
@@ -21,6 +22,10 @@ module Sord
     # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
     DUCK_TYPE_REGEX =
       /^\##{SIMPLE_TYPE_REGEX}(?:( ?\& ?\#)*[a-zA-Z_][a-zA-Z_0-9]*)*$/
+    
+    # A regular expression which matches ordered lists in the format of
+    # either "Array(String, Symbol)" or "(String, Symbol)".
+    ORDERED_LIST_REGEX = /^(?:Array|)\((.*)\s*\)$/
 
     # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
@@ -39,11 +44,11 @@ module Sord
       while character_pointer < params.length
         should_buffer = true
 
-        current_bracketing_level += 1 if ['<', '{'].include?(params[character_pointer])
+        current_bracketing_level += 1 if ['<', '{', '('].include?(params[character_pointer])
         # Decrease bracketing level by 1 when encountering `>` or `}`, unless
         # the previous character is `=` (to prevent hash rockets from causing
         # nesting problems).
-        current_bracketing_level -= 1 if ['>', '}'].include?(params[character_pointer]) && params[character_pointer - 1] != '='
+        current_bracketing_level -= 1 if ['>', '}', ')'].include?(params[character_pointer]) && params[character_pointer - 1] != '='
 
         # Handle commas as separators.
         # e.g. Hash<Symbol, String>
@@ -123,6 +128,13 @@ module Sord
           Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
         end
+      # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
+      # into Sorbet Tuples like [Symbol, String].
+      when ORDERED_LIST_REGEX
+        type_parameters = $1
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_sorbet(x, item) }
+        "[#{parameters.join(', ')}]"
       else
         # Check for literals
         from_yaml = YAML.load(yard) rescue nil

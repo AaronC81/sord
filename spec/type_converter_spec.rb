@@ -127,6 +127,18 @@ describe Sord::TypeConverter do
             expect(subject.yard_to_sorbet('Foo<String>')).to eq 'SORD_ERROR_Foo'
           }.to log :warn
         end
+
+        it 'handles order-dependent lists by returning Tuples' do
+          expect(subject.yard_to_sorbet('Array(String, Integer)')).to eq '[String, Integer]'
+          expect(subject.yard_to_sorbet('Array(Integer, Integer)')).to eq '[Integer, Integer]'
+          expect(subject.yard_to_sorbet('Array(Fixnum, String, Symbol, Integer)')).to eq '[Fixnum, String, Symbol, Integer]'
+          expect(subject.yard_to_sorbet('(String, Integer)')).to eq '[String, Integer]'
+        end
+
+        it 'handles nested order-dependent lists by returning nested Tuples' do
+          expect(subject.yard_to_sorbet('(String, Symbol, Array(String, Symbol))')).to eq '[String, Symbol, [String, Symbol]]'
+          expect(subject.yard_to_sorbet('(String, Symbol, (String, Symbol))')).to eq '[String, Symbol, [String, Symbol]]'
+        end
       end
 
       context 'invalid YARD docs' do
