@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.7.0]
+## [0.7.0] - 2019-06-24
 ### Added
 - A warning message is now shown if the YARD registry has no objects. (#31)
 - Integer, Float and Symbol literals are now supported as types. (#26)
