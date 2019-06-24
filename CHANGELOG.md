@@ -3,16 +3,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.7.0]
 ### Added
 - A warning message is now shown if the YARD registry has no objects. (#31)
 - Integer, Float and Symbol literals are now supported as types. (#26)
 - Add support for multi-method YARD duck types. (#38)
+- Namespaces are now indented properly. (#41)
+- Individual method and namespace counts are now shown, rather than just an overall object count. (#36)
 
 ### Changed
 - Paths to log message items are now bold rather than white, so that they can be seen on white terminals. (#28)
 - Alias methods are now ignored. (#34)
 - Remove Gemfile.lock. (#33)
+- YARD is executed when Sord is executed. To disable this behaviour, use `--no-regenerate`. (#31)
+
+### Fixed
+- Resolved crash when a @return tag gave no type. (#35)
 
 ## [0.6.0] - 2019-06-23
 ### Added
