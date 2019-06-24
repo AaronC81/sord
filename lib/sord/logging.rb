@@ -7,6 +7,11 @@ module Sord
     # The callables should take three parameters: (kind, msg, item).
     @@hooks = []
 
+    # @return [Array<Proc>] The hooks registered on the logger.
+    def self.hooks
+      @@hooks
+    end
+
     # Whether log messages should be printed or not.
     @@silent = false
     

@@ -14,17 +14,29 @@ module Sord
     #   far.
     attr_reader :object_count
 
+    # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The 
+    #   errors encountered by by the generator. Each element is of the form
+    #   [message, item, line].
+    attr_reader :warnings
+
     # Create a new RBI generator.
     # @param [Hash] options
     # @return [RbiGenerator]
     def initialize(options)
       @rbi_contents = ['# typed: strong']
       @object_count = 0
+      @warnings = []
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item, indent_level = 0|
         rbi_contents << "#{'  ' * (indent_level + 1)}# sord #{type} - #{msg}"
       end if options.comments
+
+      # Hook the logger so that warnings are collected
+      Logging.add_hook do |type, msg, item, indent_level = 0|
+        warnings << [msg, item, rbi_contents.length] \
+          if type == :warn
+      end
     end
 
     # Increment the object counter.
@@ -187,6 +199,18 @@ module Sord
       end
 
       Logging.done("Processed #{object_count} objects")
+
+      Logging.hooks.clear
+
+      unless warnings.empty?
+        Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
+        Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
+        Logging.warn("Please edit the file near the line numbers given to fix these errors.")
+        Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
+        warnings.each do |(msg, item, line)|
+          puts "        #{"Line #{line} |".light_black} (#{item.path.bold}) #{msg}"
+        end
+      end
     rescue
       Logging.error($!)
       $@.each do |line|
