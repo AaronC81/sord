@@ -36,24 +36,26 @@ module Sord
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
     # and includes) to the current RBI file.
     # @param [YARD::CodeObjects::Base] item
+    # @param [Integer] indent_level
     # @return [void]
-    def add_mixins(item)
+    def add_mixins(item, indent_level)
       extends = item.instance_mixins
       includes = item.class_mixins
 
       extends.each do |this_extend|
-        rbi_contents << "  extend #{this_extend.path}"
+        rbi_contents << "#{'  ' * indent_level}  extend #{this_extend.path}"
       end
       includes.each do |this_include|
-        rbi_contents << "  include #{this_include.path}"
+        rbi_contents << "#{'  ' * indent_level}  include #{this_include.path}"
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
+    # @param [Integer] indent_level
     # @return [void]
-    def add_methods(item)
+    def add_methods(item, indent_level)
       # TODO: block documentation
 
       item.meths.each do |meth|
@@ -131,31 +133,34 @@ module Sord
 
         prefix = meth.scope == :class ? 'self.' : ''
 
-        sig = sig_params_list.empty? ? "  sig { #{returns} }" : "  sig { params(#{sig_params_list}).#{returns} }"
+        sig = sig_params_list.empty?
+          ? "#{'  ' * indent_level}  sig { #{returns} }"
+          : "#{'  ' * indent_level}  sig { params(#{sig_params_list}).#{returns} }"
         rbi_contents << sig
 
-        rbi_contents << "  def #{prefix}#{meth.name}(#{parameter_list}); end"
+        rbi_contents << "#{'  ' * indent_level}  def #{prefix}#{meth.name}(#{parameter_list}); end"
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its mixins, methods
     # and children to the RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
-    def add_namespace(item)
+    # @param [Integer] indent_level
+    def add_namespace(item, indent_level = 0)
       count_object
 
       if item.type == :class && item.superclass.to_s != "Object"
-        rbi_contents << "class #{item.name} < #{item.superclass.path}" 
+        rbi_contents << "#{'  ' * indent_level}class #{item.name} < #{item.superclass.path}" 
       else
-        rbi_contents << "#{item.type} #{item.name}"
+        rbi_contents << "#{'  ' * indent_level}#{item.type} #{item.name}"
       end
-      add_mixins(item)
-      add_methods(item)
+      add_mixins(item, indent_level)
+      add_methods(item, indent_level)
 
       item.children.select { |x| [:class, :module].include?(x.type) }
-        .each { |child| add_namespace(child) }
+        .each { |child| add_namespace(child, indent_level + 1) }
 
-      rbi_contents << "end"
+      rbi_contents << "#{'  ' * indent_level}end"
     end
 
     # Generates the RBI file and writes it to the given file path.
