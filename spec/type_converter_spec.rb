@@ -63,7 +63,7 @@ describe Sord::TypeConverter do
           'T.any(String, Symbol)'
         expect(subject.yard_to_sorbet('3')).to eq 'Integer'
         expect(subject.yard_to_sorbet('3.14')).to eq 'Float'
-        expect(subject.yard_to_sorbet('\'foo\'')).to eq 'String'
+        # expect(subject.yard_to_sorbet('\'foo\'')).to eq 'String'
       end
 
       it 'converts duck types to T.untyped' do
@@ -119,6 +119,28 @@ describe Sord::TypeConverter do
           expect {
             expect(subject.yard_to_sorbet('Foo<String>')).to eq 'SORD_ERROR_Foo'
           }.to log :warn
+        end
+      end
+
+      context 'invalid YARD docs' do
+        it 'SORD_ERROR for invalid duck types' do
+          expect(subject.yard_to_sorbet('foo&bar')).to eq 'SORD_ERROR_foobar'
+          expect(subject.yard_to_sorbet('foo&#bar')).to eq 'SORD_ERROR_foobar'
+          expect(subject.yard_to_sorbet('#foo&bar')).to eq 'SORD_ERROR_foobar'
+        end
+
+        it 'SORD_ERROR for invalid hashes with uneven curly braces' do
+          expect(subject.yard_to_sorbet('Hash{String, Symbol')).to eq 'SORD_ERROR_HashStringSymbol'
+          expect(subject.yard_to_sorbet('Hash{String')).to eq 'SORD_ERROR_HashString'
+        end
+        
+        it 'SORD_ERROR for invalid Arrays with uneven angle brackets' do
+          expect(subject.yard_to_sorbet('Array<String, Symbol')).to eq 'SORD_ERROR_ArrayStringSymbol'
+          expect(subject.yard_to_sorbet('Array<String')).to eq 'SORD_ERROR_ArrayString'
+        end
+        
+        it 'SORD_ERROR for a type list not inside a container' do
+          expect(subject.yard_to_sorbet('String, Symbol')).to eq 'SORD_ERROR_StringSymbol'
         end
       end
     end
