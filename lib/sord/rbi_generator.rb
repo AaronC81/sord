@@ -22,8 +22,8 @@ module Sord
       @object_count = 0
 
       # Hook the logger so that messages are added as comments to the RBI file
-      Logging.add_hook do |type, msg, item|
-        rbi_contents << "  # sord #{type} - #{msg}"
+      Logging.add_hook do |type, msg, item, indent_level = 0|
+        rbi_contents << "#{'  ' * (indent_level + 1)}# sord #{type} - #{msg}"
       end if options.comments
     end
 
@@ -43,10 +43,10 @@ module Sord
       includes = item.class_mixins
 
       extends.each do |this_extend|
-        rbi_contents << "#{'  ' * indent_level}  extend #{this_extend.path}"
+        rbi_contents << "#{'  ' * (indent_level + 1)}extend #{this_extend.path}"
       end
       includes.each do |this_include|
-        rbi_contents << "#{'  ' * indent_level}  include #{this_include.path}"
+        rbi_contents << "#{'  ' * (indent_level + 1)}include #{this_include.path}"
       end
     end
 
@@ -103,19 +103,19 @@ module Sord
             getter = item.meths.find { |m| m.path == getter_path }
 
             unless getter
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
               next "#{name}: T.untyped"
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
               getter.tags('return').flat_map(&:types), meth)
             
-            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth, indent_level)
             # Get rid of : on keyword arguments.
             name = name.chop if name.end_with?(':')
             "#{name}: #{inferred_type}"
           else
-            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
             # Get rid of : on keyword arguments.
             name = name.chop if name.end_with?(':')
             "#{name}: T.untyped"
@@ -133,12 +133,10 @@ module Sord
 
         prefix = meth.scope == :class ? 'self.' : ''
 
-        sig = sig_params_list.empty?
-          ? "#{'  ' * indent_level}  sig { #{returns} }"
-          : "#{'  ' * indent_level}  sig { params(#{sig_params_list}).#{returns} }"
+        sig = sig_params_list.empty? ? "#{'  ' * (indent_level + 1)}sig { #{returns} }" : "#{'  ' * (indent_level + 1)}sig { params(#{sig_params_list}).#{returns} }"
         rbi_contents << sig
 
-        rbi_contents << "#{'  ' * indent_level}  def #{prefix}#{meth.name}(#{parameter_list}); end"
+        rbi_contents << "#{'  ' * (indent_level + 1)}def #{prefix}#{meth.name}(#{parameter_list}); end"
       end
     end
 
