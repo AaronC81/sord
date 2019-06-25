@@ -122,12 +122,14 @@ module Sord
             # Find yieldparams and yieldreturn
             yieldparams = meth.tags('yieldparam')
             yieldreturn = meth.tag('yieldreturn')&.types
+            yieldreturn = nil if yieldreturn&.length == 1 &&
+              yieldreturn&.first&.downcase == 'void'
 
             # Create strings
             params_string = yieldparams.map do |param|
               "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth)}"
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
