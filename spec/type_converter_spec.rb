@@ -72,6 +72,7 @@ describe Sord::TypeConverter do
         expect(subject.yard_to_sorbet('#foo & #bar')).to eq 'T.untyped'
         expect(subject.yard_to_sorbet('#foo & #foo_bar & #baz')).to eq 'T.untyped'
         expect(subject.yard_to_sorbet('#foo&#bar')).to eq 'T.untyped'
+        expect(subject.yard_to_sorbet('#foo & #setter=')).to eq 'T.untyped'
       end
 
       it 'does not convert invalid duck types' do

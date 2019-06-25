@@ -21,7 +21,7 @@ module Sord
     # Match duck types which require the object implement one or more methods,
     # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
     DUCK_TYPE_REGEX =
-      /^\#[a-zA-Z_][\w]*(?:[a-zA-Z_][\w=]*)*(?:( ?\& ?\#)*[a-zA-Z_][a-zA-Z_0-9]*)*$/
+      /^\#[a-zA-Z_][\w]*(?:[a-zA-Z_][\w=]*)*(?:( ?\& ?\#)*[a-zA-Z_][\w=]*)*$/
     
     # A regular expression which matches ordered lists in the format of
     # either "Array(String, Symbol)" or "(String, Symbol)".
