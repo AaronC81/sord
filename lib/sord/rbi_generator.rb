@@ -71,6 +71,27 @@ module Sord
       end
     end
 
+    def add_signature(params, returns, indent_level)
+      if params.empty?
+        rbi_contents << "#{'  ' * (indent_level + 1)}sig { #{returns} }"
+        return
+      end
+
+      # TODO: make this a CLI parameter
+      if params.length > 3
+        rbi_contents << "#{'  ' * (indent_level + 1)}sig do"
+        rbi_contents << "#{'  ' * (indent_level + 2)}params("
+        params.each.with_index do |param, i|
+          terminator = params.length - 1 == i ? '' : ', '
+          rbi_contents << "#{'  ' * (indent_level + 3)}#{param}#{terminator}"
+        end
+        rbi_contents << "#{'  ' * (indent_level + 2)}).#{returns}"
+        rbi_contents << "#{'  ' * (indent_level + 1)}end"
+      else
+        rbi_contents << "#{'  ' * (indent_level + 1)}sig { params(#{params.join(', ')}).#{returns} }"
+      end
+    end
+
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
@@ -160,7 +181,7 @@ module Sord
             name = name.chop if name.end_with?(':')
             "#{name}: T.untyped"
           end
-        end.join(", ")
+        end
 
         return_tags = meth.tags('return')
         returns = if return_tags.length == 0
@@ -173,8 +194,7 @@ module Sord
 
         prefix = meth.scope == :class ? 'self.' : ''
 
-        sig = sig_params_list.empty? ? "#{'  ' * (indent_level + 1)}sig { #{returns} }" : "#{'  ' * (indent_level + 1)}sig { params(#{sig_params_list}).#{returns} }"
-        rbi_contents << sig
+        add_signature(sig_params_list, returns, indent_level)
 
         rbi_contents << "#{'  ' * (indent_level + 1)}def #{prefix}#{meth.name}(#{parameter_list}); end"
       end
@@ -236,7 +256,7 @@ module Sord
         Logging.warn("Please edit the file near the line numbers given to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
         warnings.each do |(msg, item, line)|
-          puts "        #{"Line #{line} |".light_black} (#{item.path.bold}) #{msg}"
+          puts "        #{"Line #{line} |".light_black} (#{item&.path&.bold}) #{msg}"
         end
       end
     rescue
