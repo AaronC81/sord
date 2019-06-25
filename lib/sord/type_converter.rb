@@ -28,7 +28,7 @@ module Sord
     ORDERED_LIST_REGEX = /^(?:Array|)\((.*)\s*\)$/
 
     # An array of built-in generic types supported by Sorbet.
-    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
+    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash Class}
     SORBET_SINGLE_ARG_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
     # Given a string of YARD type parameters (without angle brackets), splits
@@ -121,6 +121,8 @@ module Sord
             .map { |x| yard_to_sorbet(x, item) }
           if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
+          elsif generic_type == 'Class' && parameters.length == 1
+            "T.class_of(#{parameters.first})"
           else
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end

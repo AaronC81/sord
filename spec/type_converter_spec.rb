@@ -141,6 +141,10 @@ describe Sord::TypeConverter do
           expect(subject.yard_to_sorbet('(String, Symbol, Array(String, Symbol))')).to eq '[String, Symbol, [String, Symbol]]'
           expect(subject.yard_to_sorbet('(String, Symbol, (String, Symbol))')).to eq '[String, Symbol, [String, Symbol]]'
         end
+
+        it 'converts Class types' do
+          expect(subject.yard_to_sorbet('Class<String>')).to eq 'T.class_of(String)'
+        end
       end
 
       context 'invalid YARD docs' do
