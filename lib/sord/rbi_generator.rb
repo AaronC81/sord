@@ -28,6 +28,7 @@ module Sord
       @rbi_contents = ['# typed: strong']
       @namespace_count = 0
       @method_count = 0
+      @break_params = options.break_params
       @warnings = []
 
       # Hook the logger so that messages are added as comments to the RBI file
@@ -71,14 +72,19 @@ module Sord
       end
     end
 
+    # Given an array of parameters and a return type, inserts the signature for
+    # a method with those properties into the current RBI file.
+    # @param [Array<String>] params
+    # @param [String] returns
+    # @param [Integer] indent_level
+    # @return [void]
     def add_signature(params, returns, indent_level)
       if params.empty?
         rbi_contents << "#{'  ' * (indent_level + 1)}sig { #{returns} }"
         return
       end
 
-      # TODO: make this a CLI parameter
-      if params.length > 3
+      if params.length >= @break_params
         rbi_contents << "#{'  ' * (indent_level + 1)}sig do"
         rbi_contents << "#{'  ' * (indent_level + 2)}params("
         params.each.with_index do |param, i|

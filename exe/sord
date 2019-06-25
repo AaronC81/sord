@@ -12,9 +12,10 @@ command :gen do |c|
   c.description = 'Generates an RBI file from this directory\'s YARD docs'
   c.option '--[no-]comments', 'Controls informational/warning comments in the RBI file'
   c.option '--[no-]regenerate', 'Controls whether YARD is executed before Sord runs'
+  c.option '--break-params INTEGER', Integer, 'Break params onto their own lines if there are this many'
 
   c.action do |args, options|
-    options.default comments: true, regenerate: true
+    options.default comments: true, regenerate: true, break_params: 4
 
     if args.length != 1
       Sord::Logging.error('Must specify filename')
