@@ -21,6 +21,11 @@ module Sord
     #   [message, item, line].
     attr_reader :warnings
 
+    # @return [Boolean] A boolean indicating whether the next item is the first
+    #   in its namespace. This is used to determine whether to insert a blank
+    #   line before it or not.
+    attr_accessor :next_item_is_first_in_namespace
+
     # Create a new RBI generator.
     # @param [Hash] options
     # @return [RbiGenerator]
@@ -30,6 +35,7 @@ module Sord
       @method_count = 0
       @break_params = options.break_params
       @warnings = []
+      @next_item_is_first_in_namespace = true
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item, indent_level = 0|
@@ -53,6 +59,14 @@ module Sord
     # @return [void]
     def count_method
       @method_count += 1
+    end
+
+    # Adds a single blank line to the RBI file, unless this item is the first
+    # in its namespace.
+    # @return [void]
+    def add_blank
+      rbi_contents << '' unless next_item_is_first_in_namespace
+      self.next_item_is_first_in_namespace = false
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
@@ -79,6 +93,8 @@ module Sord
     # @param [Integer] indent_level
     # @return [void]
     def add_signature(params, returns, indent_level)
+      add_blank
+
       if params.empty?
         rbi_contents << "#{'  ' * (indent_level + 1)}sig { #{returns} }"
         return
@@ -104,8 +120,6 @@ module Sord
     # @param [Integer] indent_level
     # @return [void]
     def add_methods(item, indent_level)
-      # TODO: block documentation
-
       item.meths.each do |meth|
         count_method
 
@@ -212,12 +226,15 @@ module Sord
     # @param [Integer] indent_level
     def add_namespace(item, indent_level = 0)
       count_namespace
+      add_blank
 
       if item.type == :class && item.superclass.to_s != "Object"
         rbi_contents << "#{'  ' * indent_level}class #{item.name} < #{item.superclass.path}" 
       else
         rbi_contents << "#{'  ' * indent_level}#{item.type} #{item.name}"
       end
+
+      self.next_item_is_first_in_namespace = true
       add_mixins(item, indent_level)
       add_methods(item, indent_level)
 
