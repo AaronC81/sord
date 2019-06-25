@@ -112,10 +112,15 @@ module Sord
 
         # Check if whatever has been specified is actually resolvable; if not,
         # do some inference to replace it
-        if !Resolver.resolvable?(yard, item) && Resolver.path_for(yard)
-          new_path = Resolver.path_for(yard)
-          Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}")
-          new_path
+        if !Resolver.resolvable?(yard, item)
+          if Resolver.path_for(yard)
+            new_path = Resolver.path_for(yard)
+            Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}", item)
+            new_path
+          else
+            Logging.warn("#{yard} was unresolvable", item)
+            yard
+          end
         else
           yard
         end
