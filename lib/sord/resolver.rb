@@ -3,14 +3,14 @@ module Sord
     def self.prepare
       # Construct a hash of class names to full paths
       @@names_to_paths ||= YARD::Registry.all(:class)
-        .map { |item| [item.name, item.path] }
-        .group_by(&:first)
+        .group_by(&:name)
+        .map { |k, v| [k.to_s, v.map(&:path)] }
         .to_h
     end
 
     def self.paths_for(name)
       prepare
-      @@names_to_paths[name]
+      @@names_to_paths[name] || []
     end
 
     def self.path_for(name)
@@ -30,11 +30,16 @@ module Sord
       name_parts = name.split('::')
 
       current_context = item
+      current_context = current_context.parent \
+        until current_context.is_a?(YARD::CodeObjects::NamespaceObject)
+
       loop do
         # Try to find that class in this context
         path_followed_context = current_context
         name_parts.each do |name_part|
-          path_followed_context = path_followed_context&.child(name_part)
+          path_followed_context = path_followed_context&.child(
+            name: name_part, type: [:class, :method]
+          )
         end
 
         # Return true if we found the constant we're looking for here
