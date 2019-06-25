@@ -243,24 +243,29 @@ module Sord
       rbi_contents << "#{'  ' * indent_level}end"
     end
 
-    # Generates the RBI file and writes it to the given file path.
-    # @param [String] filename
-    # @return [void]
-    def run(filename)
-      raise "No filename specified" unless filename
-
+    # Generates the RBI file from the YARD registry and returns its contents.
+    # @return [String]
+    def generate
       # Get YARD ready
       YARD::Registry.load!
-
-      # TODO: constants?
 
       # Generate top-level modules, which recurses to all modules
       YARD::Registry.root.children
         .select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
 
+      rbi_contents.join("\n")
+    end
+
+    # Generates the RBI file and writes it to the given file path, printing a
+    # summary and any warnings at the end.
+    # @param [String] filename
+    # @return [void]
+    def run(filename)
+      raise 'No filename specified' unless filename
+
       # Write the file
-      File.write(filename, rbi_contents.join(?\n))
+      File.write(filename, generate)
 
       if object_count.zero?
         Logging.warn("No objects processed.")
