@@ -93,8 +93,6 @@ module Sord
     # @param [Integer] indent_level
     # @return [void]
     def add_signature(params, returns, indent_level)
-      add_blank
-
       if params.empty?
         rbi_contents << "#{'  ' * (indent_level + 1)}sig { #{returns} }"
         return
@@ -121,6 +119,7 @@ module Sord
     # @return [void]
     def add_methods(item, indent_level)
       item.meths.each do |meth|
+        add_blank
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
