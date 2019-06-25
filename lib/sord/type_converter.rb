@@ -1,5 +1,6 @@
 require 'yaml'
 require 'sord/logging'
+require 'sord/resolver'
 
 module Sord
   # Contains methods to convert YARD types to Sorbet types.
@@ -108,7 +109,16 @@ module Sord
         if /^[_a-z]/ === yard
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
-        yard
+
+        # Check if whatever has been specified is actually resolvable; if not,
+        # do some inference to replace it
+        if !Resolver.resolvable?(yard, item) && Resolver.path_for(yard)
+          new_path = Resolver.path_for(yard)
+          Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}")
+          new_path
+        else
+          yard
+        end
       when DUCK_TYPE_REGEX
         Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
         'T.untyped'
