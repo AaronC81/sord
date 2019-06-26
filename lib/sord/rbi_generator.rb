@@ -208,7 +208,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
         else
-          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth)})"
+          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level)})"
         end
 
         prefix = meth.scope == :class ? 'self.' : ''

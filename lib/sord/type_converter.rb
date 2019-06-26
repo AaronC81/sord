@@ -100,7 +100,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
           .uniq
         result = types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
         result = "T.nilable(#{result})" if yard.include?('nil')
@@ -134,7 +134,7 @@ module Sord
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
           parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_sorbet(x, item) }
+            .map { |x| yard_to_sorbet(x, item, indent_level) }
           if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
           elsif generic_type == 'Class' && parameters.length == 1
@@ -151,7 +151,7 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
         "[#{parameters.join(', ')}]"
       else
         # Check for literals
