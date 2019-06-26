@@ -124,10 +124,10 @@ module Sord
         if item && !Resolver.resolvable?(yard, item)
           if Resolver.path_for(yard)
             new_path = Resolver.path_for(yard)
-            Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}", item, indent_level)
+            Logging.infer("#{yard} was resolved to #{new_path}", item, indent_level)
             new_path
           else
-            Logging.warn("#{yard} was unresolvable", item, indent_level)
+            Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item, indent_level)
             yard
           end
         else
