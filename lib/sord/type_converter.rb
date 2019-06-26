@@ -86,7 +86,8 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which the YARD type
     #   is associated with. This is used for logging and can be nil, but this
     #   will lead to less informative log messages.
-    def self.yard_to_sorbet(yard, item=nil)
+    # @param [Integer] indent_level 
+    def self.yard_to_sorbet(yard, item = nil, indent_level = 0)
       case yard
       when nil # Type not specified
         "T.untyped"
@@ -107,7 +108,7 @@ module Sord
       when /^#{SIMPLE_TYPE_REGEX}$/
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
-          Logging.warn("#{yard} is probably not a type, but using anyway", item)
+          Logging.warn("#{yard} is probably not a type, but using anyway", item, indent_level)
         end
 
         # Check if whatever has been specified is actually resolvable; if not,
@@ -115,17 +116,17 @@ module Sord
         if item && !Resolver.resolvable?(yard, item)
           if Resolver.path_for(yard)
             new_path = Resolver.path_for(yard)
-            Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}", item)
+            Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}", item, indent_level)
             new_path
           else
-            Logging.warn("#{yard} was unresolvable", item)
+            Logging.warn("#{yard} was unresolvable", item, indent_level)
             yard
           end
         else
           yard
         end
       when DUCK_TYPE_REGEX
-        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
+        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item, indent_level)
         'T.untyped'
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
@@ -142,7 +143,7 @@ module Sord
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end
         else
-          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
+          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item, indent_level)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
         end
       # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
@@ -158,7 +159,7 @@ module Sord
         return from_yaml.class.to_s \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        Logging.warn("#{yard.inspect} does not appear to be a type", item)
+        Logging.warn("#{yard.inspect} does not appear to be a type", item, indent_level)
         "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
       end
     end

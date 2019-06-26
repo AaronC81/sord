@@ -154,7 +154,7 @@ module Sord
           name = name.gsub('*', '')
 
           if tag
-            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth)}"
+            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level)}"
           elsif name.start_with? '&'
             # Cut the ampersand from the block parameter name
             name = name.gsub('&', '')
@@ -167,9 +167,9 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth)}"
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level)}"
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -188,7 +188,7 @@ module Sord
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth)
+              getter.tags('return').flat_map(&:types), meth, indent_level)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth, indent_level)
             # Get rid of : on keyword arguments.
