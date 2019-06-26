@@ -244,12 +244,10 @@ module Sord
       rbi_contents << "#{'  ' * indent_level}end"
     end
 
-    # Generates the RBI file from the YARD registry and returns its contents.
+    # Generates the RBI file from the loading registry and returns its contents.
+    # You must load a registry first!
     # @return [String]
     def generate
-      # Get YARD ready
-      YARD::Registry.load!
-
       # Generate top-level modules, which recurses to all modules
       YARD::Registry.root.children
         .select { |x| [:class, :module].include?(x.type) }
@@ -259,11 +257,14 @@ module Sord
     end
 
     # Generates the RBI file and writes it to the given file path, printing a
-    # summary and any warnings at the end.
+    # summary and any warnings at the end. The registry is also loaded.
     # @param [String] filename
     # @return [void]
     def run(filename)
       raise 'No filename specified' unless filename
+
+      # Get YARD ready
+      YARD::Registry.load!
 
       # Write the file
       File.write(filename, generate)
