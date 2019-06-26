@@ -1,3 +1,5 @@
+require 'stringio'
+
 module Sord
   module Resolver
     def self.prepare
@@ -6,6 +8,9 @@ module Sord
         .group_by(&:name)
         .map { |k, v| [k.to_s, v.map(&:path)] }
         .to_h
+        .merge(builtin_classes.map { |x| [x, [x]] }.to_h) do |k, a, b|
+          a | b
+        end
     end
 
     def self.paths_for(name)
@@ -18,37 +23,44 @@ module Sord
     end
 
     def self.builtin_classes
+      # This prints some deprecation warnings, so suppress them
+      prev_stderr = $stderr
+      $stderr = StringIO.new
+
       Object.constants
+        .select { |x| Object.const_get(x).is_a?(Class) }
         .map(&:to_s)
-        .select { |x| /[a-z]/ === x }
+    rescue
+      $stderr = prev_stderr
     end
 
     def self.resolvable?(name, item, include_builtins = true)
-      # Check if it's a builtin
-      return true if include_builtins && builtin_classes.include?(name)
-
       name_parts = name.split('::')
 
       current_context = item
       current_context = current_context.parent \
         until current_context.is_a?(YARD::CodeObjects::NamespaceObject)
 
+      matching_paths = []
+
       loop do
         # Try to find that class in this context
         path_followed_context = current_context
         name_parts.each do |name_part|
           path_followed_context = path_followed_context&.child(
-            name: name_part, type: [:class, :method]
+            name: name_part, type: [:class, :method, :module]
           )
         end
 
         # Return true if we found the constant we're looking for here
-        return true if path_followed_context
+        matching_paths |= [path_followed_context.path] if path_followed_context
 
         # Move up one context
-        return false if current_context.root?
+        break if current_context.root?
         current_context = current_context.parent
       end
+
+      return matching_paths.one?
     end
   end
 end
