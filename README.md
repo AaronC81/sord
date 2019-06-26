@@ -21,9 +21,6 @@ Sord has the following features:
 
 Install Sord with `gem install sord`.
 
-**NOTE**: You need to run `yard` before you generate the `.rbi` file or
-Sord won't have any information to work with.
-
 Sord is a command line tool. To use it, open a terminal in the root directory
 of your project and invoke `sord`, passing a path where you'd like to save your
 `.rbi` (this file will be overwritten):
@@ -32,9 +29,9 @@ of your project and invoke `sord`, passing a path where you'd like to save your
 sord defs.rbi
 ```
 
-Sord will print information about what it's inferred as it runs. It is best to
-fix any issues in the YARD documentation, as any edits made to the resulting
-RBI file will be replaced if you re-run Sord.
+Sord will generate YARD docs and then print information about what it's inferred
+as it runs. It is best to fix any issues in the YARD documentation, as any edits
+made to the resulting RBI file will be replaced if you re-run Sord.
 
 ### Flags
 
@@ -42,6 +39,11 @@ Sord also takes some flags to alter the generated `.rbi` file:
 
   - `--no-comments`: Generates the `.rbi` file without any comments about
     warnings/inferences/errors.
+  - `--no-regenerate`: By default, Sord will regenerate a repository's YARD
+    docs for you. This option skips regenerating the YARD docs.
+  - `--break-params`: Determines how many parameters are necessary before
+    the signature is changed from a single-line to a multi-line block.
+    (Default: 4)
 
 ## Example
 
@@ -89,22 +91,27 @@ The `test.rbi` file then contains a complete RBI file for `test.rb`:
 ```ruby
 # typed: strong
 module Example
-class Person
-  sig { params(name: String, age: Integer).returns(Example::Person) }
-  def initialize(name, age); end
-  sig { returns(String) }
-  def name(); end
-  # sord infer - inferred type of parameter "value" as String using getter's return type
-  sig { params(value: String).returns(String) }
-  def name=(value); end
-  sig { returns(Integer) }
-  def age(); end
-  # sord infer - inferred type of parameter "value" as Integer using getter's return type
-  sig { params(value: Integer).returns(Integer) }
-  def age=(value); end
-  sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
-  def self.construct_randomly(possible_names, possible_ages); end
-end
+  class Person
+    sig { params(name: String, age: Integer).returns(Example::Person) }
+    def initialize(name, age); end
+
+    sig { returns(String) }
+    def name(); end
+
+    # sord infer - inferred type of parameter "value" as String using getter's return type
+    sig { params(value: String).returns(String) }
+    def name=(value); end
+
+    sig { returns(Integer) }
+    def age(); end
+
+    # sord infer - inferred type of parameter "value" as Integer using getter's return type
+    sig { params(value: Integer).returns(Integer) }
+    def age=(value); end
+
+    sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
+    def self.construct_randomly(possible_names, possible_ages); end
+  end
 end
 ```
 
