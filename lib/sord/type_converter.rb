@@ -28,6 +28,14 @@ module Sord
     # either "Array(String, Symbol)" or "(String, Symbol)".
     ORDERED_LIST_REGEX = /^(?:Array|)\((.*)\s*\)$/
 
+    # A regular expression which matches the shorthand Hash syntax, 
+    # "{String => Symbol}".
+    SHORTHAND_HASH_SYNTAX = /^{\s*(.*)\s*}$/
+
+    # A regular expression which matches the shorthand Array syntax, 
+    # "<String>".
+    SHORTHAND_ARRAY_SYNTAX = /^<\s*(.*)\s*>$/
+
     # An array of built-in generic types supported by Sorbet.
     SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash Class}
     SORBET_SINGLE_ARG_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
@@ -152,6 +160,18 @@ module Sord
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item) }
         "[#{parameters.join(', ')}]"
+      when SHORTHAND_HASH_SYNTAX
+        type_parameters = $1
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_sorbet(x, item) }
+        "T::Hash<#{parameters.join(', ')}>"
+      when SHORTHAND_ARRAY_SYNTAX
+        type_parameters = $1
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_sorbet(x, item) }
+        parameters.one? \
+          ? "T::Array<#{parameters.first}>"
+          : "T::Array<T.any(#{parameters.join(', ')})>"
       else
         # Check for literals
         from_yaml = YAML.load(yard) rescue nil
