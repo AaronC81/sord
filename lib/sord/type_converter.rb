@@ -28,8 +28,16 @@ module Sord
     # either "Array(String, Symbol)" or "(String, Symbol)".
     ORDERED_LIST_REGEX = /^(?:Array|)\((.*)\s*\)$/
 
+    # A regular expression which matches the shorthand Hash syntax, 
+    # "{String => Symbol}".
+    SHORTHAND_HASH_SYNTAX = /^{\s*(.*)\s*}$/
+
+    # A regular expression which matches the shorthand Array syntax, 
+    # "<String>".
+    SHORTHAND_ARRAY_SYNTAX = /^<\s*(.*)\s*>$/
+
     # An array of built-in generic types supported by Sorbet.
-    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash}
+    SORBET_SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash Class}
     SORBET_SINGLE_ARG_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
     # Given a string of YARD type parameters (without angle brackets), splits
@@ -86,7 +94,8 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which the YARD type
     #   is associated with. This is used for logging and can be nil, but this
     #   will lead to less informative log messages.
-    def self.yard_to_sorbet(yard, item=nil)
+    # @param [Integer] indent_level 
+    def self.yard_to_sorbet(yard, item = nil, indent_level = 0)
       case yard
       when nil # Type not specified
         "T.untyped"
@@ -99,7 +108,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
           .uniq
         result = types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
         result = "T.nilable(#{result})" if yard.include?('nil')
@@ -107,25 +116,25 @@ module Sord
       when /^#{SIMPLE_TYPE_REGEX}$/
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
-          Logging.warn("#{yard} is probably not a type, but using anyway", item)
+          Logging.warn("#{yard} is probably not a type, but using anyway", item, indent_level)
         end
 
         # Check if whatever has been specified is actually resolvable; if not,
         # do some inference to replace it
-        if !Resolver.resolvable?(yard, item)
+        if item && !Resolver.resolvable?(yard, item)
           if Resolver.path_for(yard)
             new_path = Resolver.path_for(yard)
-            Logging.infer("#{yard} was unresolvable, inferred it to be #{new_path}", item)
+            Logging.infer("#{yard} was resolved to #{new_path}", item, indent_level)
             new_path
           else
-            Logging.warn("#{yard} was unresolvable", item)
+            Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item, indent_level)
             yard
           end
         else
           yard
         end
       when DUCK_TYPE_REGEX
-        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
+        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item, indent_level)
         'T.untyped'
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
@@ -133,14 +142,16 @@ module Sord
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
           parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_sorbet(x, item) }
+            .map { |x| yard_to_sorbet(x, item, indent_level) }
           if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
+          elsif generic_type == 'Class' && parameters.length == 1
+            "T.class_of(#{parameters.first})"
           else
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end
         else
-          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
+          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item, indent_level)
           "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
         end
       # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
@@ -148,15 +159,27 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
         "[#{parameters.join(', ')}]"
+      when SHORTHAND_HASH_SYNTAX
+        type_parameters = $1
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_sorbet(x, item) }
+        "T::Hash<#{parameters.join(', ')}>"
+      when SHORTHAND_ARRAY_SYNTAX
+        type_parameters = $1
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_sorbet(x, item) }
+        parameters.one? \
+          ? "T::Array<#{parameters.first}>"
+          : "T::Array<T.any(#{parameters.join(', ')})>"
       else
         # Check for literals
         from_yaml = YAML.load(yard) rescue nil
         return from_yaml.class.to_s \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        Logging.warn("#{yard.inspect} does not appear to be a type", item)
+        Logging.warn("#{yard.inspect} does not appear to be a type", item, indent_level)
         "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
       end
     end
