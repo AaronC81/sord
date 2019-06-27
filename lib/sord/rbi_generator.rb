@@ -205,6 +205,7 @@ module Sord
 
         return_tags = meth.tags('return')
         returns = if return_tags.length == 0
+          Logging.omit("no YARD return type given, using T.untyped", meth, indent_level)
           "returns(T.untyped)"
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
