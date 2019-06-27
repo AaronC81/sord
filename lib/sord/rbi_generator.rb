@@ -104,7 +104,7 @@ module Sord
         rbi_contents << "#{'  ' * (indent_level + 1)}sig do"
         rbi_contents << "#{'  ' * (indent_level + 2)}params("
         params.each.with_index do |param, i|
-          terminator = params.length - 1 == i ? '' : ', '
+          terminator = params.length - 1 == i ? '' : ','
           rbi_contents << "#{'  ' * (indent_level + 3)}#{param}#{terminator}"
         end
         rbi_contents << "#{'  ' * (indent_level + 2)}).#{returns}"
