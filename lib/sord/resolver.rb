@@ -35,7 +35,7 @@ module Sord
       Object.constants
         .select { |x| Object.const_get(x).is_a?(Class) }
         .map(&:to_s)
-    rescue
+    ensure
       $stderr = prev_stderr
     end
 
