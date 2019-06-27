@@ -205,7 +205,7 @@ module Sord
 
         return_tags = meth.tags('return')
         returns = if return_tags.length == 0
-          "void"
+          "returns(T.untyped)"
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
         else
