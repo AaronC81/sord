@@ -6,21 +6,22 @@ RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
 REPOS = {
-  discordrb: 'https://github.com/meew0/discordrb',
-  rouge: 'https://github.com/rouge-ruby/rouge',
-  yard: 'https://github.com/lsegal/yard',
   addressable: 'https://github.com/sporkmonger/addressable',
-  zeitwerk: 'https://github.com/fxn/zeitwerk',
-  'rspec-core': 'https://github.com/rspec/rspec-core',
   bundler: 'https://github.com/bundler/bundler',
+  discordrb: 'https://github.com/meew0/discordrb',
+  gitlab: 'https://github.com/NARKOZ/gitlab',
   haml: 'https://github.com/haml/haml',
-  gitlab: 'https://github.com/NARKOZ/gitlab'
+  rouge: 'https://github.com/rouge-ruby/rouge',
+  'rspec-core': 'https://github.com/rspec/rspec-core',
+  yard: 'https://github.com/lsegal/yard',
+  zeitwerk: 'https://github.com/fxn/zeitwerk'
 }
 
 namespace :examples do
+  require 'fileutils'
+
   desc "Clone git repositories and run Sord on them as examples"
   task :seed do
-    require 'fileutils'
     require 'colorize'
 
     if File.directory?('sord_examples')
@@ -52,8 +53,6 @@ namespace :examples do
 
   desc 'Regenerate the rbi files in sord_examples.'
   task :reseed do
-    require 'fileutils'
-
     FileUtils.cd 'sord_examples'
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
@@ -61,15 +60,14 @@ namespace :examples do
       `bundle exec sord ../#{name}.rbi --no-regenerate`
       FileUtils.cd '..'
     end
-    
+
     puts "Re-seeding complete!"
   end
   
   desc 'Delete the sord_examples directory to allow the seeder to run again.'
   task :reset do
-    require 'fileutils'
- 
     FileUtils.rm_rf 'sord_examples' if File.directory?('sord_examples')
+    puts 'Reset complete.'
   end
 end
 
