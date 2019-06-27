@@ -75,8 +75,8 @@ module Sord
     # @param [Integer] indent_level
     # @return [void]
     def add_mixins(item, indent_level)
-      extends = item.instance_mixins
-      includes = item.class_mixins
+      includes = item.instance_mixins
+      extends = item.class_mixins
 
       extends.each do |this_extend|
         rbi_contents << "#{'  ' * (indent_level + 1)}extend #{this_extend.path}"
