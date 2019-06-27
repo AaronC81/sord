@@ -242,6 +242,8 @@ module Sord
       item.children.select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child, indent_level + 1) }
 
+      self.next_item_is_first_in_namespace = false
+
       rbi_contents << "#{'  ' * indent_level}end"
     end
 
