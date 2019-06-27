@@ -164,12 +164,12 @@ module Sord
       when SHORTHAND_HASH_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
         "T::Hash<#{parameters.join(', ')}>"
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item) }
+          .map { |x| yard_to_sorbet(x, item, indent_level) }
         parameters.one? \
           ? "T::Array<#{parameters.first}>"
           : "T::Array<T.any(#{parameters.join(', ')})>"
