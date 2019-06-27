@@ -70,10 +70,10 @@ module Sord
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
-    # and includes) to the current RBI file.
+    # and includes) to the current RBI file. Returns the number of mixins.
     # @param [YARD::CodeObjects::Base] item
     # @param [Integer] indent_level
-    # @return [void]
+    # @return [Integer]
     def add_mixins(item, indent_level)
       includes = item.instance_mixins
       extends = item.class_mixins
@@ -84,6 +84,8 @@ module Sord
       includes.each do |this_include|
         rbi_contents << "#{'  ' * (indent_level + 1)}include #{this_include.path}"
       end
+
+      extends.length + includes.length
     end
 
     # Given an array of parameters and a return type, inserts the signature for
@@ -236,7 +238,9 @@ module Sord
       end
 
       self.next_item_is_first_in_namespace = true
-      add_mixins(item, indent_level)
+      if add_mixins(item, indent_level) > 0
+        self.next_item_is_first_in_namespace = false
+      end
       add_methods(item, indent_level)
 
       item.children.select { |x| [:class, :module].include?(x.type) }
