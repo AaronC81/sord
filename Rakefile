@@ -61,6 +61,8 @@ namespace :examples do
       `bundle exec sord ../#{name}.rbi --no-regenerate`
       FileUtils.cd '..'
     end
+    
+    puts "Re-seeding complete!"
   end
   
   desc 'Delete the sord_examples directory to allow the seeder to run again.'
