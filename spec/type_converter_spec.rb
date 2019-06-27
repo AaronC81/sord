@@ -179,6 +179,10 @@ describe Sord::TypeConverter do
         it 'SORD_ERROR for a type list not inside a container' do
           expect(subject.yard_to_sorbet('String, Symbol')).to eq 'SORD_ERROR_StringSymbol'
         end
+
+        it 'T.untyped rather than SORD_ERROR if option is set' do
+          expect(subject.yard_to_sorbet('Hash{String, Symbol', nil, 0, true)).to eq 'T.untyped'
+        end
       end
     end
   end

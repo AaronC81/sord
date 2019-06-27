@@ -34,6 +34,7 @@ module Sord
       @namespace_count = 0
       @method_count = 0
       @break_params = options.break_params
+      @replace_errors_with_untyped = options.replace_errors_with_untyped
       @warnings = []
       @next_item_is_first_in_namespace = true
 
@@ -157,7 +158,7 @@ module Sord
           name = name.gsub('*', '')
 
           if tag
-            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level)}"
+            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level, @replace_errors_with_untyped)}"
           elsif name.start_with? '&'
             # Cut the ampersand from the block parameter name
             name = name.gsub('&', '')
@@ -170,9 +171,9 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level)}"
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped)}"
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level, @replace_errors_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -191,7 +192,7 @@ module Sord
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, indent_level)
+              getter.tags('return').flat_map(&:types), meth, indent_level, @replace_errors_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth, indent_level)
             # Get rid of : on keyword arguments.
@@ -212,7 +213,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
         else
-          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level)})"
+          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level, @replace_errors_with_untyped)})"
         end
 
         prefix = meth.scope == :class ? 'self.' : ''
@@ -288,7 +289,11 @@ module Sord
 
       unless warnings.empty?
         Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
-        Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
+        if @replace_errors_with_untyped
+          Logging.warn("The types which caused them have been replaced with T.untyped.")
+        else
+          Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
+        end
         Logging.warn("Please edit the file near the line numbers given to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
         warnings.each do |(msg, item, line)|

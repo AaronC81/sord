@@ -13,9 +13,10 @@ command :gen do |c|
   c.option '--[no-]comments', 'Controls informational/warning comments in the RBI file'
   c.option '--[no-]regenerate', 'Controls whether YARD is executed before Sord runs'
   c.option '--break-params INTEGER', Integer, 'Break params onto their own lines if there are this many'
+  c.option '--replace-errors-with-untyped', 'Uses T.untyped rather than SORD_ERROR_ constants'
 
   c.action do |args, options|
-    options.default comments: true, regenerate: true, break_params: 4
+    options.default comments: true, regenerate: true, break_params: 4, replace_errors_with_untyped: false
 
     if args.length != 1
       Sord::Logging.error('Must specify filename')

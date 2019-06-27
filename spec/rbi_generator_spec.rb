@@ -11,6 +11,7 @@ describe Sord::RbiGenerator do
     Sord::RbiGenerator.new(Class.new do
       def comments; true; end
       def break_params; 4; end
+      def replace_errors_with_untyped; false; end
     end.new)
   end
 
