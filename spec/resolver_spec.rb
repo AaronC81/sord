@@ -94,7 +94,6 @@ describe Sord::Resolver do
     EOF
 
     subject.prepare
-    p Sord::Resolver.class_variable_get :@@names_to_paths
     expect(subject.resolvable?('F', at('A::B::C::D'))).to be false
     expect(subject.path_for('F')).to eq 'A::E::F'
   end
