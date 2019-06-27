@@ -13,6 +13,10 @@ module Sord
         end
     end
 
+    def self.clear
+      @@names_to_paths = nil
+    end
+
     def self.paths_for(name)
       prepare
       (@@names_to_paths[name.split('::').last] || [])
