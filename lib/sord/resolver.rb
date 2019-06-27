@@ -35,7 +35,7 @@ module Sord
       $stderr = prev_stderr
     end
 
-    def self.resolvable?(name, item, include_builtins = true)
+    def self.resolvable?(name, item)
       name_parts = name.split('::')
 
       current_context = item
