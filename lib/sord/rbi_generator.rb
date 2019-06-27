@@ -70,13 +70,13 @@ module Sord
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
-    # and includes) to the current RBI file.
+    # and includes) to the current RBI file. Returns the number of mixins.
     # @param [YARD::CodeObjects::Base] item
     # @param [Integer] indent_level
-    # @return [void]
+    # @return [Integer]
     def add_mixins(item, indent_level)
-      extends = item.instance_mixins
-      includes = item.class_mixins
+      includes = item.instance_mixins
+      extends = item.class_mixins
 
       extends.each do |this_extend|
         rbi_contents << "#{'  ' * (indent_level + 1)}extend #{this_extend.path}"
@@ -84,6 +84,8 @@ module Sord
       includes.each do |this_include|
         rbi_contents << "#{'  ' * (indent_level + 1)}include #{this_include.path}"
       end
+
+      extends.length + includes.length
     end
 
     # Given an array of parameters and a return type, inserts the signature for
@@ -102,7 +104,7 @@ module Sord
         rbi_contents << "#{'  ' * (indent_level + 1)}sig do"
         rbi_contents << "#{'  ' * (indent_level + 2)}params("
         params.each.with_index do |param, i|
-          terminator = params.length - 1 == i ? '' : ', '
+          terminator = params.length - 1 == i ? '' : ','
           rbi_contents << "#{'  ' * (indent_level + 3)}#{param}#{terminator}"
         end
         rbi_contents << "#{'  ' * (indent_level + 2)}).#{returns}"
@@ -205,7 +207,8 @@ module Sord
 
         return_tags = meth.tags('return')
         returns = if return_tags.length == 0
-          "void"
+          Logging.omit("no YARD return type given, using T.untyped", meth, indent_level)
+          "returns(T.untyped)"
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
         else
@@ -235,21 +238,23 @@ module Sord
       end
 
       self.next_item_is_first_in_namespace = true
-      add_mixins(item, indent_level)
+      if add_mixins(item, indent_level) > 0
+        self.next_item_is_first_in_namespace = false
+      end
       add_methods(item, indent_level)
 
       item.children.select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child, indent_level + 1) }
 
+      self.next_item_is_first_in_namespace = false
+
       rbi_contents << "#{'  ' * indent_level}end"
     end
 
-    # Generates the RBI file from the YARD registry and returns its contents.
+    # Generates the RBI file from the loading registry and returns its contents.
+    # You must load a registry first!
     # @return [String]
     def generate
-      # Get YARD ready
-      YARD::Registry.load!
-
       # Generate top-level modules, which recurses to all modules
       YARD::Registry.root.children
         .select { |x| [:class, :module].include?(x.type) }
@@ -259,11 +264,14 @@ module Sord
     end
 
     # Generates the RBI file and writes it to the given file path, printing a
-    # summary and any warnings at the end.
+    # summary and any warnings at the end. The registry is also loaded.
     # @param [String] filename
     # @return [void]
     def run(filename)
       raise 'No filename specified' unless filename
+
+      # Get YARD ready
+      YARD::Registry.load!
 
       # Write the file
       File.write(filename, generate)
