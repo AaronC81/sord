@@ -15,7 +15,8 @@ module Sord
 
     def self.paths_for(name)
       prepare
-      @@names_to_paths[name] || []
+      (@@names_to_paths[name.split('::').last] || [])
+        .select { |x| x.end_with?(name) }
     end
 
     def self.path_for(name)
@@ -60,7 +61,8 @@ module Sord
         current_context = current_context.parent
       end
 
-      return matching_paths.one?
+      return (builtin_classes.include?(name) && matching_paths.empty?) ||
+        (matching_paths.one? && !builtin_classes.include?(name))
     end
   end
 end
