@@ -35,7 +35,7 @@ namespace :examples do
     # Shallow clone each of the repositories and then bundle install and run sord.
     REPOS.each do |name, url|
       puts "Cloning #{name}..."
-      `git clone #{url} --depth=1`
+      system("git clone #{url} --depth=1")
       FileUtils.cd name.to_s
       # Add sord to gemfile.
       `echo "gem 'sord', path: '../../'" >> Gemfile`
@@ -43,7 +43,7 @@ namespace :examples do
       `bundle install`
       # Generate sri
       puts "Generating rbi for #{name}..."
-      `bundle exec sord ../#{name}.rbi`
+      system("bundle exec sord ../#{name}.rbi")
       puts "#{name}.rbi generated!"
       FileUtils.cd '..'
     end
