@@ -11,3 +11,5 @@
 .rspec_status
 .vscode/
 Gemfile.lock
+
+sord_examples/
