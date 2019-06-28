@@ -57,7 +57,7 @@ namespace :examples do
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
       puts "Regenerating rbi file for #{name}..."
-      `bundle exec sord ../#{name}.rbi --no-regenerate`
+      system("bundle exec sord ../#{name}.rbi --no-regenerate")
       FileUtils.cd '..'
     end
 
