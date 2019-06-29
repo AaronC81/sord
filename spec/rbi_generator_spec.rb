@@ -31,16 +31,16 @@ describe Sord::RbiGenerator do
   end
 
   it 'handles blank module structures' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         module B; end
         module C
           module D; end
         end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         module B
@@ -51,11 +51,11 @@ describe Sord::RbiGenerator do
           end
         end
       end
-    EOF
+    RUBY
   end
 
   it 'handles structures with modules, classes and methods' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         class B
           # @return [Integer]
@@ -71,9 +71,9 @@ describe Sord::RbiGenerator do
         module E
         end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         class B
@@ -91,11 +91,11 @@ describe Sord::RbiGenerator do
         module E
         end
       end
-      EOF
+      RUBY
   end
   
   it 'auto-generates T.untyped signatures when unspecified and warns' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         class B
           def foo; end
@@ -106,9 +106,9 @@ describe Sord::RbiGenerator do
           end
         end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         class B
@@ -126,11 +126,11 @@ describe Sord::RbiGenerator do
           end
         end
       end
-      EOF
+      RUBY
   end
 
   it 'generates inheritance, inclusion and extension' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       class A; end
       class B; end
       class C; end
@@ -140,9 +140,9 @@ describe Sord::RbiGenerator do
         include C
         def x; end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
       end
@@ -161,7 +161,7 @@ describe Sord::RbiGenerator do
         sig { returns(T.untyped) }
         def x(); end
       end
-    EOF
+    RUBY
   end
 
   it 'generates includes in the same order as they were in the original file' do
@@ -226,7 +226,7 @@ describe Sord::RbiGenerator do
   end
 
   it 'generates blocks correctly' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         # @param [String] x
         # @return [Boolean]
@@ -235,38 +235,38 @@ describe Sord::RbiGenerator do
         # @yieldreturn [Boolean] c
         def foo(x, &blk); end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig { params(x: String, blk: T.proc.params(a: Integer, b: Float).returns(T::Boolean)).returns(T::Boolean) }
         def foo(x, &blk); end
       end
-    EOF
+    RUBY
   end
 
   it 'generates varargs correctly' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         # @param [Integer] x
         # @param [Array<String>] y
         # @return [void]
         def foo(x, *y); end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig { params(x: Integer, y: T::Array[String]).void }
         def foo(x, *y); end
       end
-    EOF
+    RUBY
   end
 
   it 'breaks parameters across multiple lines correctly' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         # @param [Integer] a
         # @param [String] b
@@ -275,9 +275,9 @@ describe Sord::RbiGenerator do
         # @return [void]
         def foo(a, b, c, d); end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig do
@@ -290,20 +290,20 @@ describe Sord::RbiGenerator do
         end
         def foo(a, b, c, d); end
       end
-    EOF
+    RUBY
   end
 
   it 'infers setter types' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         # @return [Integer]
         def x; end
 
         def x=(value); end
       end
-    EOF
+    RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig { returns(Integer) }
@@ -314,6 +314,6 @@ describe Sord::RbiGenerator do
         sig { params(value: Integer).returns(T.untyped) }
         def x=(value); end
       end
-    EOF
+    RUBY
   end
 end
