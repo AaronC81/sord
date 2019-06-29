@@ -171,7 +171,7 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped)}"
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped)}" unless param.name.nil?
             end.join(', ')
             return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level, @replace_errors_with_untyped)
 
