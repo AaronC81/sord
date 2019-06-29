@@ -44,6 +44,7 @@ Sord also takes some flags to alter the generated `.rbi` file:
   - `--break-params`: Determines how many parameters are necessary before
     the signature is changed from a single-line to a multi-line block.
     (Default: 4)
+  - `--replace-errors-with-untyped`: Uses `T.untyped` instead of `SORD_ERROR_*` constants.
 
 ## Example
 
