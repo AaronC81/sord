@@ -79,10 +79,10 @@ module Sord
       includes = item.instance_mixins
       extends = item.class_mixins
 
-      extends.each do |this_extend|
+      extends.reverse_each do |this_extend|
         rbi_contents << "#{'  ' * (indent_level + 1)}extend #{this_extend.path}"
       end
-      includes.each do |this_include|
+      includes.reverse_each do |this_include|
         rbi_contents << "#{'  ' * (indent_level + 1)}include #{this_include.path}"
       end
 

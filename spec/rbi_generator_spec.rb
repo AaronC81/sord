@@ -164,6 +164,67 @@ describe Sord::RbiGenerator do
     EOF
   end
 
+  it 'generates includes in the same order as they were in the original file' do
+    YARD.parse_string(<<-EOF)
+      class A; end
+      class B; end
+      class C; end
+
+      class D < A
+        include C
+        include B
+      end
+    EOF
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+      # typed: strong
+      class A
+      end
+
+      class B
+      end
+
+      class C
+      end
+
+      class D < A
+        include C
+        include B
+      end
+    EOF
+  end
+
+
+  it 'generates extends in the same order as they were in the original file' do
+    YARD.parse_string(<<-EOF)
+      class A; end
+      class B; end
+      class C; end
+
+      class D < A
+        extend C
+        extend B
+      end
+    EOF
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+      # typed: strong
+      class A
+      end
+
+      class B
+      end
+
+      class C
+      end
+
+      class D < A
+        extend C
+        extend B
+      end
+    EOF
+  end
+
   it 'generates blocks correctly' do
     YARD.parse_string(<<-EOF)
       module A
