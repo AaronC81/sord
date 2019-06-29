@@ -26,7 +26,9 @@ command :gen do |c|
     if options.regenerate
       begin
         Sord::Logging.info('Running YARD...')
-        `yard`
+        Bundler.with_clean_env do
+          system('bundle exec yard')
+        end
       rescue Errno::ENOENT
         Sord::Logging.error('The YARD tool could not be found on your PATH.')
         Sord::Logging.error('You may need to run \'gem install yard\'.')

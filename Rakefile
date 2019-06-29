@@ -11,6 +11,7 @@ REPOS = {
   discordrb: 'https://github.com/meew0/discordrb',
   gitlab: 'https://github.com/NARKOZ/gitlab',
   haml: 'https://github.com/haml/haml',
+  oga: 'https://gitlab.com/yorickpeterse/oga',
   rouge: 'https://github.com/rouge-ruby/rouge',
   'rspec-core': 'https://github.com/rspec/rspec-core',
   yard: 'https://github.com/lsegal/yard',
@@ -19,55 +20,59 @@ REPOS = {
 
 namespace :examples do
   require 'fileutils'
+  require 'colorize'
 
   desc "Clone git repositories and run Sord on them as examples"
   task :seed do
-    require 'colorize'
-
     if File.directory?('sord_examples')
-      puts 'sord_examples directory already exists, please delete the directory before seeding, or run a reseed!'.red
+      puts 'sord_examples directory already exists, please delete the directory or run a reseed!'.red
       exit
     end
 
     FileUtils.mkdir 'sord_examples'
     FileUtils.cd 'sord_examples'
-
-    # Shallow clone each of the repositories and then bundle install and run sord.
-    REPOS.each do |name, url|
-      puts "Cloning #{name}..."
-      system("git clone #{url} --depth=1")
-      FileUtils.cd name.to_s
-      # Add sord to gemfile.
-      `echo "gem 'sord', path: '../../'" >> Gemfile`
-      # Run bundle install.
-      `bundle install`
-      # Generate sri
-      puts "Generating rbi for #{name}..."
-      system("bundle exec sord ../#{name}.rbi")
-      puts "#{name}.rbi generated!"
-      FileUtils.cd '..'
+    
+    Bundler.with_clean_env do
+      # Shallow clone each of the repositories, then bundle install and run sord.
+      REPOS.each do |name, url|
+        puts "Cloning #{name}..."
+        system("git clone #{url} --depth=1")
+        FileUtils.cd name.to_s
+        # Add sord to gemfile.
+        `echo "gem 'sord', path: '../../'" >> Gemfile`
+        # Run bundle install.
+        system('bundle install')
+        # Generate sri
+        puts "Generating rbi for #{name}..."
+        system("bundle exec sord ../#{name}.rbi")
+        puts "#{name}.rbi generated!"
+        FileUtils.cd '..'
+      end
     end
 
-    puts "Seeding complete!"
+    puts "Seeding complete!".green
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
   task :reseed do
     FileUtils.cd 'sord_examples'
+
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
       puts "Regenerating rbi file for #{name}..."
-      system("bundle exec sord ../#{name}.rbi --no-regenerate")
+      Bundler.with_clean_env do
+        system("bundle exec sord ../#{name}.rbi --no-regenerate")
+      end
       FileUtils.cd '..'
     end
 
-    puts "Re-seeding complete!"
+    puts "Re-seeding complete!".green
   end
   
   desc 'Delete the sord_examples directory to allow the seeder to run again.'
   task :reset do
     FileUtils.rm_rf 'sord_examples' if File.directory?('sord_examples')
-    puts 'Reset complete.'
+    puts 'Reset complete.'.green
   end
 end
 
