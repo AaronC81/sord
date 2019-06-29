@@ -16,17 +16,17 @@ describe Sord::Resolver do
   end
 
   it 'resolves built-in classes without ambiguity' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       class A
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('String', at('A'))).to be true
   end
 
   it 'does not resolve built-in classes with ambiguity' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         class String
         end
@@ -34,7 +34,7 @@ describe Sord::Resolver do
         class B
         end
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('String', at('A::B'))).to be false
@@ -42,7 +42,7 @@ describe Sord::Resolver do
   end
 
   it 'resolves parent modules' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         module B
           module C
@@ -51,14 +51,14 @@ describe Sord::Resolver do
           end
         end
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('B', at('A::B::C::D'))).to be true
   end
 
   it 'resolves siblings of parent modules' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         module B
           module C
@@ -70,14 +70,14 @@ describe Sord::Resolver do
         class E
         end
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('E', at('A::B::C::D'))).to be true
   end
 
   it 'can infer unresolvable module structures without ambiguity' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         module B
           module C
@@ -91,7 +91,7 @@ describe Sord::Resolver do
           end
         end
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('F', at('A::B::C::D'))).to be false
@@ -99,7 +99,7 @@ describe Sord::Resolver do
   end
 
   it 'does not resolve ambiguity' do
-    YARD.parse_string(<<-EOF)
+    YARD.parse_string(<<-RUBY)
       module A
         module B
           module C
@@ -118,7 +118,7 @@ describe Sord::Resolver do
           end
         end
       end
-    EOF
+    RUBY
 
     subject.prepare
     expect(subject.resolvable?('F', at('A::B::C::D'))).to be false
