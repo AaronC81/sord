@@ -27,7 +27,7 @@ module Sord
     attr_accessor :next_item_is_first_in_namespace
 
     # Create a new RBI generator.
-    # @param [Hash] options
+    # @param [Commander::Command::Options] options
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] comments
