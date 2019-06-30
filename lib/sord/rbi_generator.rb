@@ -27,7 +27,7 @@ module Sord
     attr_accessor :next_item_is_first_in_namespace
 
     # Create a new RBI generator.
-    # @param [Commander::Command::Options] options
+    # @param [Hash] options
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] comments
@@ -36,15 +36,15 @@ module Sord
       @rbi_contents = ['# typed: strong']
       @namespace_count = 0
       @method_count = 0
-      @break_params = options.break_params
-      @replace_errors_with_untyped = options.replace_errors_with_untyped
+      @break_params = options[:break_params]
+      @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @warnings = []
       @next_item_is_first_in_namespace = true
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item, indent_level = 0|
         rbi_contents << "#{'  ' * (indent_level + 1)}# sord #{type} - #{msg}"
-      end if options.comments
+      end if options[:comments]
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item, indent_level = 0|

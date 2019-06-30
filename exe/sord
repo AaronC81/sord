@@ -68,6 +68,6 @@ command :gen do |c|
       end
     end
 
-    Sord::RbiGenerator.new(options).run(args.first)
+    Sord::RbiGenerator.new(options.__hash__).run(args.first)
   end
 end
