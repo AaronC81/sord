@@ -81,16 +81,14 @@ class YARD::Config
   def self.translate_plugin_names; end
   def self.with_yardopts; end
 end
+class String
+  def shell_split; end
+end
+class Module
+  def class_name; end
+end
 class Array
   def place(*values); end
-end
-class Insertion
-  def after(val, recursive = nil); end
-  def after_any(val); end
-  def before(val, recursive = nil); end
-  def before_any(val); end
-  def initialize(list, value); end
-  def insertion(val, rel, recursive = nil, list = nil); end
 end
 class SymbolHash < Hash
   def [](key); end
@@ -104,11 +102,13 @@ class SymbolHash < Hash
   def self.[](*hsh); end
   def update(hash); end
 end
-class String
-  def shell_split; end
-end
-class Module
-  def class_name; end
+class Insertion
+  def after(val, recursive = nil); end
+  def after_any(val); end
+  def before(val, recursive = nil); end
+  def before_any(val); end
+  def initialize(list, value); end
+  def insertion(val, rel, recursive = nil, list = nil); end
 end
 class File < IO
   def self.cleanpath(path, rel_root = nil); end
