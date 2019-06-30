@@ -28,6 +28,35 @@ module Sord
       @@silent = value
     end
 
+    # An array of all available logging types.
+    AVAILABLE_TYPES = [:warn, :info, :duck, :error, :infer, :omit, :done].freeze
+
+    @@enabled_types = AVAILABLE_TYPES
+
+    # Sets the array of log messages types which should be processed. Any not on
+    # this list will be discarded. This should be a subset of AVAILABLE_TYPES.
+    # @param [Array<Symbol>] value
+    # @return [void]
+    def self.enabled_types=(value)
+      raise 'invalid types' unless valid_types?(value)
+      @@enabled_types = value
+    end
+
+    # Gets the array of log messages types which should be processed. Any not on
+    # this list will be discarded.
+    # @return [Array<Symbol>]
+    def self.enabled_types
+      @@enabled_types
+    end
+
+    # Returns a boolean indicating whether a given array is a valid value for 
+    # #enabled_types.
+    # @param [Array<Symbol>] value
+    # @return [void]
+    def self.valid_types?(value)
+      (value - AVAILABLE_TYPES).empty?
+    end
+
     # A generic log message writer which is called by all other specific logging
     # methods. This shouldn't be called outside of the Logging class itself.
     # @param [Symbol] kind The kind of log message this is.
@@ -40,6 +69,8 @@ module Sord
     #  specified.
     # @param [Integer] indent_level The level at which to indent the code.
     def self.generic(kind, header, msg, item, indent_level = 0)
+      return unless enabled_types.include?(kind)
+
       if item
         puts "#{header} (#{item.path.bold}) #{msg}" unless silent?
       else
