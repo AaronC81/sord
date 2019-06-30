@@ -28,6 +28,9 @@ module Sord
 
     # Create a new RBI generator.
     # @param [Hash] options
+    # @option options [Integer] break_params
+    # @option options [Boolean] replace_errors_with_untyped
+    # @option options [Boolean] comments
     # @return [RbiGenerator]
     def initialize(options)
       @rbi_contents = ['# typed: strong']
@@ -266,7 +269,7 @@ module Sord
 
     # Generates the RBI file and writes it to the given file path, printing a
     # summary and any warnings at the end. The registry is also loaded.
-    # @param [String] filename
+    # @param [String, nil] filename
     # @return [void]
     def run(filename)
       raise 'No filename specified' unless filename

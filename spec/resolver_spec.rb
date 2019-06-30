@@ -1,3 +1,4 @@
+# typed: false
 require 'yard'
 
 describe Sord::Resolver do
