@@ -60,6 +60,12 @@ Sord also takes some flags to alter the generated `.rbi` file:
     the signature is changed from a single-line to a multi-line block.
     (Default: 4)
   - `--replace-errors-with-untyped`: Uses `T.untyped` instead of `SORD_ERROR_*` constants.
+  - `--include-messages` and `--exclude-messages`: Used to filter the logging
+    messages given by Sord. `--include-messages` acts as a whitelist, printing
+    only messages of the specified logging kinds, whereas `--exclude-messages`
+    acts as a blacklist and suppresses the specified logging kinds. Both flags
+    take a comma-separated list of logging kinds, for example `omit,infer`.
+    (You cannot specify both `--include-messages` and `--exclude-messages`.)
 
 ## Example
 
