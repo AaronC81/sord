@@ -43,7 +43,7 @@ command :gen do |c|
         Sord::Logging.error("Valid options are: #{Sord::Logging::AVAILABLE_TYPES.map(&:to_s).join(', ')}")
         exit 1
       end
-      Sord::Logging.enabled_types = whitelist
+      Sord::Logging.enabled_types = whitelist | [:done]
     elsif options.exclude_messages
       blacklist = options.exclude_messages.split(',').map { |x| x.downcase.to_sym }
       unless Sord::Logging.valid_types?(blacklist)

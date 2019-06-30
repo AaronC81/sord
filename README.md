@@ -65,6 +65,7 @@ Sord also takes some flags to alter the generated `.rbi` file:
     only messages of the specified logging kinds, whereas `--exclude-messages`
     acts as a blacklist and suppresses the specified logging kinds. Both flags
     take a comma-separated list of logging kinds, for example `omit,infer`.
+    When using `--include-messages`, the `done` kind is included by default.
     (You cannot specify both `--include-messages` and `--exclude-messages`.)
 
 ## Example
