@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'sord'
 require 'commander/import'
+require 'bundler'
 
 program :name, 'sord'
 program :version, Sord::VERSION
