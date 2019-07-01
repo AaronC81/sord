@@ -317,4 +317,43 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles option tags' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [Hash] options
+        # @option options [String] bar
+        # @option options [Integer] baz
+        # @return [void]
+        def foo(options); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(options: { bar: String, baz: Integer }).void }
+        def foo(options); end
+      end
+    RUBY
+  end
+
+  it 'handles option tags without a param tag' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @option options [String] bar
+        # @option options [Integer] baz
+        # @return [void]
+        def foo(options); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(options: { bar: String, baz: Integer }).void }
+        def foo(options); end
+      end
+    RUBY
+  end
 end
