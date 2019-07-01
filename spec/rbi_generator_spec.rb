@@ -356,4 +356,45 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles option tags for multiple params' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @option opts [String] bar
+        # @option opts [Integer] baz
+        # @option other [Symbol] qux
+        # @option other [Array<String>] quux
+        # @return [void]
+        def foo(opts, other); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(opts: { bar: String, baz: Integer }, other: { qux: Symbol, quux: T::Array[String] }).void }
+        def foo(opts, other); end
+      end
+    RUBY
+  end
+
+  it 'handles option tags along with other params' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [Array<Symbol>] foo
+        # @option opts [String] bar
+        # @option opts [Integer] baz
+        # @return [void]
+        def foo(foo, opts); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(foo: T::Array[Symbol], opts: { bar: String, baz: Integer }).void }
+        def foo(foo, opts); end
+      end
+    RUBY
+  end
 end

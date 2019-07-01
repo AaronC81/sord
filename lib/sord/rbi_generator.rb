@@ -166,7 +166,8 @@ module Sord
           # Create an array of strings like ['foo: String', 'bar: Integer']
           options_array = []
           tags.each do |tag|
-            options_array << "#{tag.pair.name}: #{TypeConverter.yard_to_sorbet(tag.pair.types, meth, indent_level, @replace_errors_with_untyped)}"
+            option_type = TypeConverter.yard_to_sorbet(tag.pair.types, meth, indent_level, @replace_errors_with_untyped)
+            options_array << "#{tag.pair.name}: #{option_type}"
           end
 
           options << {
