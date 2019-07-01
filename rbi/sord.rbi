@@ -71,7 +71,7 @@ module Sord
     def self.invoke_hooks(kind, msg, item, indent_level = 0); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(blk: T.proc.params(kind: Symbol, msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).returns(T.untyped)).void }
+    sig { params(blk: T.proc.params(kind: Symbol, msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void).void }
     def self.add_hook(&blk); end
   end
 
