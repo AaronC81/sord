@@ -7,11 +7,13 @@
 #
 #   https://github.com/sorbet/sorbet-typed/new/master?filename=lib/sorbet-runtime/all/sorbet-runtime.rbi
 #
-# sorbet-runtime-0.4.4295
+# sorbet-runtime-0.4.4358
 module T::Configuration
   def self.call_validation_error_handler(signature, opts); end
   def self.call_validation_error_handler=(value); end
   def self.call_validation_error_handler_default(signature, opts); end
+  def self.default_checked_level=(default_checked_level); end
+  def self.enable_checking_for_sigs_marked_checked_tests; end
   def self.hard_assert_handler(str, extra); end
   def self.hard_assert_handler=(value); end
   def self.hard_assert_handler_default(str, _); end
@@ -70,7 +72,6 @@ class T::Private::DeclState
   def self.current=(other); end
 end
 module T::Utils
-  def self.DANGER_enable_checking_in_tests; end
   def self.arity(method); end
   def self.coerce(val); end
   def self.methods_excluding_object(mod); end
@@ -103,6 +104,8 @@ end
 module T::Private::RuntimeLevels
   def self._toggle_checking_tests(checked); end
   def self.check_tests?; end
+  def self.default_checked_level; end
+  def self.default_checked_level=(default_checked_level); end
   def self.enable_checking_in_tests; end
 end
 module T::Private::Methods
@@ -388,11 +391,6 @@ class T::Private::Methods::Signature
   def self.new_untyped(method:, mode: nil, parameters: nil); end
   def soft_notify; end
 end
-module T::Utils::Props
-  def self.merge_serialized_optional_rule(prop_rules); end
-  def self.optional_prop?(prop_rules); end
-  def self.required_prop?(prop_rules); end
-end
 module T::Utils::Nilable
   def self.get_type_info(prop_type); end
   def self.get_underlying_type(prop_type); end
@@ -459,7 +457,7 @@ class T::Props::Decorator
   def array_subdoc_type(*args, &blk); end
   def check_prop_type(*args, &blk); end
   def convert_type_to_class(*args, &blk); end
-  def decorated_class(*args, &blk); end
+  def decorated_class; end
   def define_foreign_method(*args, &blk); end
   def define_getter_and_setter(*args, &blk); end
   def foreign_prop_get(*args, &blk); end
@@ -479,7 +477,7 @@ class T::Props::Decorator
   def prop_rules(*args, &blk); end
   def prop_set(*args, &blk); end
   def prop_validate_definition!(*args, &blk); end
-  def props(*args, &blk); end
+  def props; end
   def self.method_added(name); end
   def self.singleton_method_added(name); end
   def set(*args, &blk); end
@@ -514,8 +512,11 @@ module T::Props::Plugin::ClassMethods
 end
 module T::Props::Utils
   def self.deep_clone_object(what, freeze: nil); end
+  def self.merge_serialized_optional_rule(prop_rules); end
   def self.need_nil_read_check?(prop_rules); end
   def self.need_nil_write_check?(prop_rules); end
+  def self.optional_prop?(prop_rules); end
+  def self.required_prop?(prop_rules); end
 end
 module T::Props::Optional
   extend T::Props::ClassMethods
@@ -524,8 +525,10 @@ module T::Props::Optional
 end
 module T::Props::Optional::DecoratorMethods
   def add_prop_definition(prop, rules); end
+  def compute_derived_rules(rules); end
   def get_default(rules, instance_class); end
   def has_default?(rules); end
+  def mutate_prop_backdoor!(prop, key, value); end
   def prop_optional?(prop); end
   def prop_validate_definition!(name, cls, rules, type); end
   def valid_props; end
