@@ -397,4 +397,23 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles option tags with symbol names' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @option opts [String] :bar
+        # @option opts [Integer] :baz
+        # @return [void]
+        def foo(opts); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(opts: { bar: String, baz: Integer }).void }
+        def foo(opts); end
+      end
+    RUBY
+  end
 end

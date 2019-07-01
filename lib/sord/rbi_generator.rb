@@ -167,7 +167,9 @@ module Sord
           options_array = []
           tags.each do |tag|
             option_type = TypeConverter.yard_to_sorbet(tag.pair.types, meth, indent_level, @replace_errors_with_untyped)
-            options_array << "#{tag.pair.name}: #{option_type}"
+            option_name = tag.pair.name
+            option_name = option_name.gsub(':', '') if option_name.start_with?(':')
+            options_array << "#{option_name}: #{option_type}"
           end
 
           options << {
