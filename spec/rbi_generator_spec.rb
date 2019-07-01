@@ -247,6 +247,25 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
+  it 'handles void yieldreturn' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @yieldparam [Symbol] foo
+        # @yieldreturn [void]
+        # @return [void]
+        def self.foo(&blk); end
+      end
+    RUBY
+  
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(blk: T.proc.params(foo: Symbol).void).void }
+        def self.foo(&blk); end
+      end
+    RUBY
+  end
+
   it 'generates varargs correctly' do
     YARD.parse_string(<<-RUBY)
       module A

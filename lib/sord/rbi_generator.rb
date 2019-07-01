@@ -181,6 +181,8 @@ module Sord
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
               "#{name}: T.untyped"
+            elsif yieldreturn.nil?
+              "#{name}: T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.void"
             else
               "#{name}: T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
             end
