@@ -321,19 +321,19 @@ describe Sord::RbiGenerator do
   it 'handles option tags' do
     YARD.parse_string(<<-RUBY)
       module A
-        # @param [Hash] options
-        # @option options [String] bar
-        # @option options [Integer] baz
+        # @param [Hash] opts
+        # @option opts [String] bar
+        # @option opts [Integer] baz
         # @return [void]
-        def foo(options); end
+        def foo(opts); end
       end
     RUBY
 
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        sig { params(options: { bar: String, baz: Integer }).void }
-        def foo(options); end
+        sig { params(opts: { bar: String, baz: Integer }).void }
+        def foo(opts); end
       end
     RUBY
   end
@@ -341,18 +341,18 @@ describe Sord::RbiGenerator do
   it 'handles option tags without a param tag' do
     YARD.parse_string(<<-RUBY)
       module A
-        # @option options [String] bar
-        # @option options [Integer] baz
+        # @option opts [String] bar
+        # @option opts [Integer] baz
         # @return [void]
-        def foo(options); end
+        def foo(opts); end
       end
     RUBY
 
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        sig { params(options: { bar: String, baz: Integer }).void }
-        def foo(options); end
+        sig { params(opts: { bar: String, baz: Integer }).void }
+        def foo(opts); end
       end
     RUBY
   end

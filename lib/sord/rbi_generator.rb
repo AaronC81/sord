@@ -157,10 +157,33 @@ module Sord
             .find { |p| p.name.gsub('*', '') == name.gsub('*', '') }]
         end.to_h
 
+        # Get all @option tags in the method documentation and create an array
+        # of options, each with a name and string representing a Sorbet
+        # 'Shape'.
+        options = []
+        option_tags = meth.tags(:option).group_by { |tag| tag.name }
+        option_tags.each do |name, tags|
+          # Create an array of strings like ['foo: String', 'bar: Integer']
+          options_array = []
+          tags.each do |tag|
+            options_array << "#{tag.pair.name}: #{TypeConverter.yard_to_sorbet(tag.pair.types, meth, indent_level, @replace_errors_with_untyped)}"
+          end
+
+          options << {
+            name: name,
+            string: "{ #{options_array.join(', ')} }"
+          }
+        end
+
         sig_params_list = parameter_names_to_tags.map do |name, tag|
           name = name.gsub('*', '')
 
-          if tag
+          # If the options include one of the parameter names we have, use
+          # a Sorbet Shape to represent it.
+          if options.map { |x| x[:name] }.include?(name)
+            shape = options.select { |x| x[:name] == name }.first[:string]
+            "#{name}: #{shape}"
+          elsif tag
             "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level, @replace_errors_with_untyped)}"
           elsif name.start_with? '&'
             # Cut the ampersand from the block parameter name
