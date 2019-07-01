@@ -10,6 +10,15 @@ module Sord
     sig { params(value: T::Boolean).void }
     def self.silent=(value); end
 
+    sig { params(value: T::Array[Symbol]).void }
+    def self.enabled_types=(value); end
+
+    sig { returns(T::Array[Symbol]) }
+    def self.enabled_types(); end
+
+    sig { params(value: T::Array[Symbol]).void }
+    def self.valid_types?(value); end
+
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     # sord omit - no YARD return type given, using T.untyped
     sig do
@@ -78,31 +87,22 @@ module Sord
   end
 
   module Resolver
-    # sord omit - no YARD return type given, using T.untyped
-    sig { returns(T.untyped) }
+    sig { void }
     def self.prepare(); end
 
-    # sord omit - no YARD return type given, using T.untyped
-    sig { returns(T.untyped) }
+    sig { void }
     def self.clear(); end
 
-    # sord omit - no YARD type given for "name", using T.untyped
-    # sord omit - no YARD return type given, using T.untyped
-    sig { params(name: T.untyped).returns(T.untyped) }
+    sig { params(name: String).returns(T::Array[String]) }
     def self.paths_for(name); end
 
-    # sord omit - no YARD type given for "name", using T.untyped
-    # sord omit - no YARD return type given, using T.untyped
-    sig { params(name: T.untyped).returns(T.untyped) }
+    sig { params(name: String).returns(T.nilable(String)) }
     def self.path_for(name); end
 
-    # sord omit - no YARD return type given, using T.untyped
-    sig { returns(T.untyped) }
+    sig { returns(T::Array[String]) }
     def self.builtin_classes(); end
 
-    # sord omit - no YARD type given for "name", using T.untyped
-    # sord omit - no YARD type given for "item", using T.untyped
-    sig { params(name: T.untyped, item: T.untyped).returns(T::Boolean) }
+    sig { params(name: String, item: Object).returns(T::Boolean) }
     def self.resolvable?(name, item); end
   end
 
@@ -164,14 +164,13 @@ module Sord
     def self.split_type_parameters(params); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    # sord omit - no YARD return type given, using T.untyped
     sig do
       params(
         yard: T.any(T::Boolean, Array, String),
         item: YARD::CodeObjects::Base,
         indent_level: Integer,
         replace_errors_with_untyped: T::Boolean
-      ).returns(T.untyped)
+      ).returns(String)
     end
     def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false); end
   end

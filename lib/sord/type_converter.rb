@@ -97,6 +97,7 @@ module Sord
     # @param [Integer] indent_level 
     # @param [Boolean] replace_errors_with_untyped If true, T.untyped is used
     #   instead of SORD_ERROR_ constants for unknown types.
+    # @return [String]
     def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false)
       case yard
       when nil # Type not specified

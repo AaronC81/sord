@@ -2,6 +2,7 @@ require 'stringio'
 
 module Sord
   module Resolver
+    # @return [void]
     def self.prepare
       # Construct a hash of class names to full paths
       @@names_to_paths ||= YARD::Registry.all(:class)
@@ -13,20 +14,26 @@ module Sord
         end
     end
 
+    # @return [void]
     def self.clear
       @@names_to_paths = nil
     end
 
+    # @param [String] name
+    # @return [Array<String>]
     def self.paths_for(name)
       prepare
       (@@names_to_paths[name.split('::').last] || [])
         .select { |x| x.end_with?(name) }
     end
 
+    # @param [String] name
+    # @return [String, nil]
     def self.path_for(name)
       paths_for(name).one? ? paths_for(name).first : nil
     end
 
+    # @return [Array<String>]
     def self.builtin_classes
       # This prints some deprecation warnings, so suppress them
       prev_stderr = $stderr
@@ -39,6 +46,9 @@ module Sord
       $stderr = prev_stderr
     end
 
+    # @param [String] name
+    # @param [Object] item
+    # @return [Boolean]
     def self.resolvable?(name, item)
       name_parts = name.split('::')
 
