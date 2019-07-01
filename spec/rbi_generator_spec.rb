@@ -1,4 +1,4 @@
-# typed: false
+# typed: ignore
 require 'yard'
 
 describe Sord::RbiGenerator do
