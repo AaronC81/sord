@@ -1,3 +1,4 @@
+# typed: ignore
 describe Sord::TypeConverter do
   before do
     Sord::Logging.silent = true

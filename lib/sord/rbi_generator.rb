@@ -31,7 +31,7 @@ module Sord
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] comments
-    # @return [RbiGenerator]
+    # @return [void]
     def initialize(options)
       @rbi_contents = ['# typed: strong']
       @namespace_count = 0
@@ -233,6 +233,7 @@ module Sord
     # and children to the RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @param [Integer] indent_level
+    # @return [void]
     def add_namespace(item, indent_level = 0)
       count_namespace
       add_blank
