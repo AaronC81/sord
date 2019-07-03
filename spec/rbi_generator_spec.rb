@@ -336,4 +336,64 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'infers one missing argument name in standard methods' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [String]
+        # @return [void]
+        def x(a); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord infer - argument name in single @param inferred as "a"
+        sig { params(a: String).void }
+        def x(a); end
+      end
+    RUBY
+  end
+
+  it 'infers one missing argument name in setters' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [String]
+        # @return [String]
+        attr_writer :x
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord infer - argument name in single @param inferred as "value"
+        sig { params(value: String).returns(String) }
+        def x=(value); end
+      end
+    RUBY
+  end
+
+  it 'uses T.untyped for many missing argument names' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [String] 
+        # @param [Integer] b
+        # @param [Boolean]
+        # @return [void]
+        def x(a, b, c); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD type given for "a", using T.untyped
+        # sord omit - no YARD type given for "c", using T.untyped
+        sig { params(a: T.untyped, b: Integer, c: T.untyped).void }
+        def x(a, b, c); end
+      end
+    RUBY
+  end
 end

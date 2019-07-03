@@ -154,7 +154,7 @@ module Sord
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_to_tags = meth.parameters.map do |name, _|
           [name, meth.tags('param')
-            .find { |p| p.name.gsub('*', '') == name.gsub('*', '') }]
+            .find { |p| p.name&.gsub('*', '') == name.gsub('*', '') }]
         end.to_h
 
         sig_params_list = parameter_names_to_tags.map do |name, tag|
@@ -192,8 +192,16 @@ module Sord
             getter = item.meths.find { |m| m.path == getter_path }
 
             unless getter
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
-              next "#{name}: T.untyped"
+              if parameter_names_to_tags.length == 1 \
+                && meth.tags('param').length == 1 \
+                && meth.tag('param').types
+  
+                Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
+                next "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped)}"
+              else  
+                Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
+                next "#{name}: T.untyped"
+              end
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
@@ -204,10 +212,20 @@ module Sord
             name = name.chop if name.end_with?(':')
             "#{name}: #{inferred_type}"
           else
-            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
-            # Get rid of : on keyword arguments.
-            name = name.chop if name.end_with?(':')
-            "#{name}: T.untyped"
+            # Is this the only argument, and was a @param specified without an
+            # argument name? If so, infer it
+            if parameter_names_to_tags.length == 1 \
+              && meth.tags('param').length == 1 \
+              && meth.tag('param').types
+
+              Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
+              "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped)}"
+            else
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
+              # Get rid of : on keyword arguments.
+              name = name.chop if name.end_with?(':')
+              "#{name}: T.untyped"
+            end
           end
         end
 
