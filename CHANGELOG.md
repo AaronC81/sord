@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.8.0] - 2019-07-07
+### Added
+- Block types can now be generated using `@yieldparam` and `@yieldreturn`.
+- Long lists of parameters (at least 4) are now broken onto multiple lines. The threshold can be altered with the `--break-params` option.
+- If a constant used is not found, Sord will now attempt to locate it and fully-qualify its name.
+- Add the `--replace-errors-with-untyped` flag; when present, `T.untyped` is used instead of `SORD_ERROR_` constants.
+- Add the `--include/exclude-messages` flags, which can be used to suppress certain log message kinds.
+- Add support for the `Class<...>` generic becoming `T.class_of(...)`. (#44)
+- Add YARD array (`<...>`) and hash (`{... => ...}`) shorthands. (#43)
+- Sord now has an `examples` set of Rake tasks to test Sord on a large number of repos.
+- Sord now bundles an RBI for itself.
+
+### Changed
+- Methods without any YARD documentation are now typed as `T.untyped` rather than `void`.
+
+### Fixed
+- Duck types in the form of setters (`#foo=`) are now interpreted properly.
+- Fix some cases where indentation was incorrect. (#30, #46)
+- Fix `include` and `extend` calls being swapped, and give them proper blank lines.
+- Fix incorrect blank lines inside empty namespaces.
+- Fix a crash when a `@param` has no name given.
+
 ## [0.7.1] - 2019-06-24
 ### Fixed
 - Fix bug where `--no-regenerate` flag was ignored.
