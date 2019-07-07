@@ -144,13 +144,13 @@ describe Sord::TypeConverter do
         end
 
         it 'handles shorthand Hash syntax' do
-          expect(subject.yard_to_sorbet('{String => Symbol}')).to eq 'T::Hash<String, Symbol>'
-          expect(subject.yard_to_sorbet('{{String => Integer} => {Symbol => Float}}')).to eq 'T::Hash<T::Hash<String, Integer>, T::Hash<Symbol, Float>>'
+          expect(subject.yard_to_sorbet('{String => Symbol}')).to eq 'T::Hash[String, Symbol]'
+          expect(subject.yard_to_sorbet('{{String => Integer} => {Symbol => Float}}')).to eq 'T::Hash[T::Hash[String, Integer], T::Hash[Symbol, Float]]'
         end
 
         it 'handles shorthand Array syntax' do
-          expect(subject.yard_to_sorbet('<String>')).to eq 'T::Array<String>'
-          expect(subject.yard_to_sorbet('<String, <Boolean, Symbol>>')).to eq 'T::Array<T.any(String, T::Array<T.any(T::Boolean, Symbol)>)>'
+          expect(subject.yard_to_sorbet('<String>')).to eq 'T::Array[String]'
+          expect(subject.yard_to_sorbet('<String, <Boolean, Symbol>>')).to eq 'T::Array[T.any(String, T::Array[T.any(T::Boolean, Symbol)])]'
         end
 
         it 'converts Class types' do
