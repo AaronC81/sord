@@ -169,14 +169,14 @@ module Sord
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
-        "T::Hash<#{parameters.join(', ')}>"
+        "T::Hash[#{parameters.join(', ')}]"
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
         parameters.one? \
-          ? "T::Array<#{parameters.first}>"
-          : "T::Array<T.any(#{parameters.join(', ')})>"
+          ? "T::Array[#{parameters.first}]"
+          : "T::Array[T.any(#{parameters.join(', ')})]"
       else
         # Check for literals
         from_yaml = YAML.load(yard) rescue nil
