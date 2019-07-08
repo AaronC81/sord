@@ -23,6 +23,7 @@ module Sord
     # @param [Hash] options
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
+    # @option options [Boolean] replace_unresolved_with_untyped
     # @option options [Boolean] comments
     # @return [void]
     def initialize(options)
@@ -31,6 +32,7 @@ module Sord
       @break_params = options[:break_params]
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @parlour = Parlour::RbiGenerator.new(break_params: @break_params)
+      @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @warnings = []
       @current_object = @parlour.root
 
@@ -41,7 +43,8 @@ module Sord
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item|
-        warnings << [msg, item, rbi_contents.length] \ # TODO: is it possible to get line numbers here?
+        # TODO: is it possible to get line numbers here?
+        warnings << [msg, item, rbi_contents.length] \
           if type == :warn
       end
     end
@@ -100,7 +103,7 @@ module Sord
           name = name_and_default.first
 
           if tag
-            TypeConverter.yard_to_sorbet(tag.types, meth, @replace_errors_with_untyped)
+            TypeConverter.yard_to_sorbet(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
             yieldparams = meth.tags('yieldparam')
@@ -110,9 +113,9 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped)}" unless param.name.nil?
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -133,7 +136,7 @@ module Sord
                 && meth.tag('param').types
   
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-                next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped)
+                next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else  
                 Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
                 next 'T.untyped'
@@ -141,7 +144,7 @@ module Sord
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, @replace_errors_with_untyped)
+              getter.tags('return').flat_map(&:types), meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
             inferred_type
@@ -153,7 +156,7 @@ module Sord
               && meth.tag('param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-              TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped)
+              TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
               Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
               'T.untyped'
@@ -168,7 +171,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           nil
         else
-          TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped)
+          TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
         parlour_params = parameter_names_and_defaults_to_tags

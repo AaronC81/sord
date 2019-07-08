@@ -23,7 +23,7 @@ namespace :examples do
   require 'colorize'
 
   desc "Clone git repositories and run Sord on them as examples"
-  task :seed do
+  task :seed, [:clean] do |t, args|
     if File.directory?('sord_examples')
       puts 'sord_examples directory already exists, please delete the directory or run a reseed!'.red
       exit
@@ -44,7 +44,11 @@ namespace :examples do
         system('bundle install')
         # Generate sri
         puts "Generating rbi for #{name}..."
-        system("bundle exec sord ../#{name}.rbi")
+        if args[:clean]
+          system("bundle exec sord ../#{name}.rbi --no-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+        else
+          system("bundle exec sord ../#{name}.rbi")
+        end
         puts "#{name}.rbi generated!"
         FileUtils.cd '..'
       end
@@ -54,14 +58,18 @@ namespace :examples do
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
-  task :reseed do
+  task :reseed, [:clean] do |t, args|
     FileUtils.cd 'sord_examples'
 
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
       puts "Regenerating rbi file for #{name}..."
       Bundler.with_clean_env do
-        system("bundle exec sord ../#{name}.rbi --no-regenerate")
+        if args[:clean]
+          system("bundle exec sord ../#{name}.rbi --no-regenerate --no-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+        else
+          system("bundle exec sord ../#{name}.rbi --no-regenerate")
+        end
       end
       FileUtils.cd '..'
     end
@@ -74,5 +82,16 @@ namespace :examples do
     FileUtils.rm_rf 'sord_examples' if File.directory?('sord_examples')
     puts 'Reset complete.'.green
   end
-end
 
+  desc 'Typecheck each of the sord_examples rbi files.'
+  task :typecheck do
+    REPOS.each do |name, url|
+      Bundler.with_clean_env do
+        8.times { puts }
+        cmd = "srb tc sord_examples/#{name}.rbi --ignore sord.rbi"
+        puts cmd
+        system(cmd)
+      end
+    end
+  end
+end

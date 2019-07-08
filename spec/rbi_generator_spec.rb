@@ -13,6 +13,7 @@ describe Sord::RbiGenerator do
       comments: true,
       break_params: 4,
       replace_errors_with_untyped: false,
+      replace_unresolved_with_untyped: false
     )
   end
 

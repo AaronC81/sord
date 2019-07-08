@@ -136,7 +136,20 @@ module Sord
     def self.split_type_parameters(params); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
+<<<<<<< HEAD
     sig { params(yard: T.any(T::Boolean, Array, String), item: YARD::CodeObjects::Base, replace_errors_with_untyped: T::Boolean).returns(String) }
     def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false); end
+=======
+    sig do
+      params(
+        yard: T.any(T::Boolean, Array, String),
+        item: YARD::CodeObjects::Base,
+        indent_level: Integer,
+        replace_errors_with_untyped: T::Boolean,
+        replace_unresolved_with_untyped: T::Boolean
+      ).returns(String)
+    end
+    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end
+>>>>>>> master
   end
 end
