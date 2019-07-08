@@ -2,10 +2,10 @@
 module Sord
   module Logging
     sig { returns(T::Array[Proc]) }
-    def self.hooks(); end
+    def self.hooks; end
 
     sig { returns(T::Boolean) }
-    def self.silent?(); end
+    def self.silent?; end
 
     sig { params(value: T::Boolean).void }
     def self.silent=(value); end
@@ -14,7 +14,7 @@ module Sord
     def self.enabled_types=(value); end
 
     sig { returns(T::Array[Symbol]) }
-    def self.enabled_types(); end
+    def self.enabled_types; end
 
     sig { params(value: T::Array[Symbol]).void }
     def self.valid_types?(value); end
@@ -26,7 +26,7 @@ module Sord
         header: String,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer
+        indent_level: Integer,
       ).void
     end
     def self.generic(kind, header, msg, item, indent_level = 0); end
@@ -65,7 +65,7 @@ module Sord
         kind: Symbol,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer
+        indent_level: Integer,
       ).void
     end
     def self.invoke_hooks(kind, msg, item, indent_level = 0); end
@@ -77,10 +77,10 @@ module Sord
 
   module Resolver
     sig { void }
-    def self.prepare(); end
+    def self.prepare; end
 
     sig { void }
-    def self.clear(); end
+    def self.clear; end
 
     sig { params(name: String).returns(T::Array[String]) }
     def self.paths_for(name); end
@@ -89,7 +89,7 @@ module Sord
     def self.path_for(name); end
 
     sig { returns(T::Array[String]) }
-    def self.builtin_classes(); end
+    def self.builtin_classes; end
 
     sig { params(name: String, item: Object).returns(T::Boolean) }
     def self.resolvable?(name, item); end
@@ -97,20 +97,20 @@ module Sord
 
   class RbiGenerator
     sig { returns(Integer) }
-    def object_count(); end
+    def object_count; end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     sig { returns(T::Array[[String, YARD::CodeObjects::Base, Integer]]) }
-    def warnings(); end
+    def warnings; end
 
     sig { params(options: Hash).void }
     def initialize(options); end
 
     sig { void }
-    def count_namespace(); end
+    def count_namespace; end
 
     sig { void }
-    def count_method(); end
+    def count_method; end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     sig { params(item: YARD::CodeObjects::Base).returns(Integer) }
@@ -125,7 +125,7 @@ module Sord
     def add_namespace(item); end
 
     sig { returns(String) }
-    def generate(); end
+    def generate; end
 
     sig { params(filename: T.nilable(String)).void }
     def run(filename); end
@@ -136,20 +136,14 @@ module Sord
     def self.split_type_parameters(params); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-<<<<<<< HEAD
-    sig { params(yard: T.any(T::Boolean, Array, String), item: YARD::CodeObjects::Base, replace_errors_with_untyped: T::Boolean).returns(String) }
-    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false); end
-=======
     sig do
       params(
         yard: T.any(T::Boolean, Array, String),
         item: YARD::CodeObjects::Base,
-        indent_level: Integer,
         replace_errors_with_untyped: T::Boolean,
-        replace_unresolved_with_untyped: T::Boolean
+        replace_unresolved_with_untyped: T::Boolean,
       ).returns(String)
     end
-    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end
->>>>>>> master
+    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end
   end
 end
