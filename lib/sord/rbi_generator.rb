@@ -66,7 +66,6 @@ module Sord
     # @param [YARD::CodeObjects::Base] item
     # @return [Integer]
     def add_mixins(item)
-      p "YARD: #{[item.instance_mixins, item.class_mixins]}"
       item.instance_mixins.reverse_each do |i|
         @current_object.add_include(i.name.to_s)
       end
