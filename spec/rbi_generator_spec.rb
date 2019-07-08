@@ -79,7 +79,7 @@ describe Sord::RbiGenerator do
       module A
         class B
           sig { returns(Integer) }
-          def foo(); end
+          def foo; end
         end
 
         module C
@@ -115,7 +115,7 @@ describe Sord::RbiGenerator do
         class B
           # sord omit - no YARD return type given, using T.untyped
           sig { returns(T.untyped) }
-          def foo(); end
+          def foo; end
         end
 
         module C
@@ -137,8 +137,8 @@ describe Sord::RbiGenerator do
       class C; end
 
       class D < A
-        extend B
-        include C
+        include B
+        extend C
         def x; end
       end
     RUBY
@@ -155,12 +155,12 @@ describe Sord::RbiGenerator do
       end
 
       class D < A
-        extend B
-        include C
+        include B
+        extend C
 
         # sord omit - no YARD return type given, using T.untyped
         sig { returns(T.untyped) }
-        def x(); end
+        def x; end
       end
     RUBY
   end
@@ -305,7 +305,7 @@ describe Sord::RbiGenerator do
             a: Integer,
             b: String,
             c: Float,
-            d: Object
+            d: Object,
           ).void
         end
         def foo(a, b, c, d); end
@@ -327,7 +327,7 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         sig { returns(Integer) }
-        def x(); end
+        def x; end
 
         # sord infer - inferred type of parameter "value" as Integer using getter's return type
         # sord omit - no YARD return type given, using T.untyped

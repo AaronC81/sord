@@ -96,22 +96,12 @@ module Sord
   end
 
   class RbiGenerator
-    sig { returns(T::Array[String]) }
-    def rbi_contents(); end
-
     sig { returns(Integer) }
     def object_count(); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     sig { returns(T::Array[[String, YARD::CodeObjects::Base, Integer]]) }
     def warnings(); end
-
-    sig { returns(T::Boolean) }
-    def next_item_is_first_in_namespace(); end
-
-    # sord infer - inferred type of parameter "value" as T::Boolean using getter's return type
-    sig { params(value: T::Boolean).returns(T::Boolean) }
-    def next_item_is_first_in_namespace=(value); end
 
     sig { params(options: Hash).void }
     def initialize(options); end
@@ -122,23 +112,17 @@ module Sord
     sig { void }
     def count_method(); end
 
-    sig { void }
-    def add_blank(); end
-
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::Base, indent_level: Integer).returns(Integer) }
-    def add_mixins(item, indent_level); end
-
-    sig { params(params: T::Array[String], returns: String, indent_level: Integer).void }
-    def add_signature(params, returns, indent_level); end
+    sig { params(item: YARD::CodeObjects::Base).returns(Integer) }
+    def add_mixins(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::NamespaceObject, indent_level: Integer).void }
-    def add_methods(item, indent_level); end
+    sig { params(item: YARD::CodeObjects::NamespaceObject).void }
+    def add_methods(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::NamespaceObject, indent_level: Integer).void }
-    def add_namespace(item, indent_level = 0); end
+    sig { params(item: YARD::CodeObjects::NamespaceObject).void }
+    def add_namespace(item); end
 
     sig { returns(String) }
     def generate(); end
@@ -152,14 +136,7 @@ module Sord
     def self.split_type_parameters(params); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig do
-      params(
-        yard: T.any(T::Boolean, Array, String),
-        item: YARD::CodeObjects::Base,
-        indent_level: Integer,
-        replace_errors_with_untyped: T::Boolean
-      ).returns(String)
-    end
-    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false); end
+    sig { params(yard: T.any(T::Boolean, Array, String), item: YARD::CodeObjects::Base, replace_errors_with_untyped: T::Boolean).returns(String) }
+    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false); end
   end
 end

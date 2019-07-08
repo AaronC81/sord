@@ -182,7 +182,7 @@ describe Sord::TypeConverter do
         end
 
         it 'T.untyped rather than SORD_ERROR if option is set' do
-          expect(subject.yard_to_sorbet('Hash{String, Symbol', nil, 0, true)).to eq 'T.untyped'
+          expect(subject.yard_to_sorbet('Hash{String, Symbol', nil, true)).to eq 'T.untyped'
         end
       end
     end
