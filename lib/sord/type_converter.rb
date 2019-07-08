@@ -97,8 +97,10 @@ module Sord
     # @param [Integer] indent_level 
     # @param [Boolean] replace_errors_with_untyped If true, T.untyped is used
     #   instead of SORD_ERROR_ constants for unknown types.
+    # @param [Boolean] replace_unresolved_with_untyped If true, T.untyped is used
+    #   when Sord is unable to resolve a constant.
     # @return [String]
-    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false)
+    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
       case yard
       when nil # Type not specified
         "T.untyped"
@@ -111,7 +113,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           .uniq
         result = types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
         result = "T.nilable(#{result})" if yard.include?('nil')
@@ -131,8 +133,13 @@ module Sord
               unless yard == new_path
             new_path
           else
-            Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item, indent_level)
-            yard
+            if replace_unresolved_with_untyped
+              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project, replaced with T.untyped", item, indent_level)
+              'T.untyped'
+            else
+              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item, indent_level)
+              yard
+            end
           end
         else
           yard
@@ -146,7 +153,7 @@ module Sord
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
           parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
+            .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
           elsif generic_type == 'Class' && parameters.length == 1
@@ -163,17 +170,17 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         "[#{parameters.join(', ')}]"
       when SHORTHAND_HASH_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         "T::Hash[#{parameters.join(', ')}]"
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         parameters.one? \
           ? "T::Array[#{parameters.first}]"
           : "T::Array[T.any(#{parameters.join(', ')})]"
