@@ -82,5 +82,16 @@ namespace :examples do
     FileUtils.rm_rf 'sord_examples' if File.directory?('sord_examples')
     puts 'Reset complete.'.green
   end
-end
 
+  desc 'Typecheck each of the sord_examples rbi files.'
+  task :typecheck do
+    REPOS.each do |name, url|
+      Bundler.with_clean_env do
+        8.times { puts }
+        cmd = "srb tc sord_examples/#{name}.rbi --ignore sord.rbi"
+        puts cmd
+        system(cmd)
+      end
+    end
+  end
+end
