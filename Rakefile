@@ -54,14 +54,18 @@ namespace :examples do
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
-  task :reseed do
+  task :reseed, [:clean] do |t, args|
     FileUtils.cd 'sord_examples'
 
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
       puts "Regenerating rbi file for #{name}..."
       Bundler.with_clean_env do
-        system("bundle exec sord ../#{name}.rbi --no-regenerate")
+        if args[:clean]
+          system("bundle exec sord ../#{name}.rbi --no-regenerate --no-comments --replace-errors-with-untyped")
+        else
+          system("bundle exec sord ../#{name}.rbi --no-regenerate")
+        end
       end
       FileUtils.cd '..'
     end
