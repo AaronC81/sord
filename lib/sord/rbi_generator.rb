@@ -30,6 +30,7 @@ module Sord
     # @param [Hash] options
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
+    # @option options [Boolean] replace_unresolved_with_untyped
     # @option options [Boolean] comments
     # @return [void]
     def initialize(options)
@@ -38,6 +39,7 @@ module Sord
       @method_count = 0
       @break_params = options[:break_params]
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
+      @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @warnings = []
       @next_item_is_first_in_namespace = true
 
@@ -161,7 +163,7 @@ module Sord
           name = name.gsub('*', '')
 
           if tag
-            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level, @replace_errors_with_untyped)}"
+            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
           elsif name.start_with? '&'
             # Cut the ampersand from the block parameter name
             name = name.gsub('&', '')
@@ -174,9 +176,9 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped)}" unless param.name.nil?
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level, @replace_errors_with_untyped)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -197,7 +199,7 @@ module Sord
                 && meth.tag('param').types
   
                 Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
-                next "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped)}"
+                next "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
               else  
                 Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
                 next "#{name}: T.untyped"
@@ -205,7 +207,7 @@ module Sord
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, indent_level, @replace_errors_with_untyped)
+              getter.tags('return').flat_map(&:types), meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth, indent_level)
             # Get rid of : on keyword arguments.
@@ -219,7 +221,7 @@ module Sord
               && meth.tag('param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
-              "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped)}"
+              "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
             else
               Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
               # Get rid of : on keyword arguments.
@@ -236,7 +238,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           "void"
         else
-          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level, @replace_errors_with_untyped)})"
+          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)})"
         end
 
         prefix = meth.scope == :class ? 'self.' : ''

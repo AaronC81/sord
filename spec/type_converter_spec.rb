@@ -184,6 +184,10 @@ describe Sord::TypeConverter do
         it 'T.untyped rather than SORD_ERROR if option is set' do
           expect(subject.yard_to_sorbet('Hash{String, Symbol', nil, 0, true)).to eq 'T.untyped'
         end
+
+        it 'T.untyped rather than unresolved constant if option is set' do
+          expect(subject.yard_to_sorbet('TestConstantThatDoesNotExist', YARD::CodeObjects::NamespaceObject.new(:root, :Foo), 0, false, true)).to eq 'T.untyped'
+        end
       end
     end
   end
