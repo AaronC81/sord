@@ -41,7 +41,7 @@ module Sord
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item|
-        warnings << [msg, item, rbi_contents.length] \
+        warnings << [msg, item, rbi_contents.length] \ # TODO: is it possible to get line numbers here?
           if type == :warn
       end
     end
