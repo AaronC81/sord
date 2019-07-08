@@ -250,10 +250,10 @@ module Sord
         else
           Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
         end
-        Logging.warn("Please edit the file near the line numbers given to fix these errors.")
+        Logging.warn("Please edit the file to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
-        warnings.each do |(msg, item, line)|
-          puts "        #{"Line #{line} |".light_black} (#{item&.path&.bold}) #{msg}"
+        warnings.each do |(msg, item, _)|
+          puts "        (#{item&.path&.bold}) #{msg}"
         end
       end
     rescue
