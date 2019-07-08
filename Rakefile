@@ -87,6 +87,7 @@ namespace :examples do
   task :typecheck do
     REPOS.each do |name, url|
       Bundler.with_clean_env do
+        8.times { puts }
         cmd = "srb tc sord_examples/#{name}.rbi --ignore sord.rbi"
         puts cmd
         system(cmd)
