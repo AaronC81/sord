@@ -23,7 +23,7 @@ namespace :examples do
   require 'colorize'
 
   desc "Clone git repositories and run Sord on them as examples"
-  task :seed do
+  task :seed, [:clean] do |t, args|
     if File.directory?('sord_examples')
       puts 'sord_examples directory already exists, please delete the directory or run a reseed!'.red
       exit
@@ -44,7 +44,11 @@ namespace :examples do
         system('bundle install')
         # Generate sri
         puts "Generating rbi for #{name}..."
-        system("bundle exec sord ../#{name}.rbi")
+        if args[:clean]
+          system("bundle exec sord ../#{name}.rbi --no-comments --replace-errors-with-untyped")
+        else
+          system("bundle exec sord ../#{name}.rbi")
+        end
         puts "#{name}.rbi generated!"
         FileUtils.cd '..'
       end
