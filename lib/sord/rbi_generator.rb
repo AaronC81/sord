@@ -3,13 +3,11 @@ require 'yard'
 require 'sord/type_converter'
 require 'colorize'
 require 'sord/logging'
+require 'parlour'
 
 module Sord
   # Converts the current working directory's YARD registry into an RBI file.
-  class RbiGenerator
-    # @return [Array<String>] The lines of the generated RBI file so far.
-    attr_reader :rbi_contents
-    
+  class RbiGenerator    
     # @return [Integer] The number of objects this generator has processed so 
     #   far.
     def object_count
@@ -21,11 +19,6 @@ module Sord
     #   [message, item, line].
     attr_reader :warnings
 
-    # @return [Boolean] A boolean indicating whether the next item is the first
-    #   in its namespace. This is used to determine whether to insert a blank
-    #   line before it or not.
-    attr_accessor :next_item_is_first_in_namespace
-
     # Create a new RBI generator.
     # @param [Hash] options
     # @option options [Integer] break_params
@@ -34,24 +27,24 @@ module Sord
     # @option options [Boolean] comments
     # @return [void]
     def initialize(options)
-      @rbi_contents = ['# typed: strong']
       @namespace_count = 0
       @method_count = 0
       @break_params = options[:break_params]
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
+      @parlour = Parlour::RbiGenerator.new(break_params: @break_params)
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @warnings = []
-      @next_item_is_first_in_namespace = true
+      @current_object = @parlour.root
 
       # Hook the logger so that messages are added as comments to the RBI file
-      Logging.add_hook do |type, msg, item, indent_level = 0|
-        rbi_contents << "#{'  ' * (indent_level + 1)}# sord #{type} - #{msg}"
+      Logging.add_hook do |type, msg, item|
+        @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
       end if options[:comments]
 
       # Hook the logger so that warnings are collected
-      Logging.add_hook do |type, msg, item, indent_level = 0|
-        warnings << [msg, item, rbi_contents.length] \
-          if type == :warn
+      Logging.add_hook do |type, msg, item|
+        # TODO: is it possible to get line numbers here?
+        warnings << [msg, item, 0] if type == :warn
       end
     end
 
@@ -67,65 +60,26 @@ module Sord
       @method_count += 1
     end
 
-    # Adds a single blank line to the RBI file, unless this item is the first
-    # in its namespace.
-    # @return [void]
-    def add_blank
-      rbi_contents << '' unless next_item_is_first_in_namespace
-      self.next_item_is_first_in_namespace = false
-    end
-
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
     # and includes) to the current RBI file. Returns the number of mixins.
     # @param [YARD::CodeObjects::Base] item
-    # @param [Integer] indent_level
     # @return [Integer]
-    def add_mixins(item, indent_level)
-      includes = item.instance_mixins
-      extends = item.class_mixins
-
-      extends.reverse_each do |this_extend|
-        rbi_contents << "#{'  ' * (indent_level + 1)}extend #{this_extend.path}"
+    def add_mixins(item)
+      item.instance_mixins.reverse_each do |i|
+        @current_object.add_include(i.name.to_s)
       end
-      includes.reverse_each do |this_include|
-        rbi_contents << "#{'  ' * (indent_level + 1)}include #{this_include.path}"
+      item.class_mixins.reverse_each do |e|
+        @current_object.add_extend(e.name.to_s)
       end
 
-      extends.length + includes.length
-    end
-
-    # Given an array of parameters and a return type, inserts the signature for
-    # a method with those properties into the current RBI file.
-    # @param [Array<String>] params
-    # @param [String] returns
-    # @param [Integer] indent_level
-    # @return [void]
-    def add_signature(params, returns, indent_level)
-      if params.empty?
-        rbi_contents << "#{'  ' * (indent_level + 1)}sig { #{returns} }"
-        return
-      end
-
-      if params.length >= @break_params
-        rbi_contents << "#{'  ' * (indent_level + 1)}sig do"
-        rbi_contents << "#{'  ' * (indent_level + 2)}params("
-        params.each.with_index do |param, i|
-          terminator = params.length - 1 == i ? '' : ','
-          rbi_contents << "#{'  ' * (indent_level + 3)}#{param}#{terminator}"
-        end
-        rbi_contents << "#{'  ' * (indent_level + 2)}).#{returns}"
-        rbi_contents << "#{'  ' * (indent_level + 1)}end"
-      else
-        rbi_contents << "#{'  ' * (indent_level + 1)}sig { params(#{params.join(', ')}).#{returns} }"
-      end
+      item.instance_mixins.length + item.class_mixins.length
     end
 
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
-    # @param [Integer] indent_level
     # @return [void]
-    def add_methods(item, indent_level)
+    def add_methods(item)
       item.meths.each do |meth|
         count_method
 
@@ -135,39 +89,20 @@ module Sord
           next
         end
 
-        add_blank
-
-        parameter_list = meth.parameters.map do |name, default|
-          # Handle these three main cases:
-          # - def method(param) or def method(param:)
-          # - def method(param: 'default')
-          # - def method(param = 'default')
-          if default.nil?
-            "#{name}"
-          elsif !default.nil? && name.end_with?(':')
-            "#{name} #{default}"
-          else
-            "#{name} = #{default}"
-          end
-        end.join(", ")
-
         # This is better than iterating over YARD's "@param" tags directly 
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
-        parameter_names_to_tags = meth.parameters.map do |name, _|
-          [name, meth.tags('param')
+        parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
+          [[name, default], meth.tags('param')
             .find { |p| p.name&.gsub('*', '') == name.gsub('*', '') }]
         end.to_h
 
-        sig_params_list = parameter_names_to_tags.map do |name, tag|
-          name = name.gsub('*', '')
+        parameter_types = parameter_names_and_defaults_to_tags.map do |name_and_default, tag|
+          name = name_and_default.first
 
           if tag
-            "#{name}: #{TypeConverter.yard_to_sorbet(tag.types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
+            TypeConverter.yard_to_sorbet(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           elsif name.start_with? '&'
-            # Cut the ampersand from the block parameter name
-            name = name.gsub('&', '')
-
             # Find yieldparams and yieldreturn
             yieldparams = meth.tags('yieldparam')
             yieldreturn = meth.tag('yieldreturn')&.types
@@ -176,17 +111,17 @@ module Sord
 
             # Create strings
             params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
+              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
             end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
-              "#{name}: T.untyped"
+              'T.untyped'
             elsif yieldreturn.nil?
-              "#{name}: T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.void"
+              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.void"
             else
-              "#{name}: T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
+              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
             end
           elsif meth.path.end_with? '='
             # Look for the matching getter method
@@ -194,88 +129,91 @@ module Sord
             getter = item.meths.find { |m| m.path == getter_path }
 
             unless getter
-              if parameter_names_to_tags.length == 1 \
+              if parameter_names_and_defaults_to_tags.length == 1 \
                 && meth.tags('param').length == 1 \
                 && meth.tag('param').types
   
-                Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
-                next "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
+                Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
+                next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else  
-                Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
-                next "#{name}: T.untyped"
+                Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+                next 'T.untyped'
               end
             end
 
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              getter.tags('return').flat_map(&:types), meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
-            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth, indent_level)
-            # Get rid of : on keyword arguments.
-            name = name.chop if name.end_with?(':')
-            "#{name}: #{inferred_type}"
+            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            inferred_type
           else
             # Is this the only argument, and was a @param specified without an
             # argument name? If so, infer it
-            if parameter_names_to_tags.length == 1 \
+            if parameter_names_and_defaults_to_tags.length == 1 \
               && meth.tags('param').length == 1 \
               && meth.tag('param').types
 
-              Logging.infer("argument name in single @param inferred as #{parameter_names_to_tags.first.first.inspect}", meth, indent_level)
-              "#{name}: #{TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}"
+              Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
+              TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth, indent_level)
-              # Get rid of : on keyword arguments.
-              name = name.chop if name.end_with?(':')
-              "#{name}: T.untyped"
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+              'T.untyped'
             end
           end
         end
 
         return_tags = meth.tags('return')
         returns = if return_tags.length == 0
-          Logging.omit("no YARD return type given, using T.untyped", meth, indent_level)
-          "returns(T.untyped)"
+          Logging.omit("no YARD return type given, using T.untyped", meth)
+          'T.untyped'
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
-          "void"
+          nil
         else
-          "returns(#{TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, indent_level, @replace_errors_with_untyped, @replace_unresolved_with_untyped)})"
+          TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
-        prefix = meth.scope == :class ? 'self.' : ''
+        parlour_params = parameter_names_and_defaults_to_tags
+          .zip(parameter_types)
+          .map do |((name, default), _), type|
+            Parlour::RbiGenerator::Parameter.new(
+              name: name.to_s,
+              type: type,
+              default: default
+            )
+          end
 
-        add_signature(sig_params_list, returns, indent_level)
-
-        rbi_contents << "#{'  ' * (indent_level + 1)}def #{prefix}#{meth.name}(#{parameter_list}); end"
+        @current_object.create_method(
+          name: meth.name.to_s, 
+          parameters: parlour_params,
+          returns: returns,
+          class_method: meth.scope == :class
+        )
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its mixins, methods
     # and children to the RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
-    # @param [Integer] indent_level
     # @return [void]
-    def add_namespace(item, indent_level = 0)
+    def add_namespace(item)
       count_namespace
-      add_blank
 
-      if item.type == :class && item.superclass.to_s != "Object"
-        rbi_contents << "#{'  ' * indent_level}class #{item.name} < #{item.superclass.path}" 
-      else
-        rbi_contents << "#{'  ' * indent_level}#{item.type} #{item.name}"
-      end
+      superclass =
+        item.type == :class && item.superclass.to_s != "Object" \
+        ? item.superclass.name.to_s : nil
 
-      self.next_item_is_first_in_namespace = true
-      if add_mixins(item, indent_level) > 0
-        self.next_item_is_first_in_namespace = false
-      end
-      add_methods(item, indent_level)
+      parent = @current_object
+      @current_object = item.type == :class \
+        ? parent.create_class(name: item.name.to_s, superclass: superclass)
+        : parent.create_module(name: item.name.to_s)
+
+      add_mixins(item)
+      add_methods(item)
 
       item.children.select { |x| [:class, :module].include?(x.type) }
-        .each { |child| add_namespace(child, indent_level + 1) }
+        .each { |child| add_namespace(child) }
 
-      self.next_item_is_first_in_namespace = false
-
-      rbi_contents << "#{'  ' * indent_level}end"
+      @current_object = parent
     end
 
     # Generates the RBI file from the loading registry and returns its contents.
@@ -287,7 +225,8 @@ module Sord
         .select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
 
-      rbi_contents.join("\n")
+      # Workaround for bug which will be fixed in Parlour at some point
+      "# typed: strong\n" + @parlour.rbi
     end
 
     # Generates the RBI file and writes it to the given file path, printing a
@@ -320,10 +259,10 @@ module Sord
         else
           Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
         end
-        Logging.warn("Please edit the file near the line numbers given to fix these errors.")
+        Logging.warn("Please edit the file to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
-        warnings.each do |(msg, item, line)|
-          puts "        #{"Line #{line} |".light_black} (#{item&.path&.bold}) #{msg}"
+        warnings.each do |(msg, item, _)|
+          puts "        (#{item&.path&.bold}) #{msg}"
         end
       end
     rescue

@@ -2,10 +2,10 @@
 module Sord
   module Logging
     sig { returns(T::Array[Proc]) }
-    def self.hooks(); end
+    def self.hooks; end
 
     sig { returns(T::Boolean) }
-    def self.silent?(); end
+    def self.silent?; end
 
     sig { params(value: T::Boolean).void }
     def self.silent=(value); end
@@ -14,7 +14,7 @@ module Sord
     def self.enabled_types=(value); end
 
     sig { returns(T::Array[Symbol]) }
-    def self.enabled_types(); end
+    def self.enabled_types; end
 
     sig { params(value: T::Array[Symbol]).void }
     def self.valid_types?(value); end
@@ -26,7 +26,7 @@ module Sord
         header: String,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer
+        indent_level: Integer,
       ).void
     end
     def self.generic(kind, header, msg, item, indent_level = 0); end
@@ -65,7 +65,7 @@ module Sord
         kind: Symbol,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer
+        indent_level: Integer,
       ).void
     end
     def self.invoke_hooks(kind, msg, item, indent_level = 0); end
@@ -77,10 +77,10 @@ module Sord
 
   module Resolver
     sig { void }
-    def self.prepare(); end
+    def self.prepare; end
 
     sig { void }
-    def self.clear(); end
+    def self.clear; end
 
     sig { params(name: String).returns(T::Array[String]) }
     def self.paths_for(name); end
@@ -89,59 +89,43 @@ module Sord
     def self.path_for(name); end
 
     sig { returns(T::Array[String]) }
-    def self.builtin_classes(); end
+    def self.builtin_classes; end
 
     sig { params(name: String, item: Object).returns(T::Boolean) }
     def self.resolvable?(name, item); end
   end
 
   class RbiGenerator
-    sig { returns(T::Array[String]) }
-    def rbi_contents(); end
-
     sig { returns(Integer) }
-    def object_count(); end
+    def object_count; end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     sig { returns(T::Array[[String, YARD::CodeObjects::Base, Integer]]) }
-    def warnings(); end
-
-    sig { returns(T::Boolean) }
-    def next_item_is_first_in_namespace(); end
-
-    # sord infer - inferred type of parameter "value" as T::Boolean using getter's return type
-    sig { params(value: T::Boolean).returns(T::Boolean) }
-    def next_item_is_first_in_namespace=(value); end
+    def warnings; end
 
     sig { params(options: Hash).void }
     def initialize(options); end
 
     sig { void }
-    def count_namespace(); end
+    def count_namespace; end
 
     sig { void }
-    def count_method(); end
-
-    sig { void }
-    def add_blank(); end
+    def count_method; end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::Base, indent_level: Integer).returns(Integer) }
-    def add_mixins(item, indent_level); end
-
-    sig { params(params: T::Array[String], returns: String, indent_level: Integer).void }
-    def add_signature(params, returns, indent_level); end
+    sig { params(item: YARD::CodeObjects::Base).returns(Integer) }
+    def add_mixins(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::NamespaceObject, indent_level: Integer).void }
-    def add_methods(item, indent_level); end
+    sig { params(item: YARD::CodeObjects::NamespaceObject).void }
+    def add_methods(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
-    sig { params(item: YARD::CodeObjects::NamespaceObject, indent_level: Integer).void }
-    def add_namespace(item, indent_level = 0); end
+    sig { params(item: YARD::CodeObjects::NamespaceObject).void }
+    def add_namespace(item); end
 
     sig { returns(String) }
-    def generate(); end
+    def generate; end
 
     sig { params(filename: T.nilable(String)).void }
     def run(filename); end
@@ -156,11 +140,10 @@ module Sord
       params(
         yard: T.any(T::Boolean, Array, String),
         item: YARD::CodeObjects::Base,
-        indent_level: Integer,
         replace_errors_with_untyped: T::Boolean,
-        replace_unresolved_with_untyped: T::Boolean
+        replace_unresolved_with_untyped: T::Boolean,
       ).returns(String)
     end
-    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end
+    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end
   end
 end

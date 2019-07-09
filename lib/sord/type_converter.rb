@@ -94,13 +94,12 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which the YARD type
     #   is associated with. This is used for logging and can be nil, but this
     #   will lead to less informative log messages.
-    # @param [Integer] indent_level 
     # @param [Boolean] replace_errors_with_untyped If true, T.untyped is used
     #   instead of SORD_ERROR_ constants for unknown types.
     # @param [Boolean] replace_unresolved_with_untyped If true, T.untyped is used
     #   when Sord is unable to resolve a constant.
     # @return [String]
-    def self.yard_to_sorbet(yard, item = nil, indent_level = 0, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
+    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
       case yard
       when nil # Type not specified
         "T.untyped"
@@ -113,7 +112,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           .uniq
         result = types.length == 1 ? types.first : "T.any(#{types.join(', ')})"
         result = "T.nilable(#{result})" if yard.include?('nil')
@@ -121,7 +120,7 @@ module Sord
       when /^#{SIMPLE_TYPE_REGEX}$/
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
-          Logging.warn("#{yard} is probably not a type, but using anyway", item, indent_level)
+          Logging.warn("#{yard} is probably not a type, but using anyway", item)
         end
 
         # Check if whatever has been specified is actually resolvable; if not,
@@ -129,15 +128,15 @@ module Sord
         if item && !Resolver.resolvable?(yard, item)
           if Resolver.path_for(yard)
             new_path = Resolver.path_for(yard)
-            Logging.infer("#{yard} was resolved to #{new_path}", item, indent_level) \
+            Logging.infer("#{yard} was resolved to #{new_path}", item) \
               unless yard == new_path
             new_path
           else
             if replace_unresolved_with_untyped
-              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project, replaced with T.untyped", item, indent_level)
+              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project, replaced with T.untyped", item)
               'T.untyped'
             else
-              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item, indent_level)
+              Logging.warn("#{yard} wasn't able to be resolved to a constant in this project", item)
               yard
             end
           end
@@ -145,7 +144,7 @@ module Sord
           yard
         end
       when DUCK_TYPE_REGEX
-        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item, indent_level)
+        Logging.duck("#{yard} looks like a duck type, replacing with T.untyped", item)
         'T.untyped'
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
@@ -153,7 +152,7 @@ module Sord
 
         if SORBET_SUPPORTED_GENERIC_TYPES.include?(generic_type)
           parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+            .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
           elsif generic_type == 'Class' && parameters.length == 1
@@ -162,7 +161,7 @@ module Sord
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end
         else
-          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item, indent_level)
+          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
           replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
         end
       # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
@@ -170,17 +169,17 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         "[#{parameters.join(', ')}]"
       when SHORTHAND_HASH_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         "T::Hash[#{parameters.join(', ')}]"
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, indent_level, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         parameters.one? \
           ? "T::Array[#{parameters.first}]"
           : "T::Array[T.any(#{parameters.join(', ')})]"
@@ -190,7 +189,7 @@ module Sord
         return from_yaml.class.to_s \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        Logging.warn("#{yard.inspect} does not appear to be a type", item, indent_level)
+        Logging.warn("#{yard.inspect} does not appear to be a type", item)
         replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
       end
     end
