@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'yard'
   spec.add_dependency 'sorbet-runtime'
-  spec.add_dependency 'colorize'
   spec.add_dependency 'commander', '~> 4.4'
   spec.add_dependency 'parlour', '~> 0.3.1'
 
