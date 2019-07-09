@@ -1,9 +1,9 @@
 # typed: true
 require 'yard'
 require 'sord/type_converter'
-require 'colorize'
 require 'sord/logging'
 require 'parlour'
+require 'rainbow'
 
 module Sord
   # Converts the current working directory's YARD registry into an RBI file.
@@ -262,7 +262,7 @@ module Sord
         Logging.warn("Please edit the file to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
         warnings.each do |(msg, item, _)|
-          puts "        (#{item&.path&.bold}) #{msg}"
+          puts "        (#{Rainbow(item&.path).bold}) #{msg}"
         end
       end
     rescue

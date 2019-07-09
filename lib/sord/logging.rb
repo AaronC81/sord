@@ -1,4 +1,4 @@
-require 'colorize'
+require 'rainbow'
 
 module Sord
   # Handles writing logs to stdout and any other classes which request them.
@@ -74,7 +74,7 @@ module Sord
       return unless enabled_types.include?(kind)
 
       if item
-        puts "#{header} (#{item.path.bold}) #{msg}" unless silent?
+        puts "#{header} (#{Rainbow(item.path).bold}) #{msg}" unless silent?
       else
         puts "#{header} #{msg}" unless silent?
       end
@@ -91,7 +91,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.warn(msg, item = nil, indent_level = 0)
-      generic(:warn, '[WARN ]'.yellow, msg, item, indent_level)
+      generic(:warn, Rainbow('[WARN ]').yellow, msg, item, indent_level)
     end
 
     # Print an info message. This should be used for generic informational
@@ -116,7 +116,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.duck(msg, item = nil, indent_level = 0)
-      generic(:duck, '[DUCK ]'.cyan, msg, item, indent_level)
+      generic(:duck, Rainbow('[DUCK ]').cyan, msg, item, indent_level)
     end
 
     # Print an error message. This should be used for things which require the
@@ -128,7 +128,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.error(msg, item = nil, indent_level = 0)
-      generic(:error, '[ERROR]'.red, msg, item, indent_level)
+      generic(:error, Rainbow('[ERROR]').red, msg, item, indent_level)
     end
 
     # Print an infer message. This should be used when the user should be told
@@ -141,7 +141,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.infer(msg, item = nil, indent_level = 0)
-      generic(:infer, '[INFER]'.light_blue, msg, item, indent_level)
+      generic(:infer, Rainbow('[INFER]').blue, msg, item, indent_level)
     end
 
     # Print an omit message. This should be used as a special type of warning
@@ -154,7 +154,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.omit(msg, item = nil, indent_level = 0)
-      generic(:omit, '[OMIT ]'.magenta, msg, item, indent_level)
+      generic(:omit, Rainbow('[OMIT ]').magenta, msg, item, indent_level)
     end
 
     # Print a done message. This should be used when a process completes
@@ -166,7 +166,7 @@ module Sord
     # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
     def self.done(msg, item = nil, indent_level = 0)
-      generic(:done, '[DONE ]'.green, msg, item)
+      generic(:done, Rainbow('[DONE ]').green, msg, item)
     end
 
     # Invokes all registered hooks on the logger.

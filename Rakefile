@@ -20,12 +20,12 @@ REPOS = {
 
 namespace :examples do
   require 'fileutils'
-  require 'colorize'
+  require 'rainbow'
 
   desc "Clone git repositories and run Sord on them as examples"
   task :seed, [:clean] do |t, args|
     if File.directory?('sord_examples')
-      puts 'sord_examples directory already exists, please delete the directory or run a reseed!'.red
+      puts Rainbow('sord_examples directory already exists, please delete the directory or run a reseed!').red
       exit
     end
 
@@ -54,7 +54,7 @@ namespace :examples do
       end
     end
 
-    puts "Seeding complete!".green
+    puts Rainbow("Seeding complete!").green
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
@@ -74,13 +74,13 @@ namespace :examples do
       FileUtils.cd '..'
     end
 
-    puts "Re-seeding complete!".green
+    puts Rainbow("Re-seeding complete!").green
   end
   
   desc 'Delete the sord_examples directory to allow the seeder to run again.'
   task :reset do
     FileUtils.rm_rf 'sord_examples' if File.directory?('sord_examples')
-    puts 'Reset complete.'.green
+    puts Rainbow('Reset complete.').green
   end
 
   desc 'Typecheck each of the sord_examples rbi files.'
