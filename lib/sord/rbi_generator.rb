@@ -175,10 +175,19 @@ module Sord
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
-            Parlour::RbiGenerator::Parameter.new(name.to_s, type: type, default: default)
+            Parlour::RbiGenerator::Parameter.new(
+              name: name.to_s,
+              type: type,
+              default: default
+            )
           end
 
-        @current_object.create_method(meth.name.to_s, parlour_params, returns, class_method: meth.scope == :class)
+        @current_object.create_method(
+          name: meth.name.to_s, 
+          parameters: parlour_params,
+          returns: returns,
+          class_method: meth.scope == :class
+        )
       end
     end
 
@@ -195,8 +204,8 @@ module Sord
 
       parent = @current_object
       @current_object = item.type == :class \
-        ? parent.create_class(item.name.to_s, superclass: superclass)
-        : parent.create_module(item.name.to_s)
+        ? parent.create_class(name: item.name.to_s, superclass: superclass)
+        : parent.create_module(name: item.name.to_s)
 
       add_mixins(item)
       add_methods(item)

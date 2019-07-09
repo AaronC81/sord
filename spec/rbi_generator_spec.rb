@@ -306,7 +306,7 @@ describe Sord::RbiGenerator do
             a: Integer,
             b: String,
             c: Float,
-            d: Object,
+            d: Object
           ).void
         end
         def foo(a, b, c, d); end
