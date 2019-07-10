@@ -235,9 +235,7 @@ module Sord
     # @return [void]
     def generate
       populate
-
-      # Workaround for bug which will be fixed in Parlour at some point
-      "# typed: strong\n" + @parlour.rbi
+      @parlour.rbi
     end
 
     # Loads the YARD registry, populates the RBI file, and prints any relevant
