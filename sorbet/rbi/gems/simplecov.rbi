@@ -7,13 +7,14 @@
 #
 #   https://github.com/sorbet/sorbet-typed/new/master?filename=lib/simplecov/all/simplecov.rbi
 #
-# simplecov-0.16.1
+# simplecov-0.17.0
 module SimpleCov
   def self.add_not_loaded_files(result); end
   def self.clear_result; end
   def self.exit_exception; end
   def self.exit_status_from_exception; end
   def self.filtered(files); end
+  def self.final_result_process?; end
   def self.grouped(files); end
   def self.load_adapter(name); end
   def self.load_profile(name); end
@@ -29,6 +30,7 @@ module SimpleCov
   def self.set_exit_exception; end
   def self.start(profile = nil, &block); end
   def self.usable?; end
+  def self.wait_for_other_processes; end
   def self.write_last_run(covered_percent); end
   extend SimpleCov::Configuration
 end
