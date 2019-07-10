@@ -84,13 +84,39 @@ namespace :examples do
   end
 
   desc 'Typecheck each of the sord_examples rbi files.'
-  task :typecheck do
+  task :typecheck, [:verbose] do |t, args|
+    results_hash = {}
     REPOS.each do |name, url|
       Bundler.with_clean_env do
-        8.times { puts }
-        cmd = "srb tc sord_examples/#{name}.rbi --ignore sord.rbi"
-        puts cmd
-        system(cmd)
+        puts "srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1"
+        if args[:verbose]
+          output = system("srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1")
+        else
+          output = `srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1`.split("\n").last
+          results_hash[:"#{name}"] = output
+        end
+      end
+    end
+    
+    unless args[:verbose]
+      puts Rainbow("Errors").bold
+      longest_name = results_hash.keys.map { |name| name.length }.max
+
+      results_hash.each do |name, result|
+        result = "Errors: 0" if result == "No errors! Great job."
+        regex = /Errors\: (\d+)/
+        result.scan(regex) { |match| result = match.first.to_s }
+        spaces_needed = longest_name - name.length
+        case result.to_i
+        when 0..5
+          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").green.bright
+        when 6..25
+          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").green
+        when 26..50
+          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").red
+        else
+          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").red.bright
+        end
       end
     end
   end
