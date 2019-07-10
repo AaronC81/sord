@@ -35,41 +35,14 @@ command :gen do |c|
       exit 1
     end
 
-    if options.include_messages && options.exclude_messages
-      Sord::Logging.error('Please specify only one of --include-messages and --exclude-messages.')
-      exit 1
-    elsif options.include_messages
-      whitelist = options.include_messages.split(',').map { |x| x.downcase.to_sym }
-      unless Sord::Logging.valid_types?(whitelist)
-        Sord::Logging.error('Not all types on your --include-messages list are valid.')
-        Sord::Logging.error("Valid options are: #{Sord::Logging::AVAILABLE_TYPES.map(&:to_s).join(', ')}")
-        exit 1
-      end
-      Sord::Logging.enabled_types = whitelist | [:done]
-    elsif options.exclude_messages
-      blacklist = options.exclude_messages.split(',').map { |x| x.downcase.to_sym }
-      unless Sord::Logging.valid_types?(blacklist)
-        Sord::Logging.error('Not all types on your --include-messages list are valid.')
-        Sord::Logging.error("Valid options are: #{Sord::Logging::AVAILABLE_TYPES.map(&:to_s).join(', ')}")
-        exit 1
-      end
-      Sord::Logging.enabled_types = Sord::Logging::AVAILABLE_TYPES - blacklist
-    end
+    plugin_options = options.__hash__
+    plugin_options[:exclude_options] = plugin_options[:exclude_options]&.split(',')
+    plugin_options[:include_options] = plugin_options[:include_options]&.split(',')
 
-    if options.regenerate
-      begin
-        Sord::Logging.info('Running YARD...')
-        Bundler.with_clean_env do
-          system('bundle exec yard')
-        end
-      rescue Errno::ENOENT
-        Sord::Logging.error('The YARD tool could not be found on your PATH.')
-        Sord::Logging.error('You may need to run \'gem install yard\'.')
-        Sord::Logging.error('If documentation has already been generated, pass --no-regenerate to Sord.')
-        exit 1
-      end
-    end
-
-    Sord::RbiGenerator.new(options.__hash__).run(args.first)
+    plugin = Sord::ParlourPlugin.new(plugin_options)
+    plugin.parlour = Parlour::RbiGenerator.new(break_params: plugin_options[:break_params])
+    plugin.generate(plugin.parlour.root)
+    
+    File.write(args.first, plugin.parlour.rbi)
   end
 end

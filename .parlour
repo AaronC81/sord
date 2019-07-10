@@ -1,0 +1,8 @@
+output_file: rbi/sord.rbi
+
+relative-requires:
+  - lib/sord.rb
+
+plugins:
+  Sord::ParlourPlugin:
+    replace_unresolved_with_untyped: yes
