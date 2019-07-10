@@ -1,6 +1,6 @@
 output_file: rbi/sord.rbi
 
-relative-requires:
+relative_requires:
   - lib/sord.rb
 
 plugins:
