@@ -1,3 +1,4 @@
+# typed: strong
 module Sord
   module Logging
     sig { returns(T::Array[Proc]) }
