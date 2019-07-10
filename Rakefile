@@ -102,22 +102,29 @@ namespace :examples do
       puts Rainbow("Errors").bold
       longest_name = results_hash.keys.map { |name| name.length }.max
 
+      # Replace all values in results_hash with integer by parsing it.
       results_hash.each do |name, result|
-        result = "Errors: 0" if result == "No errors! Great job."
-        regex = /Errors\: (\d+)/
-        result.scan(regex) { |match| result = match.first.to_s }
+        result.scan(/Errors\: (\d+)/) { |match| result = match.first.to_i }
+        results_hash[name] = (result == "No errors! Great job.") ? 0 : result
+      end
+
+      # Print the right-aligned name and the number of errors, with different colors depending on the number of errors. 
+      results_hash.each do |name, result|
         spaces_needed = longest_name - name.length
-        case result.to_i
+        output = "#{' ' * spaces_needed}#{name}: #{result}"
+        case result
         when 0..5
-          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").green.bright
+          puts Rainbow(output).green.bright
         when 6..25
-          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").green
+          puts Rainbow(output).green
         when 26..50
-          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").red
+          puts Rainbow(output).red
         else
-          puts Rainbow("#{' ' * spaces_needed}#{name}: #{result}").red.bright
+          puts Rainbow(output).red.bright
         end
       end
+      # Report the Total.
+      puts Rainbow("#{' ' * (longest_name - 'Total'.length)}Total: #{results_hash.values.inject(0, :+)}").bold
     end
   end
 end
