@@ -229,18 +229,19 @@ module Sord
       "# typed: strong\n" + @parlour.rbi
     end
 
-    # Generates the RBI file and writes it to the given file path, printing a
-    # summary and any warnings at the end. The registry is also loaded.
+    # Generates the RBI file and optionally writes it to the given file path, 
+    # printing asummary and any warnings at the end. The YARD registry is also 
+    # loaded.
     # @param [String, nil] filename
     # @return [void]
-    def run(filename)
-      raise 'No filename specified' unless filename
+    def run(filename, write = true)
+      raise 'No filename specified' if write && !filename
 
       # Get YARD ready
       YARD::Registry.load!
 
       # Write the file
-      File.write(filename, generate)
+      File.write(filename, generate) if write
 
       if object_count.zero?
         Logging.warn("No objects processed.")
