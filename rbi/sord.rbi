@@ -25,53 +25,45 @@ module Sord
         kind: Symbol,
         header: String,
         msg: String,
-        item: YARD::CodeObjects::Base,
-        indent_level: Integer
+        item: YARD::CodeObjects::Base
       ).void
     end
-    def self.generic(kind, header, msg, item, indent_level = 0); end
+    def self.generic(kind, header, msg, item); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.warn(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.warn(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.info(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.info(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.duck(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.duck(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.error(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.error(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.infer(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.infer(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.omit(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.omit(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void }
-    def self.done(msg, item = nil, indent_level = 0); end
+    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    def self.done(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig do
-      params(
-        kind: Symbol,
-        msg: String,
-        item: YARD::CodeObjects::Base,
-        indent_level: Integer
-      ).void
-    end
-    def self.invoke_hooks(kind, msg, item, indent_level = 0); end
+    sig { params(kind: Symbol, msg: String, item: YARD::CodeObjects::Base).void }
+    def self.invoke_hooks(kind, msg, item); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(blk: T.proc.params(kind: Symbol, msg: String, item: YARD::CodeObjects::Base, indent_level: Integer).void).void }
+    sig { params(blk: T.proc.params(kind: Symbol, msg: String, item: YARD::CodeObjects::Base).void).void }
     def self.add_hook(&blk); end
   end
 

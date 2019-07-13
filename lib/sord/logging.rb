@@ -68,9 +68,8 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.generic(kind, header, msg, item, indent_level = 0)
+    def self.generic(kind, header, msg, item)
       return unless enabled_types.include?(kind)
 
       if item
@@ -79,7 +78,7 @@ module Sord
         puts "#{header} #{msg}" unless silent?
       end
 
-      invoke_hooks(kind, msg, item, indent_level)
+      invoke_hooks(kind, msg, item)
     end
 
     # Print a warning message. This should be used for things which require the
@@ -88,10 +87,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.warn(msg, item = nil, indent_level = 0)
-      generic(:warn, Rainbow('[WARN ]').yellow, msg, item, indent_level)
+    def self.warn(msg, item = nil)
+      generic(:warn, Rainbow('[WARN ]').yellow, msg, item)
     end
 
     # Print an info message. This should be used for generic informational
@@ -100,10 +98,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.info(msg, item = nil, indent_level = 0)
-      generic(:info, '[INFO ]', msg, item, indent_level)
+    def self.info(msg, item = nil)
+      generic(:info, '[INFO ]', msg, item)
     end
 
     # Print a duck-typing message. This should be used when the YARD 
@@ -113,10 +110,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.duck(msg, item = nil, indent_level = 0)
-      generic(:duck, Rainbow('[DUCK ]').cyan, msg, item, indent_level)
+    def self.duck(msg, item = nil)
+      generic(:duck, Rainbow('[DUCK ]').cyan, msg, item)
     end
 
     # Print an error message. This should be used for things which require the
@@ -125,10 +121,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.error(msg, item = nil, indent_level = 0)
-      generic(:error, Rainbow('[ERROR]').red, msg, item, indent_level)
+    def self.error(msg, item = nil)
+      generic(:error, Rainbow('[ERROR]').red, msg, item)
     end
 
     # Print an infer message. This should be used when the user should be told
@@ -138,10 +133,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.infer(msg, item = nil, indent_level = 0)
-      generic(:infer, Rainbow('[INFER]').blue, msg, item, indent_level)
+    def self.infer(msg, item = nil)
+      generic(:infer, Rainbow('[INFER]').blue, msg, item)
     end
 
     # Print an omit message. This should be used as a special type of warning
@@ -151,10 +145,9 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.omit(msg, item = nil, indent_level = 0)
-      generic(:omit, Rainbow('[OMIT ]').magenta, msg, item, indent_level)
+    def self.omit(msg, item = nil)
+      generic(:omit, Rainbow('[OMIT ]').magenta, msg, item)
     end
 
     # Print a done message. This should be used when a process completes
@@ -163,9 +156,8 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.done(msg, item = nil, indent_level = 0)
+    def self.done(msg, item = nil)
       generic(:done, Rainbow('[DONE ]').green, msg, item)
     end
 
@@ -175,11 +167,10 @@ module Sord
     # @param [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @param [Integer] indent_level The level at which to indent the code.
     # @return [void]
-    def self.invoke_hooks(kind, msg, item, indent_level = 0)
+    def self.invoke_hooks(kind, msg, item)
       @@hooks.each do |hook|
-        hook.(kind, msg, item, indent_level) rescue nil
+        hook.(kind, msg, item) rescue nil
       end
     end
 
@@ -189,7 +180,6 @@ module Sord
     # @yieldparam [YARD::CodeObjects::Base] item The CodeObject which this log 
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
-    # @yieldparam [Integer] indent_level The level at which to indent the code.
     # @yieldreturn [void]
     # @return [void]
     def self.add_hook(&blk)
