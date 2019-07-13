@@ -9,8 +9,8 @@ module Sord
       @parlour = nil
       @options = options
 
-      options[:comments] ||= true
-      options[:regenerate] ||= true
+      options[:comments] = true if options[:comments].nil?
+      options[:regenerate] = true if options[:regenerate].nil?
       options[:replace_errors_with_untyped] ||= false
       options[:replace_unresolved_with_untyped] ||= false
     end
