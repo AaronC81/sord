@@ -80,7 +80,7 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_methods(item)
-      item.meths.each do |meth|
+      item.meths(inherited: false).each do |meth|
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
