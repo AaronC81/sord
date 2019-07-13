@@ -1,0 +1,7 @@
+output_file: rbi/sord.rbi
+
+requires:
+  - sord
+
+plugins:
+  Sord::ParlourPlugin: {}

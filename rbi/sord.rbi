@@ -26,7 +26,7 @@ module Sord
         header: String,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer,
+        indent_level: Integer
       ).void
     end
     def self.generic(kind, header, msg, item, indent_level = 0); end
@@ -65,7 +65,7 @@ module Sord
         kind: Symbol,
         msg: String,
         item: YARD::CodeObjects::Base,
-        indent_level: Integer,
+        indent_level: Integer
       ).void
     end
     def self.invoke_hooks(kind, msg, item, indent_level = 0); end
@@ -124,11 +124,37 @@ module Sord
     sig { params(item: YARD::CodeObjects::NamespaceObject).void }
     def add_namespace(item); end
 
-    sig { returns(String) }
+    sig { void }
+    def populate; end
+
+    sig { void }
     def generate; end
 
-    sig { params(filename: T.nilable(String)).void }
-    def run(filename); end
+    sig { void }
+    def run; end
+  end
+
+  class ParlourPlugin < Plugin
+    # sord omit - no YARD return type given, using T.untyped
+    sig { returns(T.untyped) }
+    def options; end
+
+    # sord omit - no YARD return type given, using T.untyped
+    sig { returns(T.untyped) }
+    def parlour; end
+
+    # sord omit - no YARD return type given, using T.untyped
+    sig { params(value: T.untyped).returns(T.untyped) }
+    def parlour=(value); end
+
+    # sord omit - no YARD type given for "options", using T.untyped
+    sig { params(options: T.untyped).returns(ParlourPlugin) }
+    def initialize(options); end
+
+    # sord omit - no YARD type given for "root", using T.untyped
+    # sord omit - no YARD return type given, using T.untyped
+    sig { params(root: T.untyped).returns(T.untyped) }
+    def generate(root); end
   end
 
   module TypeConverter
@@ -141,7 +167,7 @@ module Sord
         yard: T.any(T::Boolean, Array, String),
         item: YARD::CodeObjects::Base,
         replace_errors_with_untyped: T::Boolean,
-        replace_unresolved_with_untyped: T::Boolean,
+        replace_unresolved_with_untyped: T::Boolean
       ).returns(String)
     end
     def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false); end

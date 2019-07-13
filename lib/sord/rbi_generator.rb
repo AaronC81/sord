@@ -25,16 +25,19 @@ module Sord
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
     # @option options [Boolean] comments
+    # @option options [Parlour::RbiGenerator] generator
+    # @option options [Parlour::RbiGenerator::Namespace] root
     # @return [void]
     def initialize(options)
+      @parlour = options[:parlour] || Parlour::RbiGenerator.new
+      @current_object = options[:root] || @parlour.root
+
       @namespace_count = 0
       @method_count = 0
-      @break_params = options[:break_params]
-      @replace_errors_with_untyped = options[:replace_errors_with_untyped]
-      @parlour = Parlour::RbiGenerator.new(break_params: @break_params)
-      @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @warnings = []
-      @current_object = @parlour.root
+
+      @replace_errors_with_untyped = options[:replace_errors_with_untyped]
+      @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
@@ -216,31 +219,34 @@ module Sord
       @current_object = parent
     end
 
-    # Generates the RBI file from the loading registry and returns its contents.
-    # You must load a registry first!
-    # @return [String]
-    def generate
+    # Populates the RBI generator with the contents of the YARD registry. You 
+    # must load the YARD registry first!
+    # @return [void]
+    def populate
       # Generate top-level modules, which recurses to all modules
       YARD::Registry.root.children
         .select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
+      end
 
-      # Workaround for bug which will be fixed in Parlour at some point
-      "# typed: strong\n" + @parlour.rbi
+    # Populates the RBI generator with the contents of the YARD registry, then
+    # uses the loaded Parlour::RbiGenerator to generate the RBI file. You must
+    # load the YARD registry first!
+    # @return [void]
+    def generate
+      populate
+      @parlour.rbi
     end
 
-    # Generates the RBI file and writes it to the given file path, printing a
-    # summary and any warnings at the end. The registry is also loaded.
-    # @param [String, nil] filename
+    # Loads the YARD registry, populates the RBI file, and prints any relevant
+    # final logs.
     # @return [void]
-    def run(filename)
-      raise 'No filename specified' unless filename
-
+    def run
       # Get YARD ready
       YARD::Registry.load!
 
-      # Write the file
-      File.write(filename, generate)
+      # Populate the RBI
+      populate
 
       if object_count.zero?
         Logging.warn("No objects processed.")
