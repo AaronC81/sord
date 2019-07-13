@@ -84,14 +84,47 @@ namespace :examples do
   end
 
   desc 'Typecheck each of the sord_examples rbi files.'
-  task :typecheck do
+  task :typecheck, [:verbose] do |t, args|
+    results_hash = {}
     REPOS.each do |name, url|
       Bundler.with_clean_env do
-        8.times { puts }
-        cmd = "srb tc sord_examples/#{name}.rbi --ignore sord.rbi"
-        puts cmd
-        system(cmd)
+        puts "srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1"
+        if args[:verbose]
+          output = system("srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1")
+        else
+          output = `srb tc sord_examples/#{name}.rbi --ignore sord.rbi 2>&1`.split("\n").last
+          results_hash[:"#{name}"] = output
+        end
       end
+    end
+    
+    unless args[:verbose]
+      puts Rainbow("Errors").bold
+      longest_name = results_hash.keys.map { |name| name.length }.max
+
+      # Replace all values in results_hash with integer by parsing it.
+      results_hash.each do |name, result|
+        result.scan(/Errors\: (\d+)/) { |match| result = match.first.to_i }
+        results_hash[name] = (result == "No errors! Great job.") ? 0 : result
+      end
+
+      # Print the right-aligned name and the number of errors, with different colors depending on the number of errors. 
+      results_hash.each do |name, result|
+        spaces_needed = longest_name - name.length
+        output = "#{' ' * spaces_needed}#{name}: #{result}"
+        case result
+        when 0..5
+          puts Rainbow(output).green.bright
+        when 6..25
+          puts Rainbow(output).green
+        when 26..50
+          puts Rainbow(output).red
+        else
+          puts Rainbow(output).red.bright
+        end
+      end
+      # Report the Total.
+      puts Rainbow("#{' ' * (longest_name - 'Total'.length)}Total: #{results_hash.values.inject(0, :+)}").bold
     end
   end
 end

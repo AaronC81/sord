@@ -397,4 +397,31 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'does not include inherited methods in its output' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @return [void]
+        def x; end
+      end
+
+      class B < A
+        # @return [void]
+        def y; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig { void }
+        def x; end
+      end
+
+      class B < A
+        sig { void }
+        def y; end
+      end
+    RUBY
+  end
 end
