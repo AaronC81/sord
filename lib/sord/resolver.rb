@@ -50,11 +50,17 @@ module Sord
     # @param [Object] item
     # @return [Boolean]
     def self.resolvable?(name, item)
-      name_parts = name.split('::')
-
       current_context = item
       current_context = current_context.parent \
         until current_context.is_a?(YARD::CodeObjects::NamespaceObject)
+
+      # If there is any matching object directly in the heirarchy, this is
+      # always true. Ruby can do the resolution.
+      unless name.include?('::')
+        return true if current_context.path.split('::').include?(name)
+      end
+
+      name_parts = name.split('::')
 
       matching_paths = []
 

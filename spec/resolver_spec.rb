@@ -125,4 +125,20 @@ describe Sord::Resolver do
     expect(subject.resolvable?('F', at('A::B::C::D'))).to be false
     expect(subject.path_for('F')).to be nil
   end
+
+  it 'resolves the most nested module in a conflict of resolvable modules' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        module B
+          class A
+            class D
+            end
+          end
+        end
+      end
+    RUBY
+
+    subject.prepare
+    expect(subject.resolvable?('A', at('A::B::A::D'))).to be true
+  end
 end
