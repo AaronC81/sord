@@ -5,7 +5,7 @@
 #
 #   https://github.com/sorbet/sorbet-typed/edit/master/lib/ruby/all/open3.rbi
 #
-# typed: strict
+# typed: strong
 
 module Open3
   sig do

@@ -1,3 +1,4 @@
+# typed: true
 require 'yaml'
 require 'sord/logging'
 require 'sord/resolver'
