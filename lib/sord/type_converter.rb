@@ -163,6 +163,12 @@ module Sord
             "T::#{generic_type}[T.any(#{parameters.join(', ')})]"
           elsif generic_type == 'Class' && parameters.length == 1
             "T.class_of(#{parameters.first})"
+          elsif generic_type == 'Hash'
+            if parameters.length == 2
+              "T::Hash[#{parameters.join(', ')}]"
+            else
+              handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
+            end
           else
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end
@@ -186,10 +192,10 @@ module Sord
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         # Return a warning about an invalid hash when it has more or less than two elements.
-        if parameters.length != 2
-          return handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{parameters}.", item, replace_errors_with_untyped)
+        if parameters.length == 2
+          "T::Hash[#{parameters.join(', ')}]"
         else
-          return "T::Hash[#{parameters.join(', ')}]"
+          handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
         end
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
