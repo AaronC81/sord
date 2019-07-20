@@ -119,6 +119,11 @@ module Sord
         result = "T.nilable(#{result})" if yard.include?('nil')
         result
       when /^#{SIMPLE_TYPE_REGEX}$/
+        if SORBET_SINGLE_ARG_GENERIC_TYPES.include?(yard)
+          return "T::#{yard}[T.untyped]"
+        elsif yard == "Hash"
+          return "T::Hash[T.untyped, T.untyped]"
+        end
         # If this doesn't begin with an uppercase letter, warn
         if /^[_a-z]/ === yard
           Logging.warn("#{yard} is probably not a type, but using anyway", item)
