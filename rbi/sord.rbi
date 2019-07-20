@@ -134,7 +134,7 @@ module Sord
     def run; end
   end
 
-  class ParlourPlugin < Plugin
+  class ParlourPlugin < Parlour::Plugin
     # sord omit - no YARD return type given, using T.untyped
     sig { returns(T.untyped) }
     def options; end
