@@ -585,4 +585,24 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+
+  it 'correctly generates constants in nested classes' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        class B
+          EXAMPLE_CONSTANT = 'Foo'
+        end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        class B
+          EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+        end
+      end
+    RUBY
+  end
 end
