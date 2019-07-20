@@ -517,4 +517,43 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles constants' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        EXAMPLE_CONSTANT = 'Foo'
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+      end
+    RUBY
+  end
+
+
+  it 'does not generate constants from included classes' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        EXAMPLE_CONSTANT = 'Foo'
+      end
+
+      class B
+        include A
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+      end
+
+      class B
+        include A
+      end
+    RUBY
+  end
 end
