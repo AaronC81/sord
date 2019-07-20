@@ -59,7 +59,11 @@ namespace :examples do
 
   desc 'Regenerate the rbi files in sord_examples.'
   task :reseed, [:clean] do |t, args|
-    FileUtils.cd 'sord_examples'
+    if Dir.exist?('sord_examples')
+      FileUtils.cd 'sord_examples'
+    else
+      raise Rainbow("The sord_examples directory does not exist. Have you run the seed task?").red.bold
+    end
 
     REPOS.keys.each do |name|
       FileUtils.cd name.to_s
