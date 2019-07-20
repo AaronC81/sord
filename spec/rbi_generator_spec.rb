@@ -424,4 +424,65 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'marks variables with default nil as nilable' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @param [String] a
+        # @return [void]
+        def x(a: nil, b: nil); end
+  
+        # @param [String] a
+        # @return [void]
+        def y(a = nil); end
+  
+        # @param [String, nil] a
+        # @return [void]
+        def z(a = nil); end
+      end
+    RUBY
+  
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # sord omit - no YARD type given for "b:", using T.untyped
+        sig { params(a: T.nilable(String), b: T.untyped).void }
+        def x(a: nil, b: nil); end
+
+        sig { params(a: T.nilable(String)).void }
+        def y(a = nil); end
+
+        sig { params(a: T.nilable(String)).void }
+        def z(a = nil); end
+      end
+    RUBY
+  end
+
+  it 'correctly parses methods with all kinds of parameters' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @param [String] a
+        # @param [String] b
+        # @param [String] c
+        # @param [String] d
+        # @return [void]
+        def x(a, b = 'Foo', c: 'Bar', d:); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig do
+          params(
+            a: String,
+            b: String,
+            c: String,
+            d: String
+          ).void
+        end
+        def x(a, b = 'Foo', c: 'Bar', d:); end
+      end
+    RUBY
+  end
 end

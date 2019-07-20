@@ -97,7 +97,7 @@ module Sord
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
           [[name, default], meth.tags('param')
-            .find { |p| p.name&.gsub('*', '') == name.gsub('*', '') }]
+            .find { |p| p.name&.gsub('*', '')&.gsub(':', '') == name.gsub('*', '').gsub(':', '') }]
         end.to_h
 
         parameter_types = parameter_names_and_defaults_to_tags.map do |name_and_default, tag|
@@ -178,6 +178,11 @@ module Sord
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
+            # If the default is "nil" but the type is not nilable, then it 
+            # should become nilable
+            # (T.untyped can include nil, so don't alter that)
+            type = "T.nilable(#{type})" \
+              if default == 'nil' && !type.start_with?('T.nilable') && type != 'T.untyped'
             Parlour::RbiGenerator::Parameter.new(
               name: name.to_s,
               type: type,
