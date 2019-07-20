@@ -83,9 +83,9 @@ module Sord
     # @return [void]
     def add_constants(item)
       item.constants.each do |constant|
-        # Take a constant (like "A::B::CONSTANT"), and remove the name of the current
-        # class/module (like "A::B") from it to get the correct constant name.
-        constant_name = constant.to_s.sub("#{item.name.to_s}::", "")
+        # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
+        # set the constant name to the last string in the array.
+        constant_name = constant.to_s.split('::').last
         
         # Add the constant to the current object being generated.
         @current_object.add_constant(constant_name, "T.let(#{constant.value}, T.untyped)")
