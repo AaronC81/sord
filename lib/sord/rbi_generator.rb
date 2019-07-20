@@ -78,6 +78,20 @@ module Sord
       item.instance_mixins.length + item.class_mixins.length
     end
 
+    # Given a YARD NamespaceObject, add lines defining constants.
+    # @param [YARD::CodeObjects::NamespaceObject] item
+    # @return [void]
+    def add_constants(item)
+      item.constants.each do |constant|
+        # Take a constant (like "A::B::CONSTANT"), and remove the name of the current
+        # class/module (like "A::B") from it to get the correct constant name.
+        constant_name = constant.to_s.sub("#{item.name.to_s}::", "")
+        
+        # Add the constant to the current object being generated.
+        @current_object.add_constant(constant_name, "T.let(#{constant.value}, T.untyped)")
+      end
+    end
+
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
@@ -216,6 +230,7 @@ module Sord
 
       add_mixins(item)
       add_methods(item)
+      add_constants(item)
 
       item.children.select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
