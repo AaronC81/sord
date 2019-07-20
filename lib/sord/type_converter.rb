@@ -185,9 +185,9 @@ module Sord
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
-        # Return an invalid 
-        if parameters.length > 2
-          return handle_sord_error(parameters.join, "Invalid hash with more than two types: #{parameters}.", item, replace_errors_with_untyped)
+        # Return a warning about an invalid hash when it has more or less than two elements.
+        if parameters.length != 2
+          return handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{parameters}.", item, replace_errors_with_untyped)
         else
           return "T::Hash[#{parameters.join(', ')}]"
         end
