@@ -424,4 +424,36 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles untyped generics' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @param [Array] array
+        # @param [Hash] hash
+        # @param [Range] range
+        # @param [Set] set
+        # @param [Enumerator] enumerator
+        # @param [Enumerable] enumerable
+        # @return [void]
+        def x(array, hash, range, set, enumerator, enumerable); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig do
+          params(
+            array: T::Array[T.untyped],
+            hash: T::Hash[T.untyped, T.untyped],
+            range: T::Range[T.untyped],
+            set: T::Set[T.untyped],
+            enumerator: T::Enumerator[T.untyped],
+            enumerable: T::Enumerable[T.untyped]
+          ).void
+        end
+        def x(array, hash, range, set, enumerator, enumerable); end
+      end
+    RUBY
+  end
 end
