@@ -167,8 +167,12 @@ module Sord
             "T::#{generic_type}[#{parameters.join(', ')}]"
           end
         else
-          Logging.warn("unsupported generic type #{generic_type.inspect} in #{yard.inspect}", item)
-          replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{generic_type.gsub(/[^0-9A-Za-z_]/i, '')}"
+          return handle_sord_error(
+            generic_type,
+            "unsupported generic type #{generic_type.inspect} in #{yard.inspect}",
+            item,
+            replace_errors_with_untyped
+          )
         end
       # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
       # into Sorbet Tuples like [Symbol, String].
@@ -181,7 +185,12 @@ module Sord
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
-        "T::Hash[#{parameters.join(', ')}]"
+        # Return an invalid 
+        if parameters.length > 2
+          return handle_sord_error(parameters.join, "Invalid hash with more than two types: #{parameters}.", item, replace_errors_with_untyped)
+        else
+          return "T::Hash[#{parameters.join(', ')}]"
+        end
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
@@ -195,9 +204,20 @@ module Sord
         return from_yaml.class.to_s \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        Logging.warn("#{yard.inspect} does not appear to be a type", item)
-        replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{yard.gsub(/[^0-9A-Za-z_]/i, '')}"
+        return handle_sord_error(yard, "#{yard.inspect} does not appear to be a type", item, replace_errors_with_untyped)
       end
+    end
+
+    # Handles SORD_ERRORs.
+    #
+    # @param [String] name
+    # @param [String] log_warning
+    # @param [YARD::CodeObjects::Base] item
+    # @param [Boolean] replace_errors_with_untyped
+    # @return [String]
+    def self.handle_sord_error(name, log_warning, item, replace_errors_with_untyped)
+      Logging.warn(logging_warning, item)
+      return replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{name.gsub(/[^0-9A-Za-z_]/i, '')}"
     end
   end
 end
