@@ -1,6 +1,10 @@
 # typed: strong
 module Sord
+  VERSION = T.let('0.8.0', T.untyped)
+
   module Logging
+    AVAILABLE_TYPES = T.let([:warn, :info, :duck, :error, :infer, :omit, :done].freeze, T.untyped)
+
     sig { returns(T::Array[Proc]) }
     def self.hooks; end
 
@@ -31,31 +35,31 @@ module Sord
     def self.generic(kind, header, msg, item); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.warn(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.info(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.duck(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.error(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.infer(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.omit(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
-    sig { params(msg: String, item: YARD::CodeObjects::Base).void }
+    sig { params(msg: String, item: T.nilable(YARD::CodeObjects::Base)).void }
     def self.done(msg, item = nil); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
@@ -110,6 +114,10 @@ module Sord
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
     sig { params(item: YARD::CodeObjects::NamespaceObject).void }
+    def add_constants(item); end
+
+    # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
+    sig { params(item: YARD::CodeObjects::NamespaceObject).void }
     def add_methods(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
@@ -150,6 +158,15 @@ module Sord
   end
 
   module TypeConverter
+    SIMPLE_TYPE_REGEX = T.let(/(?:\:\:)?[a-zA-Z_][\w]*(?:\:\:[a-zA-Z_][\w]*)*/, T.untyped)
+    GENERIC_TYPE_REGEX = T.let(/(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/, T.untyped)
+    DUCK_TYPE_REGEX = T.let(/^\#[a-zA-Z_][\w]*(?:[a-zA-Z_][\w=]*)*(?:( ?\& ?\#)*[a-zA-Z_][\w=]*)*$/, T.untyped)
+    ORDERED_LIST_REGEX = T.let(/^(?:Array|)\((.*)\s*\)$/, T.untyped)
+    SHORTHAND_HASH_SYNTAX = T.let(/^{\s*(.*)\s*}$/, T.untyped)
+    SHORTHAND_ARRAY_SYNTAX = T.let(/^<\s*(.*)\s*>$/, T.untyped)
+    SORBET_SUPPORTED_GENERIC_TYPES = T.let(%w{Array Set Enumerable Enumerator Range Hash Class}, T.untyped)
+    SORBET_SINGLE_ARG_GENERIC_TYPES = T.let(%w{Array Set Enumerable Enumerator Range}, T.untyped)
+
     sig { params(params: String).returns(T::Array[String]) }
     def self.split_type_parameters(params); end
 
@@ -157,7 +174,7 @@ module Sord
     sig do
       params(
         yard: T.any(T::Boolean, T::Array[T.untyped], String),
-        item: YARD::CodeObjects::Base,
+        item: T.nilable(YARD::CodeObjects::Base),
         replace_errors_with_untyped: T::Boolean,
         replace_unresolved_with_untyped: T::Boolean
       ).returns(String)
