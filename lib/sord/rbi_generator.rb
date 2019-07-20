@@ -206,9 +206,8 @@ module Sord
     def add_namespace(item)
       count_namespace
 
-      superclass =
-        item.type == :class && item.superclass.to_s != "Object" \
-        ? item.superclass.name.to_s : nil
+      superclass = nil
+      superclass = item.superclass.path.to_s if item.type == :class && item.superclass.to_s != "Object"
 
       parent = @current_object
       @current_object = item.type == :class \

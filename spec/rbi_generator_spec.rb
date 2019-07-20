@@ -517,4 +517,33 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'returns fully qualified superclasses' do
+    YARD.parse_string(<<-RUBY)
+      class Alphabet
+      end
+  
+      class Letters < Alphabet
+      end
+  
+      class A < Alphabet::Letters
+        # @return [void]
+        def x; end
+      end
+    RUBY
+  
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class Alphabet
+      end
+      
+      class Letters < Alphabet
+      end
+      
+      class A < Alphabet::Letters
+        sig { void }
+        def x; end
+      end
+    RUBY
+  end
 end
