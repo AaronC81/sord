@@ -69,10 +69,10 @@ module Sord
     # @return [Integer]
     def add_mixins(item)
       item.instance_mixins.reverse_each do |i|
-        @current_object.add_include(i.name.to_s)
+        @current_object.add_include(i.path.to_s)
       end
       item.class_mixins.reverse_each do |e|
-        @current_object.add_extend(e.name.to_s)
+        @current_object.add_extend(e.path.to_s)
       end
 
       item.instance_mixins.length + item.class_mixins.length
