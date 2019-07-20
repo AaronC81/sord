@@ -204,7 +204,7 @@ module Sord
         return from_yaml.class.to_s \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        return handle_sord_error(yard, "#{yard.inspect} does not appear to be a type", item, replace_errors_with_untyped)
+        return handle_sord_error(yard.to_s, "#{yard.inspect} does not appear to be a type", item, replace_errors_with_untyped)
       end
     end
 
@@ -216,7 +216,7 @@ module Sord
     # @param [Boolean] replace_errors_with_untyped
     # @return [String]
     def self.handle_sord_error(name, log_warning, item, replace_errors_with_untyped)
-      Logging.warn(logging_warning, item)
+      Logging.warn(log_warning, item)
       return replace_errors_with_untyped ? "T.untyped" : "SORD_ERROR_#{name.gsub(/[^0-9A-Za-z_]/i, '')}"
     end
   end
