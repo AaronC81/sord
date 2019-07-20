@@ -158,6 +158,32 @@ describe Sord::TypeConverter do
         end
       end
 
+      context 'when given an untyped generic' do
+        it 'handles Hash correctly' do
+          expect(subject.yard_to_sorbet('Hash')).to eq 'T::Hash[T.untyped, T.untyped]'
+        end
+
+        it 'handles Array correctly' do
+          expect(subject.yard_to_sorbet('Array')).to eq 'T::Array[T.untyped]'
+        end
+
+        it 'handles Range correctly' do
+          expect(subject.yard_to_sorbet('Range')).to eq 'T::Range[T.untyped]'
+        end
+
+        it 'handles Set correctly' do
+          expect(subject.yard_to_sorbet('Set')).to eq 'T::Set[T.untyped]'
+        end
+
+        it 'handles Enumerable correctly' do
+          expect(subject.yard_to_sorbet('Enumerable')).to eq 'T::Enumerable[T.untyped]'
+        end
+
+        it 'handles Enumerator correctly' do
+          expect(subject.yard_to_sorbet('Enumerator')).to eq 'T::Enumerator[T.untyped]'
+        end
+      end
+
       context 'invalid YARD docs' do
         it 'SORD_ERROR for invalid duck types' do
           expect(subject.yard_to_sorbet('foo&bar')).to eq 'SORD_ERROR_foobar'

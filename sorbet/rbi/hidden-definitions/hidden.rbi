@@ -63,21 +63,7 @@ end
 
 class BigDecimal
   extend ::T::Sig
-  def self._load(_); end
-
-  def self.double_fig(); end
-
-  def self.limit(*_); end
-
-  def self.mode(*_); end
-
   def self.new(*args, **kwargs); end
-
-  def self.save_exception_mode(); end
-
-  def self.save_limit(); end
-
-  def self.save_rounding_mode(); end
 end
 
 module BigMath
@@ -325,8 +311,16 @@ class Bundler::Fetcher
   def self.redirect_limit=(redirect_limit); end
 end
 
+module Bundler::FileUtils
+  VERSION = ::T.let(nil, ::T.untyped)
+end
+
 module Bundler::FileUtils::DryRun
   extend ::T::Sig
+end
+
+class Bundler::FileUtils::Entry_
+  def link(dest); end
 end
 
 module Bundler::FileUtils::LowMethods
@@ -347,6 +341,9 @@ end
 
 module Bundler::FileUtils
   extend ::T::Sig
+  def self.cp_lr(src, dest, noop: T.unsafe(nil), verbose: T.unsafe(nil), dereference_root: T.unsafe(nil), remove_destination: T.unsafe(nil)); end
+
+  def self.link_entry(src, dest, dereference_root=T.unsafe(nil), remove_destination=T.unsafe(nil)); end
 end
 
 class Bundler::GemHelper
@@ -394,7 +391,9 @@ class Bundler::GemHelper
 
   def sh(cmd, &block); end
 
-  def sh_with_code(cmd, &block); end
+  def sh_with_input(cmd); end
+
+  def sh_with_status(cmd, &block); end
 
   def spec_path(); end
 
@@ -488,6 +487,10 @@ end
 class Bundler::Graph
 end
 
+class Bundler::Index
+  include ::Enumerable
+end
+
 class Bundler::Injector
   def initialize(deps, options=T.unsafe(nil)); end
 
@@ -541,6 +544,14 @@ end
 
 module Bundler::Molinillo::Delegates
   extend ::T::Sig
+end
+
+class Bundler::Molinillo::DependencyGraph
+  include ::Enumerable
+end
+
+class Bundler::Molinillo::DependencyGraph::Log
+  extend ::Enumerable
 end
 
 module Bundler::Molinillo::SpecificationProvider
@@ -774,6 +785,10 @@ end
 class Bundler::RubyGemsGemInstaller
 end
 
+class Bundler::RubygemsIntegration::MoreFuture
+  def default_stubs(); end
+end
+
 class Bundler::Settings::Mirror
   def ==(other); end
 
@@ -835,6 +850,10 @@ end
 
 module Bundler::SharedHelpers
   extend ::T::Sig
+end
+
+class Bundler::SpecSet
+  include ::Enumerable
 end
 
 class Bundler::UI::RGProxy
@@ -1046,18 +1065,6 @@ class Class
 end
 
 class ClosedQueueError
-  extend ::T::Sig
-end
-
-module Colorize::ClassMethods
-  extend ::T::Sig
-end
-
-module Colorize::InstanceMethods
-  extend ::T::Sig
-end
-
-module Colorize
   extend ::T::Sig
 end
 
@@ -1494,8 +1501,6 @@ module Enumerable
   def filter(); end
 
   def grep_v(_); end
-
-  def lazy(); end
 
   def slice_after(*_); end
 
@@ -2265,11 +2270,7 @@ class File
 
   def self.mkfifo(*_); end
 
-  def self.open!(file, *args, &block); end
-
   def self.read_binary(file); end
-
-  def self.relative_path(from, to); end
 
 end
 
@@ -7035,25 +7036,8 @@ class JSON::CircularDatastructure
   extend ::T::Sig
 end
 
-module JSON::Ext
-end
-
-module JSON::Ext::Generator
-end
-
-module JSON::Ext::Generator::GeneratorMethods
-end
-
-module JSON::Ext::Generator::GeneratorMethods::Array
-  def to_json(*_); end
-end
-
 module JSON::Ext::Generator::GeneratorMethods::Array
   extend ::T::Sig
-end
-
-module JSON::Ext::Generator::GeneratorMethods::FalseClass
-  def to_json(*_); end
 end
 
 module JSON::Ext::Generator::GeneratorMethods::FalseClass
@@ -7061,15 +7045,7 @@ module JSON::Ext::Generator::GeneratorMethods::FalseClass
 end
 
 module JSON::Ext::Generator::GeneratorMethods::Float
-  def to_json(*_); end
-end
-
-module JSON::Ext::Generator::GeneratorMethods::Float
   extend ::T::Sig
-end
-
-module JSON::Ext::Generator::GeneratorMethods::Hash
-  def to_json(*_); end
 end
 
 module JSON::Ext::Generator::GeneratorMethods::Hash
@@ -7077,15 +7053,7 @@ module JSON::Ext::Generator::GeneratorMethods::Hash
 end
 
 module JSON::Ext::Generator::GeneratorMethods::Integer
-  def to_json(*_); end
-end
-
-module JSON::Ext::Generator::GeneratorMethods::Integer
   extend ::T::Sig
-end
-
-module JSON::Ext::Generator::GeneratorMethods::NilClass
-  def to_json(*_); end
 end
 
 module JSON::Ext::Generator::GeneratorMethods::NilClass
@@ -7093,23 +7061,7 @@ module JSON::Ext::Generator::GeneratorMethods::NilClass
 end
 
 module JSON::Ext::Generator::GeneratorMethods::Object
-  def to_json(*_); end
-end
-
-module JSON::Ext::Generator::GeneratorMethods::Object
   extend ::T::Sig
-end
-
-module JSON::Ext::Generator::GeneratorMethods::String
-  def to_json(*_); end
-
-  def to_json_raw(*_); end
-
-  def to_json_raw_object(); end
-end
-
-module JSON::Ext::Generator::GeneratorMethods::String::Extend
-  def json_create(_); end
 end
 
 module JSON::Ext::Generator::GeneratorMethods::String::Extend
@@ -7121,10 +7073,6 @@ module JSON::Ext::Generator::GeneratorMethods::String
 end
 
 module JSON::Ext::Generator::GeneratorMethods::TrueClass
-  def to_json(*_); end
-end
-
-module JSON::Ext::Generator::GeneratorMethods::TrueClass
   extend ::T::Sig
 end
 
@@ -7133,62 +7081,7 @@ module JSON::Ext::Generator::GeneratorMethods
 end
 
 class JSON::Ext::Generator::State
-  def [](_); end
-
-  def []=(_, _1); end
-
-  def allow_nan?(); end
-
-  def array_nl(); end
-
-  def array_nl=(array_nl); end
-
-  def ascii_only?(); end
-
-  def buffer_initial_length(); end
-
-  def buffer_initial_length=(buffer_initial_length); end
-
-  def check_circular?(); end
-
-  def configure(_); end
-
-  def depth(); end
-
-  def depth=(depth); end
-
-  def generate(_); end
-
-  def indent(); end
-
-  def indent=(indent); end
-
-  def initialize(*_); end
-
-  def max_nesting(); end
-
-  def max_nesting=(max_nesting); end
-
-  def merge(_); end
-
-  def object_nl(); end
-
-  def object_nl=(object_nl); end
-
-  def space(); end
-
-  def space=(space); end
-
-  def space_before(); end
-
-  def space_before=(space_before); end
-
-  def to_h(); end
-
-  def to_hash(); end
-end
-
-class JSON::Ext::Generator::State
+  extend ::T::Sig
   def self.from_state(_); end
 end
 
@@ -7198,13 +7091,10 @@ end
 
 class JSON::Ext::Parser
   def initialize(*_); end
-
-  def parse(); end
-
-  def source(); end
 end
 
 class JSON::Ext::Parser
+  extend ::T::Sig
 end
 
 module JSON::Ext
@@ -7948,6 +7838,18 @@ module PP::ObjectMixin
   extend ::T::Sig
 end
 
+module Parlour
+  VERSION = ::T.let(nil, ::T.untyped)
+end
+
+class Parlour::RbiGenerator::Parameter
+  PREFIXES = ::T.let(nil, ::T.untyped)
+end
+
+module Parlour
+  extend ::T::Sig
+end
+
 class Pathname
   def empty?(); end
 
@@ -7969,8 +7871,6 @@ class Proc
   def ===(*_); end
 
   def >>(_); end
-
-  def [](*_); end
 
   def clone(); end
 
@@ -8921,11 +8821,6 @@ end
 RSpec::Core::Example::AllExceptionsExcludingDangerousOnesOnRubiesThatAllowIt = RSpec::Support::AllExceptionsExceptOnesWeMustNotRescue
 
 class RSpec::Core::ExampleGroup
-  include ::RSpec::Core::MockingAdapters::RSpec
-  include ::RSpec::Mocks::ExampleMethods
-  include ::RSpec::Mocks::ArgumentMatchers
-  include ::RSpec::Mocks::ExampleMethods::ExpectHost
-  include ::RSpec::Matchers
   INSTANCE_VARIABLE_TO_IGNORE = ::T.let(nil, ::T.untyped)
 end
 
@@ -10783,6 +10678,26 @@ module RSpec
   extend ::T::Sig
 end
 
+class Rainbow::Color::Named
+  NAMES = ::T.let(nil, ::T.untyped)
+end
+
+class Rainbow::Presenter
+  TERM_EFFECTS = ::T.let(nil, ::T.untyped)
+end
+
+module Rainbow::X11ColorNames
+  NAMES = ::T.let(nil, ::T.untyped)
+end
+
+module Rainbow::X11ColorNames
+  extend ::T::Sig
+end
+
+module Rainbow
+  extend ::T::Sig
+end
+
 module Rake
   EARLY = ::T.let(nil, ::T.untyped)
   EMPTY_TASK_ARGS = ::T.let(nil, ::T.untyped)
@@ -11515,11 +11430,13 @@ module Sorbet::Private::Main
 
   def self.emojify(emoji, msg); end
 
+  def self.init(); end
+
   def self.main(argv); end
 
   def self.make_step(step); end
 
-  def self.parse_command(argv); end
+  def self.usage(); end
 
   def self.yellow(msg); end
 end
@@ -11730,8 +11647,6 @@ class String
   def encode!(*_); end
 
   def grapheme_clusters(); end
-
-  def match?(*_); end
 
   def reverse!(); end
 

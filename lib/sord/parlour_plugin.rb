@@ -1,3 +1,4 @@
+# typed: true
 require 'parlour'
 
 module Sord
