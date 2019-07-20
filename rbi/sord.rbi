@@ -1,4 +1,4 @@
-# typed: ignore
+# typed: strong
 module Sord
   module Logging
     sig { returns(T::Array[Proc]) }
@@ -95,7 +95,7 @@ module Sord
     sig { returns(T::Array[[String, YARD::CodeObjects::Base, Integer]]) }
     def warnings; end
 
-    sig { params(options: Hash).void }
+    sig { params(options: T::Hash[T.untyped, T.untyped]).void }
     def initialize(options); end
 
     sig { void }
@@ -156,7 +156,7 @@ module Sord
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
     sig do
       params(
-        yard: T.any(T::Boolean, Array, String),
+        yard: T.any(T::Boolean, T::Array[T.untyped], String),
         item: YARD::CodeObjects::Base,
         replace_errors_with_untyped: T::Boolean,
         replace_unresolved_with_untyped: T::Boolean
