@@ -146,6 +146,7 @@ describe Sord::TypeConverter do
         it 'handles shorthand Hash syntax' do
           expect(subject.yard_to_sorbet('{String => Symbol}')).to eq 'T::Hash[String, Symbol]'
           expect(subject.yard_to_sorbet('{{String => Integer} => {Symbol => Float}}')).to eq 'T::Hash[T::Hash[String, Integer], T::Hash[Symbol, Float]]'
+          expect(subject.yard_to_sorbet('{{String, Integer}, {Symbol, Float}}')).to eq 'T::Hash[T::Hash[String, Integer], T::Hash[Symbol, Float]]'
         end
 
         it 'handles shorthand Array syntax' do
@@ -213,6 +214,18 @@ describe Sord::TypeConverter do
 
         it 'T.untyped rather than unresolved constant if option is set' do
           expect(subject.yard_to_sorbet('TestConstantThatDoesNotExist', YARD::CodeObjects::NamespaceObject.new(:root, :Foo), false, true)).to eq 'T.untyped'
+        end
+
+        it 'SORD_ERROR for a hash with too many parameters' do
+          expect(subject.yard_to_sorbet('{Integer, Integer, Integer}')).to eq 'SORD_ERROR_IntegerIntegerInteger'
+        end
+
+        it 'SORD_ERROR for a hash with too few parameters' do
+          expect(subject.yard_to_sorbet('{Integer}')).to eq 'SORD_ERROR_Integer'
+        end
+
+        it 'SORD_ERROR for a hash with too few parameters' do
+          expect(subject.yard_to_sorbet('Hash<Array>')).to eq 'SORD_ERROR_TArrayTuntyped'
         end
       end
     end
