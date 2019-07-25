@@ -1,0 +1,4 @@
+language: ruby
+dist: trusty
+rvm: 
+  - 2.6
