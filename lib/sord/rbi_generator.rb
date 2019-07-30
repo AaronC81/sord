@@ -69,10 +69,10 @@ module Sord
     # @return [Integer]
     def add_mixins(item)
       item.instance_mixins.reverse_each do |i|
-        @current_object.add_include(i.path.to_s)
+        @current_object.create_include(i.path.to_s)
       end
       item.class_mixins.reverse_each do |e|
-        @current_object.add_extend(e.path.to_s)
+        @current_object.create_extend(e.path.to_s)
       end
 
       item.instance_mixins.length + item.class_mixins.length
@@ -88,7 +88,7 @@ module Sord
         constant_name = constant.to_s.split('::').last
         
         # Add the constant to the current object being generated.
-        @current_object.add_constant(constant_name, "T.let(#{constant.value}, T.untyped)")
+        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)")
       end
     end
 
@@ -198,14 +198,14 @@ module Sord
             type = "T.nilable(#{type})" \
               if default == 'nil' && !type.start_with?('T.nilable') && type != 'T.untyped'
             Parlour::RbiGenerator::Parameter.new(
-              name: name.to_s,
+              name.to_s,
               type: type,
               default: default
             )
           end
 
         @current_object.create_method(
-          name: meth.name.to_s, 
+          meth.name.to_s, 
           parameters: parlour_params,
           returns: returns,
           class_method: meth.scope == :class
@@ -225,8 +225,8 @@ module Sord
 
       parent = @current_object
       @current_object = item.type == :class \
-        ? parent.create_class(name: item.name.to_s, superclass: superclass)
-        : parent.create_module(name: item.name.to_s)
+        ? parent.create_class(item.name.to_s, superclass: superclass)
+        : parent.create_module(item.name.to_s)
 
       add_mixins(item)
       add_methods(item)

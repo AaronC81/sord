@@ -27,6 +27,8 @@ class Array
 
   def pack(*_); end
 
+  def place(*values); end
+
   def prepend(*_); end
 
   def replace(_); end
@@ -41,6 +43,28 @@ end
 class Array
   extend ::T::Sig
   def self.try_convert(_); end
+end
+
+class BasicObject
+  def as_null_object(); end
+
+  def null_object?(); end
+
+  def received_message?(message, *args, &block); end
+
+  def should(matcher=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def should_not(matcher=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def should_not_receive(message, &block); end
+
+  def should_receive(message, opts=T.unsafe(nil), &block); end
+
+  def stub(message_or_hash, opts=T.unsafe(nil), &block); end
+
+  def stub_chain(*chain, &blk); end
+
+  def unstub(message); end
 end
 
 BasicObject::BasicObject = BasicObject
@@ -90,35 +114,567 @@ class Binding
   extend ::T::Sig
 end
 
+module Bundler
+  FREEBSD = ::T.let(nil, ::T.untyped)
+  NULL = ::T.let(nil, ::T.untyped)
+  ORIGINAL_ENV = ::T.let(nil, ::T.untyped)
+  SUDO_MUTEX = ::T.let(nil, ::T.untyped)
+  VERSION = ::T.let(nil, ::T.untyped)
+  WINDOWS = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::APIResponseMismatchError
+  def status_code(); end
+end
+
+class Bundler::APIResponseMismatchError
+end
+
+module Bundler::BuildMetadata
+end
+
 module Bundler::BuildMetadata
   extend ::T::Sig
+  def self.built_at(); end
+
+  def self.git_commit_sha(); end
+
+  def self.release?(); end
+
+  def self.to_h(); end
+end
+
+class Bundler::BundlerError
+end
+
+class Bundler::BundlerError
+  def self.all_errors(); end
+
+  def self.status_code(code); end
 end
 
 class Bundler::CurrentRuby
+  def jruby?(); end
+
+  def jruby_18?(); end
+
+  def jruby_19?(); end
+
+  def jruby_1?(); end
+
+  def jruby_20?(); end
+
+  def jruby_21?(); end
+
+  def jruby_22?(); end
+
+  def jruby_23?(); end
+
+  def jruby_24?(); end
+
+  def jruby_25?(); end
+
+  def jruby_26?(); end
+
   def jruby_27?(); end
+
+  def jruby_2?(); end
+
+  def maglev?(); end
+
+  def maglev_18?(); end
+
+  def maglev_19?(); end
+
+  def maglev_1?(); end
+
+  def maglev_20?(); end
+
+  def maglev_21?(); end
+
+  def maglev_22?(); end
+
+  def maglev_23?(); end
+
+  def maglev_24?(); end
+
+  def maglev_25?(); end
+
+  def maglev_26?(); end
 
   def maglev_27?(); end
 
+  def maglev_2?(); end
+
+  def mingw?(); end
+
+  def mingw_18?(); end
+
+  def mingw_19?(); end
+
+  def mingw_1?(); end
+
+  def mingw_20?(); end
+
+  def mingw_21?(); end
+
+  def mingw_22?(); end
+
+  def mingw_23?(); end
+
+  def mingw_24?(); end
+
+  def mingw_25?(); end
+
+  def mingw_26?(); end
+
   def mingw_27?(); end
+
+  def mingw_2?(); end
+
+  def mri?(); end
+
+  def mri_18?(); end
+
+  def mri_19?(); end
+
+  def mri_1?(); end
+
+  def mri_20?(); end
+
+  def mri_21?(); end
+
+  def mri_22?(); end
+
+  def mri_23?(); end
+
+  def mri_24?(); end
+
+  def mri_25?(); end
+
+  def mri_26?(); end
 
   def mri_27?(); end
 
+  def mri_2?(); end
+
+  def mswin64?(); end
+
+  def mswin64_18?(); end
+
+  def mswin64_19?(); end
+
+  def mswin64_1?(); end
+
+  def mswin64_20?(); end
+
+  def mswin64_21?(); end
+
+  def mswin64_22?(); end
+
+  def mswin64_23?(); end
+
+  def mswin64_24?(); end
+
+  def mswin64_25?(); end
+
+  def mswin64_26?(); end
+
   def mswin64_27?(); end
+
+  def mswin64_2?(); end
+
+  def mswin?(); end
+
+  def mswin_18?(); end
+
+  def mswin_19?(); end
+
+  def mswin_1?(); end
+
+  def mswin_20?(); end
+
+  def mswin_21?(); end
+
+  def mswin_22?(); end
+
+  def mswin_23?(); end
+
+  def mswin_24?(); end
+
+  def mswin_25?(); end
+
+  def mswin_26?(); end
 
   def mswin_27?(); end
 
+  def mswin_2?(); end
+
+  def on_18?(); end
+
+  def on_19?(); end
+
+  def on_1?(); end
+
+  def on_20?(); end
+
+  def on_21?(); end
+
+  def on_22?(); end
+
+  def on_23?(); end
+
+  def on_24?(); end
+
+  def on_25?(); end
+
+  def on_26?(); end
+
   def on_27?(); end
+
+  def on_2?(); end
+
+  def rbx?(); end
+
+  def rbx_18?(); end
+
+  def rbx_19?(); end
+
+  def rbx_1?(); end
+
+  def rbx_20?(); end
+
+  def rbx_21?(); end
+
+  def rbx_22?(); end
+
+  def rbx_23?(); end
+
+  def rbx_24?(); end
+
+  def rbx_25?(); end
+
+  def rbx_26?(); end
 
   def rbx_27?(); end
 
+  def rbx_2?(); end
+
+  def ruby?(); end
+
+  def ruby_18?(); end
+
+  def ruby_19?(); end
+
+  def ruby_1?(); end
+
+  def ruby_20?(); end
+
+  def ruby_21?(); end
+
+  def ruby_22?(); end
+
+  def ruby_23?(); end
+
+  def ruby_24?(); end
+
+  def ruby_25?(); end
+
+  def ruby_26?(); end
+
   def ruby_27?(); end
+
+  def ruby_2?(); end
+
+  def truffleruby?(); end
+
+  def truffleruby_18?(); end
+
+  def truffleruby_19?(); end
+
+  def truffleruby_1?(); end
+
+  def truffleruby_20?(); end
+
+  def truffleruby_21?(); end
+
+  def truffleruby_22?(); end
+
+  def truffleruby_23?(); end
+
+  def truffleruby_24?(); end
+
+  def truffleruby_25?(); end
+
+  def truffleruby_26?(); end
 
   def truffleruby_27?(); end
 
+  def truffleruby_2?(); end
+
+  def x64_mingw?(); end
+
+  def x64_mingw_18?(); end
+
+  def x64_mingw_19?(); end
+
+  def x64_mingw_1?(); end
+
+  def x64_mingw_20?(); end
+
+  def x64_mingw_21?(); end
+
+  def x64_mingw_22?(); end
+
+  def x64_mingw_23?(); end
+
+  def x64_mingw_24?(); end
+
+  def x64_mingw_25?(); end
+
+  def x64_mingw_26?(); end
+
   def x64_mingw_27?(); end
+
+  def x64_mingw_2?(); end
+  KNOWN_MAJOR_VERSIONS = ::T.let(nil, ::T.untyped)
+  KNOWN_MINOR_VERSIONS = ::T.let(nil, ::T.untyped)
+  KNOWN_PLATFORMS = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::CurrentRuby
+end
+
+class Bundler::CyclicDependencyError
+  def status_code(); end
+end
+
+class Bundler::CyclicDependencyError
+end
+
+class Bundler::Definition
+  include ::Bundler::GemHelpers
+  def add_current_platform(); end
+
+  def add_platform(platform); end
+
+  def current_dependencies(); end
+
+  def dependencies(); end
+
+  def ensure_equivalent_gemfile_and_lockfile(explicit_flag=T.unsafe(nil)); end
+
+  def find_indexed_specs(current_spec); end
+
+  def find_resolved_spec(current_spec); end
+
+  def gem_version_promoter(); end
+
+  def gemfiles(); end
+
+  def groups(); end
+
+  def has_local_dependencies?(); end
+
+  def has_rubygems_remotes?(); end
+
+  def index(); end
+
+  def initialize(lockfile, dependencies, sources, unlock, ruby_version=T.unsafe(nil), optional_groups=T.unsafe(nil), gemfiles=T.unsafe(nil)); end
+
+  def lock(file, preserve_unknown_sections=T.unsafe(nil)); end
+
+  def locked_bundler_version(); end
+
+  def locked_deps(); end
+
+  def locked_gems(); end
+
+  def locked_ruby_version(); end
+
+  def locked_ruby_version_object(); end
+
+  def lockfile(); end
+
+  def missing_specs(); end
+
+  def missing_specs?(); end
+
+  def new_platform?(); end
+
+  def new_specs(); end
+
+  def nothing_changed?(); end
+
+  def platforms(); end
+
+  def remove_platform(platform); end
+
+  def removed_specs(); end
+
+  def requested_specs(); end
+
+  def requires(); end
+
+  def resolve(); end
+
+  def resolve_remotely!(); end
+
+  def resolve_with_cache!(); end
+
+  def ruby_version(); end
+
+  def spec_git_paths(); end
+
+  def specs(); end
+
+  def specs_for(groups); end
+
+  def to_lock(); end
+
+  def unlocking?(); end
+
+  def validate_platforms!(); end
+
+  def validate_ruby!(); end
+
+  def validate_runtime!(); end
+end
+
+class Bundler::Definition
+  def self.build(gemfile, lockfile, unlock); end
+end
+
+class Bundler::DepProxy
+  def ==(other); end
+
+  def __platform(); end
+
+  def dep(); end
+
+  def eql?(other); end
+
+  def initialize(dep, platform); end
+
+  def name(); end
+
+  def requirement(); end
+
+  def type(); end
+end
+
+class Bundler::DepProxy
+end
+
+class Bundler::Dependency
+  def autorequire(); end
+
+  def current_env?(); end
+
+  def current_platform?(); end
+
+  def gem_platforms(valid_platforms); end
+
+  def gemfile(); end
+
+  def initialize(name, version, options=T.unsafe(nil), &blk); end
+
+  def platforms(); end
+
+  def should_include?(); end
+  PLATFORM_MAP = ::T.let(nil, ::T.untyped)
+  REVERSE_PLATFORM_MAP = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Dependency
 end
 
 Bundler::Deprecate = Gem::Deprecate
+
+class Bundler::DeprecatedError
+  def status_code(); end
+end
+
+class Bundler::DeprecatedError
+end
+
+class Bundler::Dsl
+  include ::Bundler::RubyDsl
+  def dependencies(); end
+
+  def dependencies=(dependencies); end
+
+  def env(name); end
+
+  def eval_gemfile(gemfile, contents=T.unsafe(nil)); end
+
+  def gem(name, *args); end
+
+  def gemspec(opts=T.unsafe(nil)); end
+
+  def gemspecs(); end
+
+  def git(uri, options=T.unsafe(nil), &blk); end
+
+  def git_source(name, &block); end
+
+  def github(repo, options=T.unsafe(nil)); end
+
+  def group(*args, &blk); end
+
+  def install_if(*args); end
+
+  def method_missing(name, *args); end
+
+  def path(path, options=T.unsafe(nil), &blk); end
+
+  def platform(*platforms); end
+
+  def platforms(*platforms); end
+
+  def plugin(*args); end
+
+  def source(source, *args, &blk); end
+
+  def to_definition(lockfile, unlock); end
+  VALID_KEYS = ::T.let(nil, ::T.untyped)
+  VALID_PLATFORMS = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Dsl::DSLError
+  def contents(); end
+
+  def description(); end
+
+  def dsl_path(); end
+
+  def initialize(description, dsl_path, backtrace, contents=T.unsafe(nil)); end
+end
+
+class Bundler::Dsl::DSLError
+end
+
+class Bundler::Dsl
+  def self.evaluate(gemfile, lockfile, unlock); end
+end
+
+class Bundler::EndpointSpecification
+  def __swap__(spec); end
+
+  def _local_specification(); end
+
+  def checksum(); end
+
+  def dependencies=(dependencies); end
+
+  def fetch_platform(); end
+
+  def initialize(name, version, platform, dependencies, metadata=T.unsafe(nil)); end
+  ILLFORMED_MESSAGE = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::EndpointSpecification
+end
 
 class Bundler::Env
 end
@@ -131,10 +687,111 @@ class Bundler::Env
   def self.write(io); end
 end
 
+class Bundler::EnvironmentPreserver
+  def backup(); end
+
+  def initialize(env, keys); end
+
+  def restore(); end
+  BUNDLER_KEYS = ::T.let(nil, ::T.untyped)
+  BUNDLER_PREFIX = ::T.let(nil, ::T.untyped)
+  INTENTIONALLY_NIL = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::EnvironmentPreserver
+end
+
 class Bundler::FeatureFlag
+  def allow_bundler_dependency_conflicts?(); end
+
+  def allow_offline_install?(); end
+
+  def auto_clean_without_path?(); end
+
+  def auto_config_jobs?(); end
+
+  def bundler_10_mode?(); end
+
+  def bundler_1_mode?(); end
+
+  def bundler_2_mode?(); end
+
+  def bundler_3_mode?(); end
+
+  def bundler_4_mode?(); end
+
+  def bundler_5_mode?(); end
+
+  def bundler_6_mode?(); end
+
+  def bundler_7_mode?(); end
+
+  def bundler_8_mode?(); end
+
+  def bundler_9_mode?(); end
+
+  def cache_all?(); end
+
+  def cache_command_is_package?(); end
+
+  def console_command?(); end
+
+  def default_cli_command(); end
+
+  def default_install_uses_path?(); end
+
+  def deployment_means_frozen?(); end
+
+  def disable_multisource?(); end
+
+  def error_on_stderr?(); end
+
+  def forget_cli_options?(); end
+
   def github_https?(); end
 
+  def global_gem_cache?(); end
+
+  def global_path_appends_ruby_scope?(); end
+
+  def init_gems_rb?(); end
+
+  def initialize(bundler_version); end
+
+  def list_command?(); end
+
   def lockfile_upgrade_warning?(); end
+
+  def lockfile_uses_separate_rubygems_sources?(); end
+
+  def only_update_to_newer_versions?(); end
+
+  def path_relative_to_cwd?(); end
+
+  def plugins?(); end
+
+  def prefer_gems_rb?(); end
+
+  def print_only_version_number?(); end
+
+  def setup_makes_kernel_gem_public?(); end
+
+  def skip_default_git_sources?(); end
+
+  def specific_platform?(); end
+
+  def suppress_install_using_messages?(); end
+
+  def unlock_source_unlocks_spec?(); end
+
+  def update_requires_all_flag?(); end
+
+  def use_gem_version_promoter_for_major_updates?(); end
+
+  def viz_command?(); end
+end
+
+class Bundler::FeatureFlag
 end
 
 class Bundler::Fetcher
@@ -312,15 +969,103 @@ class Bundler::Fetcher
 end
 
 module Bundler::FileUtils
+  include ::Bundler::FileUtils::StreamUtils_
+  LOW_METHODS = ::T.let(nil, ::T.untyped)
+  METHODS = ::T.let(nil, ::T.untyped)
+  OPT_TABLE = ::T.let(nil, ::T.untyped)
   VERSION = ::T.let(nil, ::T.untyped)
 end
 
 module Bundler::FileUtils::DryRun
+  include ::Bundler::FileUtils
+  include ::Bundler::FileUtils::StreamUtils_
+  include ::Bundler::FileUtils::LowMethods
+end
+
+module Bundler::FileUtils::DryRun
+  extend ::Bundler::FileUtils::DryRun
+  extend ::Bundler::FileUtils
+  extend ::Bundler::FileUtils::StreamUtils_
+  extend ::Bundler::FileUtils::LowMethods
   extend ::T::Sig
 end
 
 class Bundler::FileUtils::Entry_
+  include ::Bundler::FileUtils::StreamUtils_
+  def blockdev?(); end
+
+  def chardev?(); end
+
+  def chmod(mode); end
+
+  def chown(uid, gid); end
+
+  def copy(dest); end
+
+  def copy_file(dest); end
+
+  def copy_metadata(path); end
+
+  def dereference?(); end
+
+  def directory?(); end
+
+  def door?(); end
+
+  def entries(); end
+
+  def exist?(); end
+
+  def file?(); end
+
+  def initialize(a, b=T.unsafe(nil), deref=T.unsafe(nil)); end
+
   def link(dest); end
+
+  def lstat(); end
+
+  def lstat!(); end
+
+  def path(); end
+
+  def pipe?(); end
+
+  def platform_support(); end
+
+  def postorder_traverse(); end
+
+  def prefix(); end
+
+  def preorder_traverse(); end
+
+  def rel(); end
+
+  def remove(); end
+
+  def remove_dir1(); end
+
+  def remove_file(); end
+
+  def socket?(); end
+
+  def stat(); end
+
+  def stat!(); end
+
+  def symlink?(); end
+
+  def traverse(); end
+
+  def wrap_traverse(pre, post); end
+  DIRECTORY_TERM = ::T.let(nil, ::T.untyped)
+  SYSCASE = ::T.let(nil, ::T.untyped)
+  S_IF_DOOR = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::FileUtils::Entry_
+end
+
+module Bundler::FileUtils::LowMethods
 end
 
 module Bundler::FileUtils::LowMethods
@@ -328,7 +1073,20 @@ module Bundler::FileUtils::LowMethods
 end
 
 module Bundler::FileUtils::NoWrite
+  include ::Bundler::FileUtils
+  include ::Bundler::FileUtils::StreamUtils_
+  include ::Bundler::FileUtils::LowMethods
+end
+
+module Bundler::FileUtils::NoWrite
+  extend ::Bundler::FileUtils::NoWrite
+  extend ::Bundler::FileUtils
+  extend ::Bundler::FileUtils::StreamUtils_
+  extend ::Bundler::FileUtils::LowMethods
   extend ::T::Sig
+end
+
+module Bundler::FileUtils::StreamUtils_
 end
 
 module Bundler::FileUtils::StreamUtils_
@@ -336,14 +1094,123 @@ module Bundler::FileUtils::StreamUtils_
 end
 
 module Bundler::FileUtils::Verbose
+  include ::Bundler::FileUtils
+  include ::Bundler::FileUtils::StreamUtils_
+end
+
+module Bundler::FileUtils::Verbose
+  extend ::Bundler::FileUtils::Verbose
+  extend ::Bundler::FileUtils
+  extend ::Bundler::FileUtils::StreamUtils_
   extend ::T::Sig
 end
 
 module Bundler::FileUtils
+  extend ::Bundler::FileUtils::StreamUtils_
   extend ::T::Sig
+  def self.cd(dir, verbose: T.unsafe(nil), &block); end
+
+  def self.chdir(dir, verbose: T.unsafe(nil), &block); end
+
+  def self.chmod(mode, list, noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.chmod_R(mode, list, noop: T.unsafe(nil), verbose: T.unsafe(nil), force: T.unsafe(nil)); end
+
+  def self.chown(user, group, list, noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.chown_R(user, group, list, noop: T.unsafe(nil), verbose: T.unsafe(nil), force: T.unsafe(nil)); end
+
+  def self.cmp(a, b); end
+
+  def self.collect_method(opt); end
+
+  def self.commands(); end
+
+  def self.compare_file(a, b); end
+
+  def self.compare_stream(a, b); end
+
+  def self.copy(src, dest, preserve: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.copy_entry(src, dest, preserve=T.unsafe(nil), dereference_root=T.unsafe(nil), remove_destination=T.unsafe(nil)); end
+
+  def self.copy_file(src, dest, preserve=T.unsafe(nil), dereference=T.unsafe(nil)); end
+
+  def self.copy_stream(src, dest); end
+
+  def self.cp(src, dest, preserve: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
   def self.cp_lr(src, dest, noop: T.unsafe(nil), verbose: T.unsafe(nil), dereference_root: T.unsafe(nil), remove_destination: T.unsafe(nil)); end
 
+  def self.cp_r(src, dest, preserve: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil), dereference_root: T.unsafe(nil), remove_destination: T.unsafe(nil)); end
+
+  def self.getwd(); end
+
+  def self.have_option?(mid, opt); end
+
+  def self.identical?(a, b); end
+
+  def self.install(src, dest, mode: T.unsafe(nil), owner: T.unsafe(nil), group: T.unsafe(nil), preserve: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.link(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
   def self.link_entry(src, dest, dereference_root=T.unsafe(nil), remove_destination=T.unsafe(nil)); end
+
+  def self.ln(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.ln_s(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.ln_sf(src, dest, noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.makedirs(list, mode: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.mkdir(list, mode: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.mkdir_p(list, mode: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.mkpath(list, mode: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.move(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil), secure: T.unsafe(nil)); end
+
+  def self.mv(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil), secure: T.unsafe(nil)); end
+
+  def self.options(); end
+
+  def self.options_of(mid); end
+
+  def self.private_module_function(name); end
+
+  def self.pwd(); end
+
+  def self.remove(list, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.remove_dir(path, force=T.unsafe(nil)); end
+
+  def self.remove_entry(path, force=T.unsafe(nil)); end
+
+  def self.remove_entry_secure(path, force=T.unsafe(nil)); end
+
+  def self.remove_file(path, force=T.unsafe(nil)); end
+
+  def self.rm(list, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.rm_f(list, noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.rm_r(list, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil), secure: T.unsafe(nil)); end
+
+  def self.rm_rf(list, noop: T.unsafe(nil), verbose: T.unsafe(nil), secure: T.unsafe(nil)); end
+
+  def self.rmdir(list, parents: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.rmtree(list, noop: T.unsafe(nil), verbose: T.unsafe(nil), secure: T.unsafe(nil)); end
+
+  def self.safe_unlink(list, noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.symlink(src, dest, force: T.unsafe(nil), noop: T.unsafe(nil), verbose: T.unsafe(nil)); end
+
+  def self.touch(list, noop: T.unsafe(nil), verbose: T.unsafe(nil), mtime: T.unsafe(nil), nocreate: T.unsafe(nil)); end
+
+  def self.uptodate?(new, old_list); end
 end
 
 class Bundler::GemHelper
@@ -415,13 +1282,71 @@ class Bundler::GemHelper
 end
 
 module Bundler::GemHelpers
+  GENERICS = ::T.let(nil, ::T.untyped)
+  GENERIC_CACHE = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::GemHelpers::PlatformMatch
+  def cpu_match(); end
+
+  def cpu_match=(_); end
+
+  def os_match(); end
+
+  def os_match=(_); end
+
+  def platform_version_match(); end
+
+  def platform_version_match=(_); end
+  EXACT_MATCH = ::T.let(nil, ::T.untyped)
+  WORST_MATCH = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::GemHelpers::PlatformMatch
+  def self.[](*_); end
+
+  def self.cpu_match(spec_platform, user_platform); end
+
+  def self.members(); end
+
+  def self.os_match(spec_platform, user_platform); end
+
+  def self.platform_version_match(spec_platform, user_platform); end
+end
+
+module Bundler::GemHelpers
   extend ::T::Sig
+  def self.generic(p); end
+
+  def self.generic_local_platform(); end
+
+  def self.platform_specificity_match(spec_platform, user_platform); end
+
+  def self.select_best_platform_match(specs, platform); end
+end
+
+class Bundler::GemNotFound
+  def status_code(); end
+end
+
+class Bundler::GemNotFound
 end
 
 class Bundler::GemRemoteFetcher
 end
 
 class Bundler::GemRemoteFetcher
+end
+
+class Bundler::GemRequireError
+  def initialize(orig_exception, msg); end
+
+  def orig_exception(); end
+
+  def status_code(); end
+end
+
+class Bundler::GemRequireError
 end
 
 class Bundler::GemVersionPromoter
@@ -452,6 +1377,58 @@ class Bundler::GemVersionPromoter
 end
 
 class Bundler::GemVersionPromoter
+end
+
+class Bundler::GemfileError
+  def status_code(); end
+end
+
+class Bundler::GemfileError
+end
+
+class Bundler::GemfileEvalError
+end
+
+class Bundler::GemfileEvalError
+end
+
+class Bundler::GemfileLockNotFound
+  def status_code(); end
+end
+
+class Bundler::GemfileLockNotFound
+end
+
+class Bundler::GemfileNotFound
+  def status_code(); end
+end
+
+class Bundler::GemfileNotFound
+end
+
+class Bundler::GemspecError
+  def status_code(); end
+end
+
+class Bundler::GemspecError
+end
+
+class Bundler::GenericSystemCallError
+  def initialize(underlying_error, message); end
+
+  def status_code(); end
+
+  def underlying_error(); end
+end
+
+class Bundler::GenericSystemCallError
+end
+
+class Bundler::GitError
+  def status_code(); end
+end
+
+class Bundler::GitError
 end
 
 class Bundler::Graph
@@ -487,8 +1464,65 @@ end
 class Bundler::Graph
 end
 
+class Bundler::HTTPError
+  def filter_uri(uri); end
+
+  def status_code(); end
+end
+
+class Bundler::HTTPError
+end
+
 class Bundler::Index
   include ::Enumerable
+  def <<(spec); end
+
+  def ==(other); end
+
+  def [](query, base=T.unsafe(nil)); end
+
+  def add_source(index); end
+
+  def all_specs(); end
+
+  def dependencies_eql?(spec, other_spec); end
+
+  def dependency_names(); end
+
+  def each(&blk); end
+
+  def empty?(); end
+
+  def local_search(query, base=T.unsafe(nil)); end
+
+  def search(query, base=T.unsafe(nil)); end
+
+  def search_all(name); end
+
+  def size(); end
+
+  def sort_specs(specs); end
+
+  def sources(); end
+
+  def spec_names(); end
+
+  def specs(); end
+
+  def unmet_dependency_names(); end
+
+  def unsorted_search(query, base); end
+
+  def use(other, override_dupes=T.unsafe(nil)); end
+  EMPTY_SEARCH = ::T.let(nil, ::T.untyped)
+  NULL = ::T.let(nil, ::T.untyped)
+  RUBY = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Index
+  def self.build(); end
+
+  def self.sort_specs(specs); end
 end
 
 class Bundler::Injector
@@ -504,6 +1538,20 @@ class Bundler::Injector
   def self.inject(new_deps, options=T.unsafe(nil)); end
 
   def self.remove(gems, options=T.unsafe(nil)); end
+end
+
+class Bundler::InstallError
+  def status_code(); end
+end
+
+class Bundler::InstallError
+end
+
+class Bundler::InstallHookError
+  def status_code(); end
+end
+
+class Bundler::InstallHookError
 end
 
 class Bundler::Installer
@@ -526,16 +1574,212 @@ class Bundler::Installer
   def self.install(root, definition, options=T.unsafe(nil)); end
 end
 
+class Bundler::InvalidOption
+  def status_code(); end
+end
+
+class Bundler::InvalidOption
+end
+
+class Bundler::LazySpecification
+  include ::Bundler::MatchPlatform
+  include ::Bundler::GemHelpers
+  def ==(other); end
+
+  def __materialize__(); end
+
+  def dependencies(); end
+
+  def full_name(); end
+
+  def git_version(); end
+
+  def identifier(); end
+
+  def initialize(name, version, platform, source=T.unsafe(nil)); end
+
+  def name(); end
+
+  def platform(); end
+
+  def remote(); end
+
+  def remote=(remote); end
+
+  def respond_to?(*args); end
+
+  def satisfies?(dependency); end
+
+  def source(); end
+
+  def source=(source); end
+
+  def to_lock(); end
+
+  def version(); end
+end
+
+class Bundler::LazySpecification::Identifier
+  include ::Comparable
+  def dependencies(); end
+
+  def dependencies=(_); end
+
+  def name(); end
+
+  def name=(_); end
+
+  def platform(); end
+
+  def platform=(_); end
+
+  def platform_string(); end
+
+  def source(); end
+
+  def source=(_); end
+
+  def version(); end
+
+  def version=(_); end
+end
+
+class Bundler::LazySpecification::Identifier
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class Bundler::LazySpecification
+end
+
+class Bundler::LockfileError
+  def status_code(); end
+end
+
+class Bundler::LockfileError
+end
+
+class Bundler::LockfileParser
+  def bundler_version(); end
+
+  def dependencies(); end
+
+  def initialize(lockfile); end
+
+  def platforms(); end
+
+  def ruby_version(); end
+
+  def sources(); end
+
+  def specs(); end
+
+  def warn_for_outdated_bundler_version(); end
+  BUNDLED = ::T.let(nil, ::T.untyped)
+  DEPENDENCIES = ::T.let(nil, ::T.untyped)
+  ENVIRONMENT_VERSION_SECTIONS = ::T.let(nil, ::T.untyped)
+  GEM = ::T.let(nil, ::T.untyped)
+  GIT = ::T.let(nil, ::T.untyped)
+  KNOWN_SECTIONS = ::T.let(nil, ::T.untyped)
+  NAME_VERSION = ::T.let(nil, ::T.untyped)
+  OPTIONS = ::T.let(nil, ::T.untyped)
+  PATH = ::T.let(nil, ::T.untyped)
+  PLATFORMS = ::T.let(nil, ::T.untyped)
+  PLUGIN = ::T.let(nil, ::T.untyped)
+  RUBY = ::T.let(nil, ::T.untyped)
+  SECTIONS_BY_VERSION_INTRODUCED = ::T.let(nil, ::T.untyped)
+  SOURCE = ::T.let(nil, ::T.untyped)
+  SPECS = ::T.let(nil, ::T.untyped)
+  TYPES = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::LockfileParser
+  def self.sections_in_lockfile(lockfile_contents); end
+
+  def self.sections_to_ignore(base_version=T.unsafe(nil)); end
+
+  def self.unknown_sections_in_lockfile(lockfile_contents); end
+end
+
+class Bundler::MarshalError
+end
+
+class Bundler::MarshalError
+end
+
+module Bundler::MatchPlatform
+  include ::Bundler::GemHelpers
+  def match_platform(p); end
+end
+
 module Bundler::MatchPlatform
   extend ::T::Sig
+  def self.platforms_match?(gemspec_platform, local_platform); end
+end
+
+module Bundler::Molinillo
+  VERSION = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Molinillo::CircularDependencyError
+  def dependencies(); end
+
+  def initialize(vertices); end
+end
+
+class Bundler::Molinillo::CircularDependencyError
+end
+
+module Bundler::Molinillo::Compatibility
 end
 
 module Bundler::Molinillo::Compatibility
   extend ::T::Sig
+  def self.flat_map(enum, &blk); end
+end
+
+module Bundler::Molinillo::Delegates
+end
+
+module Bundler::Molinillo::Delegates::ResolutionState
+  def activated(); end
+
+  def conflicts(); end
+
+  def depth(); end
+
+  def name(); end
+
+  def possibilities(); end
+
+  def requirement(); end
+
+  def requirements(); end
+
+  def unused_unwind_options(); end
 end
 
 module Bundler::Molinillo::Delegates::ResolutionState
   extend ::T::Sig
+end
+
+module Bundler::Molinillo::Delegates::SpecificationProvider
+  def allow_missing?(dependency); end
+
+  def dependencies_for(specification); end
+
+  def name_for(dependency); end
+
+  def name_for_explicit_dependency_source(); end
+
+  def name_for_locking_dependency_source(); end
+
+  def requirement_satisfied_by?(requirement, activated, spec); end
+
+  def search_for(dependency); end
+
+  def sort_dependencies(dependencies, activated, conflicts); end
 end
 
 module Bundler::Molinillo::Delegates::SpecificationProvider
@@ -548,10 +1792,470 @@ end
 
 class Bundler::Molinillo::DependencyGraph
   include ::Enumerable
+  include ::TSort
+  def ==(other); end
+
+  def add_child_vertex(name, payload, parent_names, requirement); end
+
+  def add_edge(origin, destination, requirement); end
+
+  def add_vertex(name, payload, root=T.unsafe(nil)); end
+
+  def delete_edge(edge); end
+
+  def detach_vertex_named(name); end
+
+  def each(&blk); end
+
+  def rewind_to(tag); end
+
+  def root_vertex_named(name); end
+
+  def set_payload(name, payload); end
+
+  def tag(tag); end
+
+  def to_dot(options=T.unsafe(nil)); end
+
+  def tsort_each_child(vertex, &block); end
+
+  def vertex_named(name); end
+
+  def vertices(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Action
+  def down(graph); end
+
+  def next(); end
+
+  def next=(_); end
+
+  def previous(); end
+
+  def previous=(previous); end
+
+  def up(graph); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Action
+  def self.action_name(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::AddEdgeNoCircular
+  def destination(); end
+
+  def initialize(origin, destination, requirement); end
+
+  def make_edge(graph); end
+
+  def origin(); end
+
+  def requirement(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::AddEdgeNoCircular
+end
+
+class Bundler::Molinillo::DependencyGraph::AddVertex
+  def initialize(name, payload, root); end
+
+  def name(); end
+
+  def payload(); end
+
+  def root(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::AddVertex
+end
+
+class Bundler::Molinillo::DependencyGraph::DeleteEdge
+  def destination_name(); end
+
+  def initialize(origin_name, destination_name, requirement); end
+
+  def make_edge(graph); end
+
+  def origin_name(); end
+
+  def requirement(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::DeleteEdge
+end
+
+class Bundler::Molinillo::DependencyGraph::DetachVertexNamed
+  def initialize(name); end
+
+  def name(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::DetachVertexNamed
+end
+
+class Bundler::Molinillo::DependencyGraph::Edge
+  def destination(); end
+
+  def destination=(_); end
+
+  def origin(); end
+
+  def origin=(_); end
+
+  def requirement(); end
+
+  def requirement=(_); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Edge
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Log
+  def add_edge_no_circular(graph, origin, destination, requirement); end
+
+  def add_vertex(graph, name, payload, root); end
+
+  def delete_edge(graph, origin_name, destination_name, requirement); end
+
+  def detach_vertex_named(graph, name); end
+
+  def each(&blk); end
+
+  def pop!(graph); end
+
+  def reverse_each(); end
+
+  def rewind_to(graph, tag); end
+
+  def set_payload(graph, name, payload); end
+
+  def tag(graph, tag); end
 end
 
 class Bundler::Molinillo::DependencyGraph::Log
   extend ::Enumerable
+end
+
+class Bundler::Molinillo::DependencyGraph::SetPayload
+  def initialize(name, payload); end
+
+  def name(); end
+
+  def payload(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::SetPayload
+end
+
+class Bundler::Molinillo::DependencyGraph::Tag
+  def down(_graph); end
+
+  def initialize(tag); end
+
+  def tag(); end
+
+  def up(_graph); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Tag
+end
+
+class Bundler::Molinillo::DependencyGraph::Vertex
+  def ==(other); end
+
+  def _path_to?(other, visited=T.unsafe(nil)); end
+
+  def ancestor?(other); end
+
+  def descendent?(other); end
+
+  def eql?(other); end
+
+  def explicit_requirements(); end
+
+  def incoming_edges(); end
+
+  def incoming_edges=(incoming_edges); end
+
+  def initialize(name, payload); end
+
+  def is_reachable_from?(other); end
+
+  def name(); end
+
+  def name=(name); end
+
+  def outgoing_edges(); end
+
+  def outgoing_edges=(outgoing_edges); end
+
+  def path_to?(other); end
+
+  def payload(); end
+
+  def payload=(payload); end
+
+  def predecessors(); end
+
+  def recursive_predecessors(); end
+
+  def recursive_successors(); end
+
+  def requirements(); end
+
+  def root(); end
+
+  def root=(root); end
+
+  def root?(); end
+
+  def shallow_eql?(other); end
+
+  def successors(); end
+end
+
+class Bundler::Molinillo::DependencyGraph::Vertex
+end
+
+class Bundler::Molinillo::DependencyGraph
+  def self.tsort(vertices); end
+end
+
+class Bundler::Molinillo::DependencyState
+  def pop_possibility_state(); end
+end
+
+class Bundler::Molinillo::DependencyState
+end
+
+class Bundler::Molinillo::NoSuchDependencyError
+  def dependency(); end
+
+  def dependency=(dependency); end
+
+  def initialize(dependency, required_by=T.unsafe(nil)); end
+
+  def required_by(); end
+
+  def required_by=(required_by); end
+end
+
+class Bundler::Molinillo::NoSuchDependencyError
+end
+
+class Bundler::Molinillo::PossibilityState
+end
+
+class Bundler::Molinillo::PossibilityState
+end
+
+class Bundler::Molinillo::ResolutionState
+  def activated(); end
+
+  def activated=(_); end
+
+  def conflicts(); end
+
+  def conflicts=(_); end
+
+  def depth(); end
+
+  def depth=(_); end
+
+  def name(); end
+
+  def name=(_); end
+
+  def possibilities(); end
+
+  def possibilities=(_); end
+
+  def requirement(); end
+
+  def requirement=(_); end
+
+  def requirements(); end
+
+  def requirements=(_); end
+
+  def unused_unwind_options(); end
+
+  def unused_unwind_options=(_); end
+end
+
+class Bundler::Molinillo::ResolutionState
+  def self.[](*_); end
+
+  def self.empty(); end
+
+  def self.members(); end
+end
+
+class Bundler::Molinillo::Resolver
+  def initialize(specification_provider, resolver_ui); end
+
+  def resolve(requested, base=T.unsafe(nil)); end
+
+  def resolver_ui(); end
+
+  def specification_provider(); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution
+  include ::Bundler::Molinillo::Delegates::ResolutionState
+  include ::Bundler::Molinillo::Delegates::SpecificationProvider
+  def base(); end
+
+  def initialize(specification_provider, resolver_ui, requested, base); end
+
+  def iteration_rate=(iteration_rate); end
+
+  def original_requested(); end
+
+  def resolve(); end
+
+  def resolver_ui(); end
+
+  def specification_provider(); end
+
+  def started_at=(started_at); end
+
+  def states=(states); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::Conflict
+  def activated_by_name(); end
+
+  def activated_by_name=(_); end
+
+  def existing(); end
+
+  def existing=(_); end
+
+  def locked_requirement(); end
+
+  def locked_requirement=(_); end
+
+  def possibility(); end
+
+  def possibility_set(); end
+
+  def possibility_set=(_); end
+
+  def requirement(); end
+
+  def requirement=(_); end
+
+  def requirement_trees(); end
+
+  def requirement_trees=(_); end
+
+  def requirements(); end
+
+  def requirements=(_); end
+
+  def underlying_error(); end
+
+  def underlying_error=(_); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::Conflict
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::PossibilitySet
+  def dependencies(); end
+
+  def dependencies=(_); end
+
+  def latest_version(); end
+
+  def possibilities(); end
+
+  def possibilities=(_); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::PossibilitySet
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::UnwindDetails
+  include ::Comparable
+  def all_requirements(); end
+
+  def conflicting_requirements(); end
+
+  def conflicting_requirements=(_); end
+
+  def requirement_tree(); end
+
+  def requirement_tree=(_); end
+
+  def requirement_trees(); end
+
+  def requirement_trees=(_); end
+
+  def requirements_unwound_to_instead(); end
+
+  def requirements_unwound_to_instead=(_); end
+
+  def reversed_requirement_tree_index(); end
+
+  def state_index(); end
+
+  def state_index=(_); end
+
+  def state_requirement(); end
+
+  def state_requirement=(_); end
+
+  def sub_dependencies_to_avoid(); end
+
+  def unwinding_to_primary_requirement?(); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution::UnwindDetails
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class Bundler::Molinillo::Resolver::Resolution
+end
+
+class Bundler::Molinillo::Resolver
+end
+
+class Bundler::Molinillo::ResolverError
+end
+
+class Bundler::Molinillo::ResolverError
+end
+
+module Bundler::Molinillo::SpecificationProvider
+  def allow_missing?(dependency); end
+
+  def dependencies_for(specification); end
+
+  def name_for(dependency); end
+
+  def name_for_explicit_dependency_source(); end
+
+  def name_for_locking_dependency_source(); end
+
+  def requirement_satisfied_by?(requirement, activated, spec); end
+
+  def search_for(dependency); end
+
+  def sort_dependencies(dependencies, activated, conflicts); end
 end
 
 module Bundler::Molinillo::SpecificationProvider
@@ -559,11 +2263,83 @@ module Bundler::Molinillo::SpecificationProvider
 end
 
 module Bundler::Molinillo::UI
+  def after_resolution(); end
+
+  def before_resolution(); end
+
+  def debug(depth=T.unsafe(nil)); end
+
+  def debug?(); end
+
+  def indicate_progress(); end
+
+  def output(); end
+
+  def progress_rate(); end
+end
+
+module Bundler::Molinillo::UI
   extend ::T::Sig
+end
+
+class Bundler::Molinillo::VersionConflict
+  include ::Bundler::Molinillo::Delegates::SpecificationProvider
+  def conflicts(); end
+
+  def initialize(conflicts, specification_provider); end
+
+  def message_with_trees(opts=T.unsafe(nil)); end
+
+  def specification_provider(); end
+end
+
+class Bundler::Molinillo::VersionConflict
 end
 
 module Bundler::Molinillo
   extend ::T::Sig
+end
+
+class Bundler::NoSpaceOnDeviceError
+end
+
+class Bundler::NoSpaceOnDeviceError
+end
+
+class Bundler::OperationNotSupportedError
+end
+
+class Bundler::OperationNotSupportedError
+end
+
+class Bundler::PathError
+  def status_code(); end
+end
+
+class Bundler::PathError
+end
+
+class Bundler::PermissionError
+  def action(); end
+
+  def initialize(path, permission_type=T.unsafe(nil)); end
+
+  def status_code(); end
+end
+
+class Bundler::PermissionError
+end
+
+module Bundler::Plugin
+  PLUGIN_FILE_NAME = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Plugin::API
+  def cache_dir(); end
+
+  def method_missing(name, *args, &blk); end
+
+  def tmp(*names); end
 end
 
 module Bundler::Plugin::API::Source
@@ -634,6 +2410,14 @@ end
 
 module Bundler::Plugin::API::Source
   extend ::T::Sig
+end
+
+class Bundler::Plugin::API
+  def self.command(command, cls=T.unsafe(nil)); end
+
+  def self.hook(event, &block); end
+
+  def self.source(source, cls=T.unsafe(nil)); end
 end
 
 class Bundler::Plugin::DSL
@@ -730,14 +2514,74 @@ end
 class Bundler::Plugin::Installer
 end
 
+class Bundler::Plugin::MalformattedPlugin
+end
+
+class Bundler::Plugin::MalformattedPlugin
+end
+
 class Bundler::Plugin::SourceList
 end
 
 class Bundler::Plugin::SourceList
+end
+
+class Bundler::Plugin::UndefinedCommandError
+end
+
+class Bundler::Plugin::UndefinedCommandError
+end
+
+class Bundler::Plugin::UnknownSourceError
+end
+
+class Bundler::Plugin::UnknownSourceError
 end
 
 module Bundler::Plugin
   extend ::T::Sig
+  def self.add_command(command, cls); end
+
+  def self.add_hook(event, &block); end
+
+  def self.add_source(source, cls); end
+
+  def self.cache(); end
+
+  def self.command?(command); end
+
+  def self.exec_command(command, args); end
+
+  def self.gemfile_install(gemfile=T.unsafe(nil), &inline); end
+
+  def self.global_root(); end
+
+  def self.hook(event, *args, &arg_blk); end
+
+  def self.index(); end
+
+  def self.install(names, options); end
+
+  def self.installed?(plugin); end
+
+  def self.local_root(); end
+
+  def self.reset!(); end
+
+  def self.root(); end
+
+  def self.source(name); end
+
+  def self.source?(name); end
+
+  def self.source_from_lock(locked_opts); end
+end
+
+class Bundler::PluginError
+  def status_code(); end
+end
+
+class Bundler::PluginError
 end
 
 class Bundler::ProcessLock
@@ -745,6 +2589,109 @@ end
 
 class Bundler::ProcessLock
   def self.lock(bundle_path=T.unsafe(nil)); end
+end
+
+class Bundler::ProductionError
+  def status_code(); end
+end
+
+class Bundler::ProductionError
+end
+
+class Bundler::RemoteSpecification
+  include ::Bundler::MatchPlatform
+  include ::Bundler::GemHelpers
+  include ::Comparable
+  def __swap__(spec); end
+
+  def dependencies(); end
+
+  def dependencies=(dependencies); end
+
+  def fetch_platform(); end
+
+  def full_name(); end
+
+  def git_version(); end
+
+  def initialize(name, version, platform, spec_fetcher); end
+
+  def name(); end
+
+  def platform(); end
+
+  def remote(); end
+
+  def remote=(remote); end
+
+  def respond_to?(method, include_all=T.unsafe(nil)); end
+
+  def sort_obj(); end
+
+  def source(); end
+
+  def source=(source); end
+
+  def version(); end
+end
+
+class Bundler::RemoteSpecification
+end
+
+class Bundler::Resolver
+  include ::Bundler::Molinillo::UI
+  include ::Bundler::Molinillo::SpecificationProvider
+  def index_for(dependency); end
+
+  def initialize(index, source_requirements, base, gem_version_promoter, additional_base_requirements, platforms); end
+
+  def relevant_sources_for_vertex(vertex); end
+
+  def start(requirements); end
+end
+
+class Bundler::Resolver::SpecGroup
+  include ::Bundler::GemHelpers
+  def ==(other); end
+
+  def activate_platform!(platform); end
+
+  def dependencies_for_activated_platforms(); end
+
+  def eql?(other); end
+
+  def for?(platform); end
+
+  def ignores_bundler_dependencies(); end
+
+  def ignores_bundler_dependencies=(ignores_bundler_dependencies); end
+
+  def initialize(all_specs); end
+
+  def name(); end
+
+  def name=(name); end
+
+  def source(); end
+
+  def source=(source); end
+
+  def to_specs(); end
+
+  def version(); end
+
+  def version=(version); end
+end
+
+class Bundler::Resolver::SpecGroup
+end
+
+class Bundler::Resolver
+  def self.platform_sort_key(platform); end
+
+  def self.resolve(requirements, index, source_requirements=T.unsafe(nil), base=T.unsafe(nil), gem_version_promoter=T.unsafe(nil), additional_base_requirements=T.unsafe(nil), platforms=T.unsafe(nil)); end
+
+  def self.sort_platforms(platforms); end
 end
 
 class Bundler::Retry
@@ -776,6 +2723,10 @@ class Bundler::Retry
 end
 
 module Bundler::RubyDsl
+  def ruby(*ruby_version); end
+end
+
+module Bundler::RubyDsl
   extend ::T::Sig
 end
 
@@ -785,8 +2736,362 @@ end
 class Bundler::RubyGemsGemInstaller
 end
 
+class Bundler::RubyVersion
+  def ==(other); end
+
+  def diff(other); end
+
+  def engine(); end
+
+  def engine_gem_version(); end
+
+  def engine_versions(); end
+
+  def exact?(); end
+
+  def gem_version(); end
+
+  def host(); end
+
+  def initialize(versions, patchlevel, engine, engine_version); end
+
+  def patchlevel(); end
+
+  def single_version_string(); end
+
+  def to_gem_version_with_patchlevel(); end
+
+  def to_s(versions=T.unsafe(nil)); end
+
+  def versions(); end
+
+  def versions_string(versions); end
+  PATTERN = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::RubyVersion
+  def self.from_string(string); end
+
+  def self.system(); end
+end
+
+class Bundler::RubyVersionMismatch
+  def status_code(); end
+end
+
+class Bundler::RubyVersionMismatch
+end
+
+class Bundler::RubygemsIntegration
+  def backport_base_dir(); end
+
+  def backport_cache_file(); end
+
+  def backport_segment_generation(); end
+
+  def backport_spec_file(); end
+
+  def backport_yaml_initialize(); end
+
+  def bin_path(gem, bin, ver); end
+
+  def binstubs_call_gem?(); end
+
+  def build(spec, skip_validation=T.unsafe(nil)); end
+
+  def build_args(); end
+
+  def build_args=(args); end
+
+  def build_gem(gem_dir, spec); end
+
+  def clear_paths(); end
+
+  def config_map(); end
+
+  def configuration(); end
+
+  def download_gem(spec, uri, path); end
+
+  def ext_lock(); end
+
+  def fetch_all_remote_specs(remote); end
+
+  def fetch_prerelease_specs(); end
+
+  def fetch_specs(all, pre, &blk); end
+
+  def gem_bindir(); end
+
+  def gem_cache(); end
+
+  def gem_dir(); end
+
+  def gem_from_path(path, policy=T.unsafe(nil)); end
+
+  def gem_path(); end
+
+  def inflate(obj); end
+
+  def install_with_build_args(args); end
+
+  def load_path_insert_index(); end
+
+  def load_plugin_files(files); end
+
+  def load_plugins(); end
+
+  def loaded_gem_paths(); end
+
+  def loaded_specs(name); end
+
+  def mark_loaded(spec); end
+
+  def marshal_spec_dir(); end
+
+  def method_visibility(klass, method); end
+
+  def path(obj); end
+
+  def path_separator(); end
+
+  def platforms(); end
+
+  def post_reset_hooks(); end
+
+  def preserve_paths(); end
+
+  def provides?(req_str); end
+
+  def read_binary(path); end
+
+  def redefine_method(klass, method, unbound_method=T.unsafe(nil), &block); end
+
+  def replace_bin_path(specs, specs_by_name); end
+
+  def replace_entrypoints(specs); end
+
+  def replace_gem(specs, specs_by_name); end
+
+  def replace_refresh(); end
+
+  def repository_subdirectories(); end
+
+  def reset(); end
+
+  def reverse_rubygems_kernel_mixin(); end
+
+  def ruby_engine(); end
+
+  def security_policies(); end
+
+  def security_policy_keys(); end
+
+  def set_installed_by_version(spec, installed_by_version=T.unsafe(nil)); end
+
+  def sources(); end
+
+  def sources=(val); end
+
+  def spec_cache_dirs(); end
+
+  def spec_default_gem?(spec); end
+
+  def spec_extension_dir(spec); end
+
+  def spec_from_gem(path, policy=T.unsafe(nil)); end
+
+  def spec_matches_for_glob(spec, glob); end
+
+  def spec_missing_extensions?(spec, default=T.unsafe(nil)); end
+
+  def stub_set_spec(stub, spec); end
+
+  def stub_source_index(specs); end
+
+  def stubs_provide_full_functionality?(); end
+
+  def suffix_pattern(); end
+
+  def ui=(obj); end
+
+  def undo_replacements(); end
+
+  def user_home(); end
+
+  def validate(spec); end
+
+  def version(); end
+
+  def with_build_args(args); end
+  EXT_LOCK = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::RubygemsIntegration::AlmostModern
+end
+
+class Bundler::RubygemsIntegration::AlmostModern
+end
+
+class Bundler::RubygemsIntegration::Ancient
+end
+
+class Bundler::RubygemsIntegration::Ancient
+end
+
+class Bundler::RubygemsIntegration::Future
+  def all_specs(); end
+
+  def fetch_specs(source, remote, name); end
+
+  def find_name(name); end
+
+  def gem_remote_fetcher(); end
+
+  def stub_rubygems(specs); end
+end
+
+class Bundler::RubygemsIntegration::Future
+end
+
+class Bundler::RubygemsIntegration::Legacy
+  def all_specs(); end
+
+  def find_name(name); end
+
+  def stub_rubygems(specs); end
+end
+
+class Bundler::RubygemsIntegration::Legacy
+end
+
+class Bundler::RubygemsIntegration::Modern
+  def all_specs(); end
+
+  def find_name(name); end
+
+  def stub_rubygems(specs); end
+end
+
+class Bundler::RubygemsIntegration::Modern
+end
+
 class Bundler::RubygemsIntegration::MoreFuture
+  def backport_ext_builder_monitor(); end
+
   def default_stubs(); end
+
+  def use_gemdeps(gemfile); end
+end
+
+class Bundler::RubygemsIntegration::MoreFuture
+end
+
+class Bundler::RubygemsIntegration::MoreModern
+end
+
+class Bundler::RubygemsIntegration::MoreModern
+end
+
+class Bundler::RubygemsIntegration::Transitional
+end
+
+class Bundler::RubygemsIntegration::Transitional
+end
+
+class Bundler::RubygemsIntegration
+  def self.provides?(req_str); end
+
+  def self.version(); end
+end
+
+class Bundler::Runtime
+  include ::Bundler::SharedHelpers
+  def cache(custom_path=T.unsafe(nil)); end
+
+  def clean(dry_run=T.unsafe(nil)); end
+
+  def current_dependencies(); end
+
+  def dependencies(); end
+
+  def gems(); end
+
+  def initialize(root, definition); end
+
+  def lock(opts=T.unsafe(nil)); end
+
+  def prune_cache(cache_path); end
+
+  def requested_specs(); end
+
+  def require(*groups); end
+
+  def requires(); end
+
+  def setup(*groups); end
+
+  def specs(); end
+  REQUIRE_ERRORS = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Runtime
+end
+
+class Bundler::SecurityError
+  def status_code(); end
+end
+
+class Bundler::SecurityError
+end
+
+class Bundler::Settings
+  def [](name); end
+
+  def all(); end
+
+  def allow_sudo?(); end
+
+  def app_cache_path(); end
+
+  def credentials_for(uri); end
+
+  def gem_mirrors(); end
+
+  def ignore_config?(); end
+
+  def initialize(root=T.unsafe(nil)); end
+
+  def key_for(key); end
+
+  def local_overrides(); end
+
+  def locations(key); end
+
+  def mirror_for(uri); end
+
+  def path(); end
+
+  def pretty_values_for(exposed_key); end
+
+  def set_command_option(key, value); end
+
+  def set_command_option_if_given(key, value); end
+
+  def set_global(key, value); end
+
+  def set_local(key, value); end
+
+  def temporary(update); end
+
+  def validate!(); end
+  ARRAY_KEYS = ::T.let(nil, ::T.untyped)
+  BOOL_KEYS = ::T.let(nil, ::T.untyped)
+  CONFIG_REGEX = ::T.let(nil, ::T.untyped)
+  DEFAULT_CONFIG = ::T.let(nil, ::T.untyped)
+  NORMALIZE_URI_OPTIONS_PATTERN = ::T.let(nil, ::T.untyped)
+  NUMBER_KEYS = ::T.let(nil, ::T.untyped)
+  PER_URI_OPTIONS = ::T.let(nil, ::T.untyped)
 end
 
 class Bundler::Settings::Mirror
@@ -824,6 +3129,40 @@ end
 class Bundler::Settings::Mirrors
 end
 
+class Bundler::Settings::Path
+  def append_ruby_scope(); end
+
+  def append_ruby_scope=(_); end
+
+  def base_path(); end
+
+  def base_path_relative_to_pwd(); end
+
+  def default_install_uses_path(); end
+
+  def default_install_uses_path=(_); end
+
+  def explicit_path(); end
+
+  def explicit_path=(_); end
+
+  def path(); end
+
+  def system_path(); end
+
+  def system_path=(_); end
+
+  def use_system_gems?(); end
+
+  def validate!(); end
+end
+
+class Bundler::Settings::Path
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
 class Bundler::Settings::Validator
 end
 
@@ -848,12 +3187,429 @@ class Bundler::Settings::Validator
   def self.validate!(key, value, settings); end
 end
 
+class Bundler::Settings
+  def self.normalize_uri(uri); end
+end
+
 module Bundler::SharedHelpers
+  def chdir(dir, &blk); end
+
+  def const_get_safely(constant_name, namespace); end
+
+  def default_bundle_dir(); end
+
+  def default_gemfile(); end
+
+  def default_lockfile(); end
+
+  def digest(name); end
+
+  def ensure_same_dependencies(spec, old_deps, new_deps); end
+
+  def filesystem_access(path, action=T.unsafe(nil), &block); end
+
+  def in_bundle?(); end
+
+  def major_deprecation(major_version, message); end
+
+  def md5_available?(); end
+
+  def pretty_dependency(dep, print_source=T.unsafe(nil)); end
+
+  def print_major_deprecations!(); end
+
+  def pwd(); end
+
+  def root(); end
+
+  def set_bundle_environment(); end
+
+  def set_env(key, value); end
+
+  def trap(signal, override=T.unsafe(nil), &block); end
+
+  def with_clean_git_env(&block); end
+
+  def write_to_gemfile(gemfile_path, contents); end
+end
+
+module Bundler::SharedHelpers
+  extend ::Bundler::SharedHelpers
   extend ::T::Sig
+end
+
+class Bundler::Source
+  def can_lock?(spec); end
+
+  def dependency_names(); end
+
+  def dependency_names=(dependency_names); end
+
+  def dependency_names_to_double_check(); end
+
+  def double_check_for(*_); end
+
+  def extension_cache_path(spec); end
+
+  def include?(other); end
+
+  def path?(); end
+
+  def unmet_deps(); end
+
+  def version_message(spec); end
+end
+
+class Bundler::Source::Gemspec
+  def as_path_source(); end
+
+  def gemspec(); end
+end
+
+class Bundler::Source::Gemspec
+end
+
+class Bundler::Source::Git
+  def allow_git_ops?(); end
+
+  def branch(); end
+
+  def cache_path(); end
+
+  def extension_dir_name(); end
+
+  def install_path(); end
+
+  def local_override!(path); end
+
+  def ref(); end
+
+  def revision(); end
+
+  def specs(*_); end
+
+  def submodules(); end
+
+  def unlock!(); end
+
+  def uri(); end
+end
+
+class Bundler::Source::Git
+end
+
+class Bundler::Source::Metadata
+  def ==(other); end
+
+  def cached!(); end
+
+  def eql?(other); end
+
+  def install(spec, _opts=T.unsafe(nil)); end
+
+  def options(); end
+
+  def remote!(); end
+
+  def specs(); end
+end
+
+class Bundler::Source::Metadata
+end
+
+class Bundler::Source::Path
+  def ==(other); end
+
+  def app_cache_dirname(); end
+
+  def cache(spec, custom_path=T.unsafe(nil)); end
+
+  def cached!(); end
+
+  def eql?(other); end
+
+  def expanded_original_path(); end
+
+  def initialize(options); end
+
+  def install(spec, options=T.unsafe(nil)); end
+
+  def local_specs(*_); end
+
+  def name(); end
+
+  def name=(name); end
+
+  def options(); end
+
+  def original_path(); end
+
+  def path(); end
+
+  def remote!(); end
+
+  def root(); end
+
+  def root_path(); end
+
+  def specs(); end
+
+  def to_lock(); end
+
+  def version(); end
+
+  def version=(version); end
+  DEFAULT_GLOB = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Source::Path
+  def self.from_lock(options); end
+end
+
+class Bundler::Source::Rubygems
+  def ==(other); end
+
+  def add_remote(source); end
+
+  def api_fetchers(); end
+
+  def builtin_gem?(spec); end
+
+  def cache(spec, custom_path=T.unsafe(nil)); end
+
+  def cache_path(); end
+
+  def cached!(); end
+
+  def cached_built_in_gem(spec); end
+
+  def cached_gem(spec); end
+
+  def cached_path(spec); end
+
+  def cached_specs(); end
+
+  def caches(); end
+
+  def credless_remotes(); end
+
+  def double_check_for(unmet_dependency_names); end
+
+  def eql?(other); end
+
+  def equivalent_remotes?(other_remotes); end
+
+  def fetch_gem(spec); end
+
+  def fetch_names(fetchers, dependency_names, index, override_dupes); end
+
+  def fetchers(); end
+
+  def include?(o); end
+
+  def initialize(options=T.unsafe(nil)); end
+
+  def install(spec, opts=T.unsafe(nil)); end
+
+  def installed?(spec); end
+
+  def installed_specs(); end
+
+  def loaded_from(spec); end
+
+  def name(); end
+
+  def normalize_uri(uri); end
+
+  def options(); end
+
+  def remote!(); end
+
+  def remote_specs(); end
+
+  def remotes(); end
+
+  def remotes_for_spec(spec); end
+
+  def remove_auth(remote); end
+
+  def replace_remotes(other_remotes, allow_equivalent=T.unsafe(nil)); end
+
+  def requires_sudo?(); end
+
+  def rubygems_dir(); end
+
+  def specs(); end
+
+  def suppress_configured_credentials(remote); end
+
+  def to_lock(); end
+  API_REQUEST_LIMIT = ::T.let(nil, ::T.untyped)
+  API_REQUEST_SIZE = ::T.let(nil, ::T.untyped)
+end
+
+class Bundler::Source::Rubygems
+  def self.from_lock(options); end
+end
+
+class Bundler::Source
+end
+
+class Bundler::SourceList
+  def add_git_source(options=T.unsafe(nil)); end
+
+  def add_path_source(options=T.unsafe(nil)); end
+
+  def add_plugin_source(source, options=T.unsafe(nil)); end
+
+  def add_rubygems_remote(uri); end
+
+  def add_rubygems_source(options=T.unsafe(nil)); end
+
+  def all_sources(); end
+
+  def cached!(); end
+
+  def default_source(); end
+
+  def get(source); end
+
+  def git_sources(); end
+
+  def global_rubygems_source(); end
+
+  def global_rubygems_source=(uri); end
+
+  def lock_sources(); end
+
+  def metadata_source(); end
+
+  def path_sources(); end
+
+  def plugin_sources(); end
+
+  def remote!(); end
+
+  def replace_sources!(replacement_sources); end
+
+  def rubygems_primary_remotes(); end
+
+  def rubygems_remotes(); end
+
+  def rubygems_sources(); end
+end
+
+class Bundler::SourceList
 end
 
 class Bundler::SpecSet
   include ::Enumerable
+  include ::TSort
+  def <<(spec); end
+
+  def [](key); end
+
+  def []=(key, value); end
+
+  def each(&b); end
+
+  def empty?(); end
+
+  def find_by_name_and_platform(name, platform); end
+
+  def for(dependencies, skip=T.unsafe(nil), check=T.unsafe(nil), match_current_platform=T.unsafe(nil), raise_on_missing=T.unsafe(nil)); end
+
+  def initialize(specs); end
+
+  def length(); end
+
+  def materialize(deps, missing_specs=T.unsafe(nil)); end
+
+  def materialized_for_all_platforms(); end
+
+  def merge(set); end
+
+  def size(); end
+
+  def sort!(); end
+
+  def to_a(); end
+
+  def to_hash(); end
+
+  def valid_for?(deps); end
+
+  def what_required(spec); end
+end
+
+class Bundler::SpecSet
+end
+
+class Bundler::StubSpecification
+  def activated(); end
+
+  def activated=(activated); end
+
+  def default_gem(); end
+
+  def full_gem_path(); end
+
+  def full_require_paths(); end
+
+  def ignored(); end
+
+  def ignored=(ignored); end
+
+  def load_paths(); end
+
+  def loaded_from(); end
+
+  def matches_for_glob(glob); end
+
+  def missing_extensions?(); end
+
+  def raw_require_paths(); end
+
+  def source=(source); end
+
+  def stub(); end
+
+  def stub=(stub); end
+
+  def to_yaml(); end
+end
+
+class Bundler::StubSpecification
+  def self.from_stub(stub); end
+end
+
+class Bundler::SudoNotPermittedError
+  def status_code(); end
+end
+
+class Bundler::SudoNotPermittedError
+end
+
+class Bundler::TemporaryResourceError
+end
+
+class Bundler::TemporaryResourceError
+end
+
+class Bundler::ThreadCreationError
+  def status_code(); end
+end
+
+class Bundler::ThreadCreationError
+end
+
+module Bundler::UI
+end
+
+class Bundler::UI::RGProxy
+  def initialize(ui); end
+
+  def say(message); end
 end
 
 class Bundler::UI::RGProxy
@@ -901,12 +3657,68 @@ end
 class Bundler::UI::Shell
 end
 
+class Bundler::UI::Silent
+  def add_color(string, color); end
+
+  def ask(message); end
+
+  def confirm(message, newline=T.unsafe(nil)); end
+
+  def debug(message, newline=T.unsafe(nil)); end
+
+  def debug?(); end
+
+  def error(message, newline=T.unsafe(nil)); end
+
+  def info(message, newline=T.unsafe(nil)); end
+
+  def level(name=T.unsafe(nil)); end
+
+  def level=(name); end
+
+  def no?(); end
+
+  def quiet?(); end
+
+  def shell=(shell); end
+
+  def silence(); end
+
+  def trace(message, newline=T.unsafe(nil), force=T.unsafe(nil)); end
+
+  def unprinted_warnings(); end
+
+  def warn(message, newline=T.unsafe(nil)); end
+
+  def yes?(msg); end
+end
+
+class Bundler::UI::Silent
+end
+
 module Bundler::UI
   extend ::T::Sig
 end
 
 module Bundler::URICredentialsFilter
+end
+
+module Bundler::URICredentialsFilter
   extend ::T::Sig
+  def self.credential_filtered_string(str_to_filter, uri); end
+
+  def self.credential_filtered_uri(uri_to_anonymize); end
+end
+
+class Bundler::VersionConflict
+  def conflicts(); end
+
+  def initialize(conflicts, msg=T.unsafe(nil)); end
+
+  def status_code(); end
+end
+
+class Bundler::VersionConflict
 end
 
 module Bundler::VersionRanges
@@ -974,12 +3786,149 @@ module Bundler::VersionRanges
   def self.for_many(requirements); end
 end
 
+class Bundler::VirtualProtocolError
+  def status_code(); end
+end
+
+class Bundler::VirtualProtocolError
+end
+
+module Bundler::YAMLSerializer
+  ARRAY_REGEX = ::T.let(nil, ::T.untyped)
+  HASH_REGEX = ::T.let(nil, ::T.untyped)
+end
+
 module Bundler::YAMLSerializer
   extend ::T::Sig
+  def self.dump(hash); end
+
+  def self.load(str); end
+end
+
+class Bundler::YamlSyntaxError
+  def initialize(orig_exception, msg); end
+
+  def orig_exception(); end
+
+  def status_code(); end
+end
+
+class Bundler::YamlSyntaxError
 end
 
 module Bundler
   extend ::T::Sig
+  def self.app_cache(custom_path=T.unsafe(nil)); end
+
+  def self.app_config_path(); end
+
+  def self.bin_path(); end
+
+  def self.bundle_path(); end
+
+  def self.bundler_major_version(); end
+
+  def self.clean_env(); end
+
+  def self.clean_exec(*args); end
+
+  def self.clean_system(*args); end
+
+  def self.clear_gemspec_cache(); end
+
+  def self.configure(); end
+
+  def self.configured_bundle_path(); end
+
+  def self.current_ruby(); end
+
+  def self.default_bundle_dir(); end
+
+  def self.default_gemfile(); end
+
+  def self.default_lockfile(); end
+
+  def self.definition(unlock=T.unsafe(nil)); end
+
+  def self.environment(); end
+
+  def self.feature_flag(); end
+
+  def self.frozen_bundle?(); end
+
+  def self.git_present?(); end
+
+  def self.home(); end
+
+  def self.install_path(); end
+
+  def self.load_gemspec(file, validate=T.unsafe(nil)); end
+
+  def self.load_gemspec_uncached(file, validate=T.unsafe(nil)); end
+
+  def self.load_marshal(data); end
+
+  def self.local_platform(); end
+
+  def self.locked_gems(); end
+
+  def self.mkdir_p(path, options=T.unsafe(nil)); end
+
+  def self.original_env(); end
+
+  def self.read_file(file); end
+
+  def self.require(*groups); end
+
+  def self.require_thor_actions(); end
+
+  def self.requires_sudo?(); end
+
+  def self.reset!(); end
+
+  def self.reset_paths!(); end
+
+  def self.reset_rubygems!(); end
+
+  def self.rm_rf(path); end
+
+  def self.root(); end
+
+  def self.ruby_scope(); end
+
+  def self.rubygems(); end
+
+  def self.settings(); end
+
+  def self.setup(*groups); end
+
+  def self.specs_path(); end
+
+  def self.sudo(str); end
+
+  def self.system_bindir(); end
+
+  def self.tmp(name=T.unsafe(nil)); end
+
+  def self.tmp_home_path(login, warning); end
+
+  def self.ui(); end
+
+  def self.ui=(ui); end
+
+  def self.use_system_gems?(); end
+
+  def self.user_bundle_path(dir=T.unsafe(nil)); end
+
+  def self.user_cache(); end
+
+  def self.user_home(); end
+
+  def self.which(executable); end
+
+  def self.with_clean_env(); end
+
+  def self.with_original_env(); end
 end
 
 class CGI::Cookie
@@ -1057,6 +4006,8 @@ class CGI
 end
 
 class Class
+  def any_instance(); end
+
   def json_creatable?(); end
 end
 
@@ -1324,18 +4275,40 @@ module Docile
   VERSION = ::T.let(nil, ::T.untyped)
 end
 
+class Docile::ChainingFallbackContextProxy
+end
+
+class Docile::ChainingFallbackContextProxy
+end
+
+module Docile::Execution
+end
+
 module Docile::Execution
   extend ::T::Sig
+  def self.exec_in_proxy_context(dsl, proxy_type, *args, &block); end
 end
 
 class Docile::FallbackContextProxy
+  def initialize(receiver, fallback); end
+
+  def method_missing(method, *args, &block); end
   NON_FALLBACK_METHODS = ::T.let(nil, ::T.untyped)
   NON_PROXIED_INSTANCE_VARIABLES = ::T.let(nil, ::T.untyped)
   NON_PROXIED_METHODS = ::T.let(nil, ::T.untyped)
 end
 
+class Docile::FallbackContextProxy
+end
+
 module Docile
+  extend ::Docile::Execution
   extend ::T::Sig
+  def self.dsl_eval(dsl, *args, &block); end
+
+  def self.dsl_eval_immutable(dsl, *args, &block); end
+
+  def self.dsl_eval_with_block_return(dsl, *args, &block); end
 end
 
 class EOFError
@@ -2264,13 +5237,21 @@ end
 
 class File
   extend ::T::Sig
+  def self.cleanpath(path, rel_root=T.unsafe(nil)); end
+
+  def self.empty?(_); end
+
   def self.exists?(_); end
 
   def self.lutime(*_); end
 
   def self.mkfifo(*_); end
 
+  def self.open!(file, *args, &block); end
+
   def self.read_binary(file); end
+
+  def self.relative_path(from, to); end
 
 end
 
@@ -2335,6 +5316,13 @@ end
 
 module FileUtils
   include ::FileUtils::StreamUtils_
+  def ruby(*args, &block); end
+
+  def safe_ln(*args); end
+
+  def sh(*cmd, &block); end
+
+  def split_all(path); end
   LN_SUPPORTED = ::T.let(nil, ::T.untyped)
   RUBY = ::T.let(nil, ::T.untyped)
   VERSION = ::T.let(nil, ::T.untyped)
@@ -5810,6 +8798,71 @@ class Gem::SourceFetchProblem
   extend ::T::Sig
 end
 
+class Gem::SourceIndex
+  include ::Enumerable
+  def ==(other); end
+
+  def add_spec(gem_spec, name=T.unsafe(nil)); end
+
+  def add_specs(*gem_specs); end
+
+  def all_gems(); end
+
+  def dump(); end
+
+  def each(&block); end
+
+  def find_name(gem_name, requirement=T.unsafe(nil)); end
+
+  def gem_signature(gem_full_name); end
+
+  def gems(); end
+
+  def index_signature(); end
+
+  def initialize(specifications=T.unsafe(nil)); end
+
+  def latest_specs(include_prerelease=T.unsafe(nil)); end
+
+  def length(); end
+
+  def load_gems_in(*spec_dirs); end
+
+  def outdated(); end
+
+  def prerelease_gems(); end
+
+  def prerelease_specs(); end
+
+  def refresh!(); end
+
+  def released_gems(); end
+
+  def released_specs(); end
+
+  def remove_spec(full_name); end
+
+  def search(gem_pattern, platform_only=T.unsafe(nil)); end
+
+  def size(); end
+
+  def spec_dirs(); end
+
+  def spec_dirs=(spec_dirs); end
+
+  def specification(full_name); end
+end
+
+class Gem::SourceIndex
+  def self.from_gems_in(*spec_dirs); end
+
+  def self.from_installed_gems(*deprecated); end
+
+  def self.installed_spec_directories(); end
+
+  def self.load_specification(file_name); end
+end
+
 class Gem::SourceList
   include ::Enumerable
   def <<(obj); end
@@ -6736,6 +9789,8 @@ module Gem
 
   def self.rubygems_version(); end
 
+  def self.source_index(); end
+
   def self.sources(); end
 
   def self.sources=(new_sources); end
@@ -7006,6 +10061,21 @@ class IndexError
   extend ::T::Sig
 end
 
+class Insertion
+  def after(val, recursive=T.unsafe(nil)); end
+
+  def after_any(val); end
+
+  def before(val, recursive=T.unsafe(nil)); end
+
+  def before_any(val); end
+
+  def initialize(list, value); end
+end
+
+class Insertion
+end
+
 class Integer
   include ::JSON::Ext::Generator::GeneratorMethods::Integer
   def allbits?(_); end
@@ -7257,9 +10327,33 @@ end
 Methods = T::Private::Methods
 
 class Module
+  def class_name(); end
+
+  def context(*a, &b); end
+
   def deprecate_constant(*_); end
 
+  def describe(*a, &b); end
+
+  def example_group(*a, &b); end
+
+  def fcontext(*a, &b); end
+
+  def fdescribe(*a, &b); end
+
+  def rake_extension(method); end
+
+  def shared_context(name, *args, &block); end
+
+  def shared_examples(name, *args, &block); end
+
+  def shared_examples_for(name, *args, &block); end
+
   def undef_method(*_); end
+
+  def xcontext(*a, &b); end
+
+  def xdescribe(*a, &b); end
 end
 
 class Module
@@ -7842,8 +10936,235 @@ module Parlour
   VERSION = ::T.let(nil, ::T.untyped)
 end
 
+class Parlour::ConflictResolver
+  def resolve_conflicts(*args, &blk); end
+end
+
+class Parlour::ConflictResolver
+end
+
+class Parlour::Plugin
+  def generate(*args, &blk); end
+
+  def initialize(*args, &blk); end
+end
+
+class Parlour::Plugin
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+  def self.inherited(*args, &blk); end
+
+  def self.registered_plugins(*args, &blk); end
+
+  def self.run_plugins(*args, &blk); end
+end
+
+class Parlour::RbiGenerator
+  def current_plugin(*args, &blk); end
+
+  def current_plugin=(current_plugin); end
+
+  def initialize(*args, &blk); end
+
+  def options(*args, &blk); end
+
+  def rbi(*args, &blk); end
+
+  def root(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Arbitrary
+  def ==(*args, &blk); end
+
+  def code(*args, &blk); end
+
+  def code=(code); end
+end
+
+class Parlour::RbiGenerator::Arbitrary
+end
+
+class Parlour::RbiGenerator::Attribute
+  def kind(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Attribute
+end
+
+class Parlour::RbiGenerator::ClassNamespace
+  def abstract(*args, &blk); end
+
+  def superclass(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::ClassNamespace
+end
+
+class Parlour::RbiGenerator::Constant
+  def ==(*args, &blk); end
+
+  def value(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Constant
+end
+
+class Parlour::RbiGenerator::Extend
+  def ==(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Extend
+end
+
+class Parlour::RbiGenerator::Include
+  def ==(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Include
+end
+
+class Parlour::RbiGenerator::Method
+  def ==(*args, &blk); end
+
+  def abstract(*args, &blk); end
+
+  def class_method(*args, &blk); end
+
+  def implementation(*args, &blk); end
+
+  def overridable(*args, &blk); end
+
+  def override(*args, &blk); end
+
+  def parameters(*args, &blk); end
+
+  def return_type(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Method
+end
+
+class Parlour::RbiGenerator::ModuleNamespace
+  def interface(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::ModuleNamespace
+end
+
+class Parlour::RbiGenerator::Namespace
+  def add_comment_to_next_child(*args, &blk); end
+
+  def children(*args, &blk); end
+
+  def constants(*args, &blk); end
+
+  def create_arbitrary(code:, &block); end
+
+  def create_attr(name, kind:, type:, &block); end
+
+  def create_attr_accessor(name, type:, &block); end
+
+  def create_attr_reader(name, type:, &block); end
+
+  def create_attr_writer(name, type:, &block); end
+
+  def create_attribute(name, kind:, type:, &block); end
+
+  def create_class(*args, &blk); end
+
+  def create_constant(*args, &blk); end
+
+  def create_extend(*args, &blk); end
+
+  def create_extends(*args, &blk); end
+
+  def create_include(*args, &blk); end
+
+  def create_includes(*args, &blk); end
+
+  def create_method(*args, &blk); end
+
+  def create_module(*args, &blk); end
+
+  def extends(*args, &blk); end
+
+  def includes(*args, &blk); end
+
+  def path(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Namespace
+end
+
+class Parlour::RbiGenerator::Options
+  def break_params(*args, &blk); end
+
+  def indented(*args, &blk); end
+
+  def initialize(*args, &blk); end
+
+  def tab_size(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::Options
+end
+
 class Parlour::RbiGenerator::Parameter
+  def ==(*args, &blk); end
+
+  def default(*args, &blk); end
+
+  def initialize(*args, &blk); end
+
+  def kind(*args, &blk); end
+
+  def name(*args, &blk); end
+
+  def name_without_kind(*args, &blk); end
+
+  def to_def_param(*args, &blk); end
+
+  def to_sig_param(*args, &blk); end
+
+  def type(*args, &blk); end
   PREFIXES = ::T.let(nil, ::T.untyped)
+end
+
+class Parlour::RbiGenerator::Parameter
+end
+
+class Parlour::RbiGenerator::RbiObject
+  def add_comment(*args, &blk); end
+
+  def add_comments(*args, &blk); end
+
+  def comments(*args, &blk); end
+
+  def describe(*args, &blk); end
+
+  def generate_rbi(*args, &blk); end
+
+  def generated_by(*args, &blk); end
+
+  def generator(*args, &blk); end
+
+  def initialize(*args, &blk); end
+
+  def merge_into_self(*args, &blk); end
+
+  def mergeable?(*args, &blk); end
+
+  def name(*args, &blk); end
+end
+
+class Parlour::RbiGenerator::RbiObject
+  extend ::T::Helpers
+  extend ::T::Private::Abstract::Hooks
+  extend ::T::InterfaceWrapper::Helpers
+end
+
+class Parlour::RbiGenerator
 end
 
 module Parlour
@@ -8789,7 +12110,364 @@ class RSpec::CallerFilter
   RSPEC_LIBS = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::CallerFilter
+  def self.first_non_rspec_line(skip_frames=T.unsafe(nil), increment=T.unsafe(nil)); end
+end
+
+module RSpec::Core
+end
+
+class RSpec::Core::AnonymousExampleGroup
+end
+
+class RSpec::Core::AnonymousExampleGroup
+end
+
+class RSpec::Core::BacktraceFormatter
+  def backtrace_line(line); end
+
+  def exclude?(line); end
+
+  def exclusion_patterns(); end
+
+  def exclusion_patterns=(exclusion_patterns); end
+
+  def filter_gem(gem_name); end
+
+  def format_backtrace(backtrace, options=T.unsafe(nil)); end
+
+  def full_backtrace=(full_backtrace); end
+
+  def full_backtrace?(); end
+
+  def inclusion_patterns(); end
+
+  def inclusion_patterns=(inclusion_patterns); end
+end
+
+class RSpec::Core::BacktraceFormatter
+end
+
 class RSpec::Core::Configuration
+  include ::RSpec::Core::Hooks
+  include ::RSpec::Core::Configuration::Readers
+  def add_formatter(formatter, output=T.unsafe(nil)); end
+
+  def add_setting(name, opts=T.unsafe(nil)); end
+
+  def after(scope=T.unsafe(nil), *meta, &block); end
+
+  def alias_example_group_to(new_name, *args); end
+
+  def alias_example_to(name, *args); end
+
+  def alias_it_behaves_like_to(new_name, report_label=T.unsafe(nil)); end
+
+  def alias_it_should_behave_like_to(new_name, report_label=T.unsafe(nil)); end
+
+  def append_after(scope=T.unsafe(nil), *meta, &block); end
+
+  def append_before(scope=T.unsafe(nil), *meta, &block); end
+
+  def apply_derived_metadata_to(metadata); end
+
+  def around(scope=T.unsafe(nil), *meta, &block); end
+
+  def backtrace_exclusion_patterns(); end
+
+  def backtrace_exclusion_patterns=(patterns); end
+
+  def backtrace_formatter(); end
+
+  def backtrace_inclusion_patterns(); end
+
+  def backtrace_inclusion_patterns=(patterns); end
+
+  def before(scope=T.unsafe(nil), *meta, &block); end
+
+  def bisect_runner(); end
+
+  def bisect_runner=(value); end
+
+  def bisect_runner_class(); end
+
+  def color(); end
+
+  def color=(color); end
+
+  def color_enabled?(output=T.unsafe(nil)); end
+
+  def color_mode(); end
+
+  def color_mode=(color_mode); end
+
+  def configure_example(example, example_hooks); end
+
+  def configure_expectation_framework(); end
+
+  def configure_group(group); end
+
+  def configure_mock_framework(); end
+
+  def default_color=(default_color); end
+
+  def default_color?(); end
+
+  def default_formatter(); end
+
+  def default_formatter=(value); end
+
+  def default_path=(path); end
+
+  def default_path?(); end
+
+  def define_derived_metadata(*filters, &block); end
+
+  def deprecation_stream=(value); end
+
+  def detail_color=(detail_color); end
+
+  def detail_color?(); end
+
+  def disable_monkey_patching(); end
+
+  def disable_monkey_patching!(); end
+
+  def disable_monkey_patching=(disable_monkey_patching); end
+
+  def drb=(drb); end
+
+  def drb?(); end
+
+  def drb_port=(drb_port); end
+
+  def drb_port?(); end
+
+  def dry_run=(dry_run); end
+
+  def dry_run?(); end
+
+  def error_stream=(error_stream); end
+
+  def error_stream?(); end
+
+  def example_status_persistence_file_path=(value); end
+
+  def exclude_pattern=(value); end
+
+  def exclusion_filter(); end
+
+  def exclusion_filter=(filter); end
+
+  def expect_with(*frameworks); end
+
+  def expectation_framework=(framework); end
+
+  def expectation_frameworks(); end
+
+  def expose_current_running_example_as(method_name); end
+
+  def expose_dsl_globally=(value); end
+
+  def expose_dsl_globally?(); end
+
+  def extend(mod, *filters); end
+
+  def fail_fast=(fail_fast); end
+
+  def fail_fast?(); end
+
+  def fail_if_no_examples=(fail_if_no_examples); end
+
+  def fail_if_no_examples?(); end
+
+  def failure_color=(failure_color); end
+
+  def failure_color?(); end
+
+  def failure_exit_code=(failure_exit_code); end
+
+  def failure_exit_code?(); end
+
+  def files_or_directories_to_run=(*files); end
+
+  def files_to_run(); end
+
+  def files_to_run=(files_to_run); end
+
+  def filter(); end
+
+  def filter=(filter); end
+
+  def filter_gems_from_backtrace(*gem_names); end
+
+  def filter_manager(); end
+
+  def filter_manager=(filter_manager); end
+
+  def filter_run(*args); end
+
+  def filter_run_excluding(*args); end
+
+  def filter_run_including(*args); end
+
+  def filter_run_when_matching(*args); end
+
+  def fixed_color=(fixed_color); end
+
+  def fixed_color?(); end
+
+  def force(hash); end
+
+  def format_docstrings(&block); end
+
+  def format_docstrings_block(); end
+
+  def formatter=(formatter, output=T.unsafe(nil)); end
+
+  def formatter_loader(); end
+
+  def formatters(); end
+
+  def full_backtrace=(true_or_false); end
+
+  def full_backtrace?(); end
+
+  def full_description(); end
+
+  def full_description=(description); end
+
+  def in_project_source_dir_regex(); end
+
+  def include(mod, *filters); end
+
+  def include_context(shared_group_name, *filters); end
+
+  def inclusion_filter(); end
+
+  def inclusion_filter=(filter); end
+
+  def last_run_statuses(); end
+
+  def libs=(libs); end
+
+  def load_spec_files(); end
+
+  def loaded_spec_files(); end
+
+  def max_displayed_failure_line_count=(max_displayed_failure_line_count); end
+
+  def max_displayed_failure_line_count?(); end
+
+  def mock_framework(); end
+
+  def mock_framework=(framework); end
+
+  def mock_with(framework); end
+
+  def on_example_group_definition(&block); end
+
+  def on_example_group_definition_callbacks(); end
+
+  def only_failures?(); end
+
+  def only_failures_but_not_configured?(); end
+
+  def order=(*args, &block); end
+
+  def ordering_manager(); end
+
+  def ordering_registry(*args, &block); end
+
+  def output_stream=(value); end
+
+  def pattern=(value); end
+
+  def pending_color=(pending_color); end
+
+  def pending_color?(); end
+
+  def prepend(mod, *filters); end
+
+  def prepend_after(scope=T.unsafe(nil), *meta, &block); end
+
+  def prepend_before(scope=T.unsafe(nil), *meta, &block); end
+
+  def profile_examples=(profile_examples); end
+
+  def profile_examples?(); end
+
+  def project_source_dirs=(project_source_dirs); end
+
+  def project_source_dirs?(); end
+
+  def raise_errors_for_deprecations!(); end
+
+  def raise_on_warning=(value); end
+
+  def register_ordering(*args, &block); end
+
+  def reporter(); end
+
+  def requires=(paths); end
+
+  def reset(); end
+
+  def reset_filters(); end
+
+  def reset_reporter(); end
+
+  def run_all_when_everything_filtered=(run_all_when_everything_filtered); end
+
+  def run_all_when_everything_filtered?(); end
+
+  def seed(*args, &block); end
+
+  def seed=(*args, &block); end
+
+  def seed_used?(*args, &block); end
+
+  def shared_context_metadata_behavior=(value); end
+
+  def silence_filter_announcements=(silence_filter_announcements); end
+
+  def silence_filter_announcements?(); end
+
+  def spec_files_with_failures(); end
+
+  def start_time=(start_time); end
+
+  def start_time?(); end
+
+  def static_config_filter_manager(); end
+
+  def static_config_filter_manager=(static_config_filter_manager); end
+
+  def success_color=(success_color); end
+
+  def success_color?(); end
+
+  def threadsafe=(threadsafe); end
+
+  def threadsafe?(); end
+
+  def treat_symbols_as_metadata_keys_with_true_values=(_value); end
+
+  def tty=(tty); end
+
+  def tty?(); end
+
+  def warnings=(value); end
+
+  def warnings?(); end
+
+  def when_first_matching_example_defined(*filters); end
+
+  def with_suite_hooks(); end
+
+  def world(); end
+
+  def world=(world); end
   DEFAULT_FORMATTER = ::T.let(nil, ::T.untyped)
   FAILED_STATUS = ::T.let(nil, ::T.untyped)
   MOCKING_ADAPTERS = ::T.let(nil, ::T.untyped)
@@ -8800,28 +12478,520 @@ class RSpec::Core::Configuration
   VALID_STATUSES = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Core::Configuration::DeprecationReporterBuffer
+  def deprecation(*args); end
+
+  def play_onto(reporter); end
+end
+
+class RSpec::Core::Configuration::DeprecationReporterBuffer
+end
+
+module RSpec::Core::Configuration::ExposeCurrentExample
+end
+
 module RSpec::Core::Configuration::ExposeCurrentExample
   extend ::T::Sig
+end
+
+class RSpec::Core::Configuration::MustBeConfiguredBeforeExampleGroupsError
+end
+
+class RSpec::Core::Configuration::MustBeConfiguredBeforeExampleGroupsError
+end
+
+module RSpec::Core::Configuration::Readers
+  def default_color(); end
+
+  def default_path(); end
+
+  def deprecation_stream(); end
+
+  def detail_color(); end
+
+  def drb(); end
+
+  def drb_port(); end
+
+  def dry_run(); end
+
+  def error_stream(); end
+
+  def example_status_persistence_file_path(); end
+
+  def exclude_pattern(); end
+
+  def fail_fast(); end
+
+  def fail_if_no_examples(); end
+
+  def failure_color(); end
+
+  def failure_exit_code(); end
+
+  def fixed_color(); end
+
+  def libs(); end
+
+  def max_displayed_failure_line_count(); end
+
+  def only_failures(); end
+
+  def output_stream(); end
+
+  def pattern(); end
+
+  def pending_color(); end
+
+  def profile_examples(); end
+
+  def project_source_dirs(); end
+
+  def requires(); end
+
+  def run_all_when_everything_filtered(); end
+
+  def shared_context_metadata_behavior(); end
+
+  def silence_filter_announcements(); end
+
+  def start_time(); end
+
+  def success_color(); end
+
+  def threadsafe(); end
+
+  def tty(); end
 end
 
 module RSpec::Core::Configuration::Readers
   extend ::T::Sig
 end
 
+class RSpec::Core::Configuration
+  def self.add_read_only_setting(name, opts=T.unsafe(nil)); end
+
+  def self.add_setting(name, opts=T.unsafe(nil)); end
+
+  def self.define_aliases(name, alias_name); end
+
+  def self.define_predicate_for(*names); end
+
+  def self.define_reader(name); end
+
+  def self.delegate_to_ordering_manager(*methods); end
+end
+
 class RSpec::Core::ConfigurationOptions
+  def args(); end
+
+  def configure(config); end
+
+  def configure_filter_manager(filter_manager); end
+
+  def initialize(args); end
+
+  def options(); end
   OPTIONS_ORDER = ::T.let(nil, ::T.untyped)
   UNFORCED_OPTIONS = ::T.let(nil, ::T.untyped)
   UNPROCESSABLE_OPTIONS = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Core::ConfigurationOptions
+end
+
+module RSpec::Core::DSL
+end
+
 module RSpec::Core::DSL
   extend ::T::Sig
+  def self.change_global_dsl(&changes); end
+
+  def self.example_group_aliases(); end
+
+  def self.expose_example_group_alias(name); end
+
+  def self.expose_example_group_alias_globally(method_name); end
+
+  def self.expose_globally!(); end
+
+  def self.exposed_globally?(); end
+
+  def self.remove_globally!(); end
+
+  def self.top_level(); end
+
+  def self.top_level=(top_level); end
+end
+
+class RSpec::Core::DeprecationError
+end
+
+class RSpec::Core::DeprecationError
+end
+
+class RSpec::Core::Example
+  def clock(); end
+
+  def clock=(clock); end
+
+  def description(); end
+
+  def display_exception(); end
+
+  def display_exception=(ex); end
+
+  def duplicate_with(metadata_overrides=T.unsafe(nil)); end
+
+  def example_group(); end
+
+  def example_group_instance(); end
+
+  def exception(); end
+
+  def execution_result(); end
+
+  def fail_with_exception(reporter, exception); end
+
+  def file_path(); end
+
+  def full_description(); end
+
+  def id(); end
+
+  def initialize(example_group_class, description, user_metadata, example_block=T.unsafe(nil)); end
+
+  def inspect_output(); end
+
+  def instance_exec(*args, &block); end
+
+  def location(); end
+
+  def location_rerun_argument(); end
+
+  def metadata(); end
+
+  def pending(); end
+
+  def pending?(); end
+
+  def reporter(); end
+
+  def rerun_argument(); end
+
+  def run(example_group_instance, reporter); end
+
+  def set_aggregate_failures_exception(exception); end
+
+  def set_exception(exception); end
+
+  def skip(); end
+
+  def skip_with_exception(reporter, exception); end
+
+  def skipped?(); end
+
+  def update_inherited_metadata(updates); end
 end
 
 RSpec::Core::Example::AllExceptionsExcludingDangerousOnesOnRubiesThatAllowIt = RSpec::Support::AllExceptionsExceptOnesWeMustNotRescue
 
+class RSpec::Core::Example::ExecutionResult
+  include ::RSpec::Core::HashImitatable
+  def ensure_timing_set(clock); end
+
+  def example_skipped?(); end
+
+  def exception(); end
+
+  def exception=(exception); end
+
+  def finished_at(); end
+
+  def finished_at=(finished_at); end
+
+  def pending_exception(); end
+
+  def pending_exception=(pending_exception); end
+
+  def pending_fixed(); end
+
+  def pending_fixed=(pending_fixed); end
+
+  def pending_fixed?(); end
+
+  def pending_message(); end
+
+  def pending_message=(pending_message); end
+
+  def record_finished(status, finished_at); end
+
+  def run_time(); end
+
+  def run_time=(run_time); end
+
+  def started_at(); end
+
+  def started_at=(started_at); end
+
+  def status(); end
+
+  def status=(status); end
+end
+
+class RSpec::Core::Example::ExecutionResult
+  extend ::RSpec::Core::HashImitatable::ClassMethods
+end
+
+class RSpec::Core::Example::Procsy
+  def <<(*a, &b); end
+
+  def ===(*a, &b); end
+
+  def >>(*a, &b); end
+
+  def [](*a, &b); end
+
+  def arity(*a, &b); end
+
+  def binding(*a, &b); end
+
+  def call(*args, &block); end
+
+  def clock(*a, &b); end
+
+  def clock=(*a, &b); end
+
+  def clone(*a, &b); end
+
+  def curry(*a, &b); end
+
+  def description(*a, &b); end
+
+  def dup(*a, &b); end
+
+  def duplicate_with(*a, &b); end
+
+  def example(); end
+
+  def example_group(*a, &b); end
+
+  def example_group_instance(*a, &b); end
+
+  def exception(*a, &b); end
+
+  def executed?(); end
+
+  def execution_result(*a, &b); end
+
+  def file_path(*a, &b); end
+
+  def full_description(*a, &b); end
+
+  def hash(*a, &b); end
+
+  def id(*a, &b); end
+
+  def initialize(example, &block); end
+
+  def inspect_output(*a, &b); end
+
+  def lambda?(*a, &b); end
+
+  def location(*a, &b); end
+
+  def location_rerun_argument(*a, &b); end
+
+  def metadata(*a, &b); end
+
+  def parameters(*a, &b); end
+
+  def pending(*a, &b); end
+
+  def pending?(*a, &b); end
+
+  def reporter(*a, &b); end
+
+  def rerun_argument(*a, &b); end
+
+  def run(*args, &block); end
+
+  def skip(*a, &b); end
+
+  def skipped?(*a, &b); end
+
+  def source_location(*a, &b); end
+
+  def to_proc(); end
+
+  def update_inherited_metadata(*a, &b); end
+
+  def wrap(&block); end
+
+  def yield(*a, &b); end
+end
+
+class RSpec::Core::Example::Procsy
+end
+
+class RSpec::Core::Example
+  def self.delegate_to_metadata(key); end
+
+  def self.parse_id(id); end
+end
+
 class RSpec::Core::ExampleGroup
+  include ::RSpec::Core::MemoizedHelpers
+  include ::RSpec::Core::Pending
+  def described_class(); end
+
+  def initialize(inspect_output=T.unsafe(nil)); end
   INSTANCE_VARIABLE_TO_IGNORE = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::ExampleGroup::WrongScopeError
+end
+
+class RSpec::Core::ExampleGroup::WrongScopeError
+end
+
+class RSpec::Core::ExampleGroup
+  extend ::RSpec::Core::Hooks
+  extend ::RSpec::Core::MemoizedHelpers::ClassMethods
+  extend ::RSpec::Core::SharedExampleGroup
+  def self.add_example(example); end
+
+  def self.before_context_ivars(); end
+
+  def self.children(); end
+
+  def self.context(*args, &example_group_block); end
+
+  def self.currently_executing_a_context_hook?(); end
+
+  def self.declaration_locations(); end
+
+  def self.define_example_group_method(name, metadata=T.unsafe(nil)); end
+
+  def self.define_example_method(name, extra_options=T.unsafe(nil)); end
+
+  def self.define_nested_shared_group_method(new_name, report_label=T.unsafe(nil)); end
+
+  def self.delegate_to_metadata(*names); end
+
+  def self.descendant_filtered_examples(); end
+
+  def self.descendants(); end
+
+  def self.describe(*args, &example_group_block); end
+
+  def self.described_class(); end
+
+  def self.description(); end
+
+  def self.each_instance_variable_for_example(group); end
+
+  def self.ensure_example_groups_are_configured(); end
+
+  def self.example(*all_args, &block); end
+
+  def self.example_group(*args, &example_group_block); end
+
+  def self.examples(); end
+
+  def self.fcontext(*args, &example_group_block); end
+
+  def self.fdescribe(*args, &example_group_block); end
+
+  def self.fexample(*all_args, &block); end
+
+  def self.file_path(); end
+
+  def self.filtered_examples(); end
+
+  def self.find_and_eval_shared(label, name, inclusion_location, *args, &customization_block); end
+
+  def self.fit(*all_args, &block); end
+
+  def self.focus(*all_args, &block); end
+
+  def self.for_filtered_examples(reporter, &block); end
+
+  def self.fspecify(*all_args, &block); end
+
+  def self.id(); end
+
+  def self.idempotently_define_singleton_method(name, &definition); end
+
+  def self.include_context(name, *args, &block); end
+
+  def self.include_examples(name, *args, &block); end
+
+  def self.it(*all_args, &block); end
+
+  def self.it_behaves_like(name, *args, &customization_block); end
+
+  def self.it_should_behave_like(name, *args, &customization_block); end
+
+  def self.location(); end
+
+  def self.metadata(); end
+
+  def self.next_runnable_index_for(file); end
+
+  def self.ordering_strategy(); end
+
+  def self.parent_groups(); end
+
+  def self.pending(*all_args, &block); end
+
+  def self.remove_example(example); end
+
+  def self.reset_memoized(); end
+
+  def self.run(reporter=T.unsafe(nil)); end
+
+  def self.run_after_context_hooks(example_group_instance); end
+
+  def self.run_before_context_hooks(example_group_instance); end
+
+  def self.run_examples(reporter); end
+
+  def self.set_it_up(description, args, registration_collection, &example_group_block); end
+
+  def self.set_ivars(instance, ivars); end
+
+  def self.skip(*all_args, &block); end
+
+  def self.specify(*all_args, &block); end
+
+  def self.store_before_context_ivars(example_group_instance); end
+
+  def self.subclass(parent, description, args, registration_collection, &example_group_block); end
+
+  def self.superclass_before_context_ivars(); end
+
+  def self.superclass_metadata(); end
+
+  def self.top_level?(); end
+
+  def self.top_level_description(); end
+
+  def self.traverse_tree_until(&block); end
+
+  def self.update_inherited_metadata(updates); end
+
+  def self.with_replaced_metadata(meta); end
+
+  def self.xcontext(*args, &example_group_block); end
+
+  def self.xdescribe(*args, &example_group_block); end
+
+  def self.xexample(*all_args, &block); end
+
+  def self.xit(*all_args, &block); end
+
+  def self.xspecify(*all_args, &block); end
 end
 
 class RSpec::Core::ExampleStatusPersister
@@ -8838,9 +13008,98 @@ end
 
 RSpec::Core::ExclusionRules = RSpec::Core::FilterRules
 
+class RSpec::Core::FilterManager
+  def add_ids(rerun_path, scoped_ids); end
+
+  def add_location(file_path, line_numbers); end
+
+  def empty?(); end
+
+  def exclude(*args); end
+
+  def exclude_only(*args); end
+
+  def exclude_with_low_priority(*args); end
+
+  def exclusions(); end
+
+  def include(*args); end
+
+  def include_only(*args); end
+
+  def include_with_low_priority(*args); end
+
+  def inclusions(); end
+
+  def prune(examples); end
+end
+
+class RSpec::Core::FilterManager
+end
+
 class RSpec::Core::FilterRules
+  def [](key); end
+
+  def add(updated); end
+
+  def add_with_low_priority(updated); end
+
+  def clear(); end
+
+  def delete(key); end
+
+  def description(); end
+
+  def each_pair(&block); end
+
+  def empty?(); end
+
+  def fetch(*args, &block); end
+
+  def include_example?(example); end
+
+  def initialize(rules=T.unsafe(nil)); end
+
+  def opposite(); end
+
+  def opposite=(opposite); end
+
+  def rules(); end
+
+  def use_only(updated); end
   PROC_HEX_NUMBER = ::T.let(nil, ::T.untyped)
   PROJECT_DIR = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::FilterRules
+  def self.build(); end
+end
+
+module RSpec::Core::FilterableItemRepository
+end
+
+class RSpec::Core::FilterableItemRepository::QueryOptimized
+  def items_for(metadata); end
+end
+
+class RSpec::Core::FilterableItemRepository::QueryOptimized
+end
+
+class RSpec::Core::FilterableItemRepository::UpdateOptimized
+  def append(item, metadata); end
+
+  def delete(item, metadata); end
+
+  def initialize(applies_predicate); end
+
+  def items_and_filters(); end
+
+  def items_for(request_meta); end
+
+  def prepend(item, metadata); end
+end
+
+class RSpec::Core::FilterableItemRepository::UpdateOptimized
 end
 
 module RSpec::Core::FilterableItemRepository
@@ -8848,7 +13107,14 @@ module RSpec::Core::FilterableItemRepository
 end
 
 module RSpec::Core::FlatMap
+end
+
+module RSpec::Core::FlatMap
   extend ::T::Sig
+  def self.flat_map(array, &block); end
+end
+
+module RSpec::Core::Formatters
 end
 
 class RSpec::Core::Formatters::BaseBisectFormatter
@@ -8915,16 +13181,128 @@ end
 
 module RSpec::Core::Formatters::ConsoleCodes
   extend ::T::Sig
+  def self.config_colors_to_methods(); end
+
+  def self.console_code_for(code_or_symbol); end
+
+  def self.wrap(text, code_or_symbol); end
 end
 
 class RSpec::Core::Formatters::DeprecationFormatter
+  def count(); end
+
+  def deprecation(notification); end
+
+  def deprecation_message_for(data); end
+
+  def deprecation_stream(); end
+
+  def deprecation_summary(_notification); end
+
+  def initialize(deprecation_stream, summary_stream); end
+
+  def output(); end
+
+  def printer(); end
+
+  def summary_stream(); end
   DEPRECATION_STREAM_NOTICE = ::T.let(nil, ::T.untyped)
   RAISE_ERROR_CONFIG_NOTICE = ::T.let(nil, ::T.untyped)
   TOO_MANY_WARNINGS_NOTICE = ::T.let(nil, ::T.untyped)
 end
 
 class RSpec::Core::Formatters::DeprecationFormatter::DelayedPrinter
+  def deprecation_formatter(); end
+
+  def deprecation_stream(); end
+
+  def deprecation_summary(); end
+
+  def initialize(deprecation_stream, summary_stream, deprecation_formatter); end
+
+  def print_deferred_deprecation_warnings(); end
+
+  def print_deprecation_message(data); end
+
+  def stash_deprecation_message(deprecation_message); end
+
+  def summary_stream(); end
   TOO_MANY_USES_LIMIT = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::DelayedPrinter
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::FileStream
+  def initialize(file); end
+
+  def puts(*args); end
+
+  def summarize(summary_stream, deprecation_count); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::FileStream
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::GeneratedDeprecationMessage
+  def initialize(data); end
+
+  def too_many_warnings_message(); end
+
+  def type(); end
+
+  def type=(_); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::GeneratedDeprecationMessage
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::ImmediatePrinter
+  def deprecation_formatter(); end
+
+  def deprecation_stream(); end
+
+  def deprecation_summary(); end
+
+  def initialize(deprecation_stream, summary_stream, deprecation_formatter); end
+
+  def print_deprecation_message(data); end
+
+  def summary_stream(); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::ImmediatePrinter
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::RaiseErrorStream
+  def puts(message); end
+
+  def summarize(summary_stream, deprecation_count); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::RaiseErrorStream
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::SpecifiedDeprecationMessage
+  def initialize(data); end
+
+  def too_many_warnings_message(); end
+
+  def type(); end
+
+  def type=(_); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter::SpecifiedDeprecationMessage
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Formatters::DeprecationFormatter
 end
 
 class RSpec::Core::Formatters::DocumentationFormatter
@@ -8941,11 +13319,57 @@ class RSpec::Core::Formatters::DocumentationFormatter
 end
 
 class RSpec::Core::Formatters::ExceptionPresenter
+  def colorized_formatted_backtrace(colorizer=T.unsafe(nil)); end
+
+  def colorized_message_lines(colorizer=T.unsafe(nil)); end
+
+  def description(); end
+
+  def example(); end
+
+  def exception(); end
+
+  def formatted_backtrace(exception=T.unsafe(nil)); end
+
+  def formatted_cause(exception); end
+
+  def fully_formatted(failure_number, colorizer=T.unsafe(nil)); end
+
+  def fully_formatted_lines(failure_number, colorizer); end
+
+  def initialize(exception, example, options=T.unsafe(nil)); end
+
+  def message_lines(); end
   PENDING_DETAIL_FORMATTER = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::Formatters::ExceptionPresenter::Factory
+  def build(); end
+
+  def initialize(example); end
+end
+
+class RSpec::Core::Formatters::ExceptionPresenter::Factory::CommonBacktraceTruncater
+  def initialize(parent); end
+
+  def with_truncated_backtrace(child); end
+end
+
+class RSpec::Core::Formatters::ExceptionPresenter::Factory::CommonBacktraceTruncater
+end
+
+module RSpec::Core::Formatters::ExceptionPresenter::Factory::EmptyBacktraceFormatter
 end
 
 module RSpec::Core::Formatters::ExceptionPresenter::Factory::EmptyBacktraceFormatter
   extend ::T::Sig
+  def self.format_backtrace(*_); end
+end
+
+class RSpec::Core::Formatters::ExceptionPresenter::Factory
+end
+
+class RSpec::Core::Formatters::ExceptionPresenter
 end
 
 class RSpec::Core::Formatters::FallbackMessageFormatter
@@ -8966,6 +13390,13 @@ end
 
 module RSpec::Core::Formatters::Helpers
   extend ::T::Sig
+  def self.format_duration(duration); end
+
+  def self.format_seconds(float, precision=T.unsafe(nil)); end
+
+  def self.organize_ids(ids); end
+
+  def self.pluralize(count, string); end
 end
 
 class RSpec::Core::Formatters::HtmlFormatter
@@ -9006,6 +13437,28 @@ end
 class RSpec::Core::Formatters::JsonFormatter
 end
 
+class RSpec::Core::Formatters::Loader
+  def add(formatter_to_use, *paths); end
+
+  def default_formatter(); end
+
+  def default_formatter=(default_formatter); end
+
+  def formatters(); end
+
+  def initialize(reporter); end
+
+  def prepare_default(output_stream, deprecation_stream); end
+
+  def reporter(); end
+
+  def setup_default(output_stream, deprecation_stream); end
+end
+
+class RSpec::Core::Formatters::Loader
+  def self.formatters(); end
+end
+
 class RSpec::Core::Formatters::ProfileFormatter
   def dump_profile(profile); end
 
@@ -9030,22 +13483,318 @@ end
 class RSpec::Core::Formatters::ProgressFormatter
 end
 
+class RSpec::Core::Formatters::SnippetExtractor
+  def beginning_line_number(); end
+
+  def expression_lines(); end
+
+  def initialize(source, beginning_line_number, max_line_count=T.unsafe(nil)); end
+
+  def max_line_count(); end
+
+  def source(); end
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoExpressionAtLineError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoExpressionAtLineError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoSuchFileError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoSuchFileError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoSuchLineError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor::NoSuchLineError
+end
+
+class RSpec::Core::Formatters::SnippetExtractor
+  def self.extract_expression_lines_at(file_path, beginning_line_number, max_line_count=T.unsafe(nil)); end
+
+  def self.extract_line_at(file_path, line_number); end
+
+  def self.least_indentation_from(lines); end
+
+  def self.source_from_file(path); end
+end
+
+class RSpec::Core::Formatters::SyntaxHighlighter
+  def highlight(lines); end
+
+  def initialize(configuration); end
+end
+
 module RSpec::Core::Formatters::SyntaxHighlighter::CodeRayImplementation
   RESET_CODE = ::T.let(nil, ::T.untyped)
 end
 
 module RSpec::Core::Formatters::SyntaxHighlighter::CodeRayImplementation
   extend ::T::Sig
+  def self.highlight_syntax(lines); end
+end
+
+module RSpec::Core::Formatters::SyntaxHighlighter::NoSyntaxHighlightingImplementation
 end
 
 module RSpec::Core::Formatters::SyntaxHighlighter::NoSyntaxHighlightingImplementation
   extend ::T::Sig
+  def self.highlight_syntax(lines); end
 end
 
 RSpec::Core::Formatters::SyntaxHighlighter::WindowsImplementation = RSpec::Core::Formatters::SyntaxHighlighter::NoSyntaxHighlightingImplementation
 
+class RSpec::Core::Formatters::SyntaxHighlighter
+  def self.attempt_to_add_rspec_terms_to_coderay_keywords(); end
+end
+
 module RSpec::Core::Formatters
   extend ::T::Sig
+  def self.register(formatter_class, *notifications); end
+end
+
+module RSpec::Core::HashImitatable
+  def <(*args, &block); end
+
+  def <=(*args, &block); end
+
+  def >(*args, &block); end
+
+  def >=(*args, &block); end
+
+  def [](key); end
+
+  def []=(key, value); end
+
+  def all?(*args, &block); end
+
+  def any?(*args, &block); end
+
+  def assoc(*args, &block); end
+
+  def chain(*args, &block); end
+
+  def chunk(*args, &block); end
+
+  def chunk_while(*args, &block); end
+
+  def clear(*args, &block); end
+
+  def collect(*args, &block); end
+
+  def collect_concat(*args, &block); end
+
+  def compact(*args, &block); end
+
+  def compact!(*args, &block); end
+
+  def compare_by_identity(*args, &block); end
+
+  def compare_by_identity?(*args, &block); end
+
+  def count(*args, &block); end
+
+  def cycle(*args, &block); end
+
+  def default(*args, &block); end
+
+  def default=(*args, &block); end
+
+  def default_proc(*args, &block); end
+
+  def default_proc=(*args, &block); end
+
+  def delete(*args, &block); end
+
+  def delete_if(*args, &block); end
+
+  def detect(*args, &block); end
+
+  def dig(*args, &block); end
+
+  def drop(*args, &block); end
+
+  def drop_while(*args, &block); end
+
+  def each(*args, &block); end
+
+  def each_cons(*args, &block); end
+
+  def each_entry(*args, &block); end
+
+  def each_key(*args, &block); end
+
+  def each_pair(*args, &block); end
+
+  def each_slice(*args, &block); end
+
+  def each_value(*args, &block); end
+
+  def each_with_index(*args, &block); end
+
+  def each_with_object(*args, &block); end
+
+  def empty?(*args, &block); end
+
+  def entries(*args, &block); end
+
+  def fetch(*args, &block); end
+
+  def fetch_values(*args, &block); end
+
+  def filter(*args, &block); end
+
+  def filter!(*args, &block); end
+
+  def find(*args, &block); end
+
+  def find_all(*args, &block); end
+
+  def find_index(*args, &block); end
+
+  def first(*args, &block); end
+
+  def flat_map(*args, &block); end
+
+  def flatten(*args, &block); end
+
+  def grep(*args, &block); end
+
+  def grep_v(*args, &block); end
+
+  def group_by(*args, &block); end
+
+  def has_key?(*args, &block); end
+
+  def has_value?(*args, &block); end
+
+  def include?(*args, &block); end
+
+  def index(*args, &block); end
+
+  def inject(*args, &block); end
+
+  def invert(*args, &block); end
+
+  def keep_if(*args, &block); end
+
+  def key(*args, &block); end
+
+  def key?(*args, &block); end
+
+  def keys(*args, &block); end
+
+  def lazy(*args, &block); end
+
+  def length(*args, &block); end
+
+  def map(*args, &block); end
+
+  def max(*args, &block); end
+
+  def max_by(*args, &block); end
+
+  def member?(*args, &block); end
+
+  def merge(*args, &block); end
+
+  def merge!(*args, &block); end
+
+  def min(*args, &block); end
+
+  def min_by(*args, &block); end
+
+  def minmax(*args, &block); end
+
+  def minmax_by(*args, &block); end
+
+  def none?(*args, &block); end
+
+  def one?(*args, &block); end
+
+  def partition(*args, &block); end
+
+  def rassoc(*args, &block); end
+
+  def reduce(*args, &block); end
+
+  def rehash(*args, &block); end
+
+  def reject(*args, &block); end
+
+  def reject!(*args, &block); end
+
+  def replace(*args, &block); end
+
+  def reverse_each(*args, &block); end
+
+  def select(*args, &block); end
+
+  def select!(*args, &block); end
+
+  def shift(*args, &block); end
+
+  def size(*args, &block); end
+
+  def slice(*args, &block); end
+
+  def slice_after(*args, &block); end
+
+  def slice_before(*args, &block); end
+
+  def slice_when(*args, &block); end
+
+  def sort(*args, &block); end
+
+  def sort_by(*args, &block); end
+
+  def store(*args, &block); end
+
+  def sum(*args, &block); end
+
+  def take(*args, &block); end
+
+  def take_while(*args, &block); end
+
+  def to_a(*args, &block); end
+
+  def to_h(); end
+
+  def to_hash(*args, &block); end
+
+  def to_proc(*args, &block); end
+
+  def to_set(*args, &block); end
+
+  def transform_keys(*args, &block); end
+
+  def transform_keys!(*args, &block); end
+
+  def transform_values(*args, &block); end
+
+  def transform_values!(*args, &block); end
+
+  def uniq(*args, &block); end
+
+  def update(*args, &block); end
+
+  def value?(*args, &block); end
+
+  def values(*args, &block); end
+
+  def values_at(*args, &block); end
+
+  def zip(*args, &block); end
+end
+
+module RSpec::Core::HashImitatable::ClassMethods
+  def attr_accessor(*names); end
+
+  def hash_attribute_names(); end
 end
 
 module RSpec::Core::HashImitatable::ClassMethods
@@ -9054,78 +13803,924 @@ end
 
 module RSpec::Core::HashImitatable
   extend ::T::Sig
+  def self.included(klass); end
+end
+
+module RSpec::Core::Hooks
+  def after(*args, &block); end
+
+  def append_after(*args, &block); end
+
+  def append_before(*args, &block); end
+
+  def around(*args, &block); end
+
+  def before(*args, &block); end
+
+  def hooks(); end
+
+  def prepend_after(*args, &block); end
+
+  def prepend_before(*args, &block); end
+end
+
+class RSpec::Core::Hooks::AfterContextHook
+  def run(example); end
+end
+
+class RSpec::Core::Hooks::AfterContextHook
+end
+
+class RSpec::Core::Hooks::AfterHook
+  def run(example); end
+end
+
+class RSpec::Core::Hooks::AfterHook
+end
+
+class RSpec::Core::Hooks::AroundHook
+  def execute_with(example, procsy); end
+
+  def hook_description(); end
+end
+
+class RSpec::Core::Hooks::AroundHook
+end
+
+class RSpec::Core::Hooks::BeforeHook
+  def run(example); end
+end
+
+class RSpec::Core::Hooks::BeforeHook
+end
+
+class RSpec::Core::Hooks::Hook
+  def block(); end
+
+  def block=(_); end
+
+  def options(); end
+
+  def options=(_); end
+end
+
+class RSpec::Core::Hooks::Hook
+  def self.[](*_); end
+
+  def self.members(); end
 end
 
 class RSpec::Core::Hooks::HookCollections
+  def all_hooks_for(position, scope); end
+
+  def initialize(owner, filterable_item_repo_class); end
+
+  def matching_hooks_for(position, scope, example_or_group); end
+
+  def processable_hooks_for(position, scope, host); end
+
+  def register(prepend_or_append, position, *args, &block); end
+
+  def register_global_singleton_context_hooks(example, globals); end
+
+  def register_globals(host, globals); end
+
+  def run(position, scope, example_or_group); end
+
+  def run_owned_hooks_for(position, scope, example_or_group); end
   EMPTY_HOOK_ARRAY = ::T.let(nil, ::T.untyped)
   HOOK_TYPES = ::T.let(nil, ::T.untyped)
   SCOPES = ::T.let(nil, ::T.untyped)
   SCOPE_ALIASES = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Core::Hooks::HookCollections
+end
+
 module RSpec::Core::Hooks
   extend ::T::Sig
+end
+
+class RSpec::Core::InclusionRules
+  def add(*args); end
+
+  def add_with_low_priority(*args); end
+
+  def split_file_scoped_rules(); end
+
+  def standalone?(); end
+end
+
+class RSpec::Core::InclusionRules
+end
+
+module RSpec::Core::Invocations
+end
+
+class RSpec::Core::Invocations::Bisect
+  def call(options, err, out); end
+end
+
+class RSpec::Core::Invocations::Bisect
+end
+
+class RSpec::Core::Invocations::DRbWithFallback
+  def call(options, err, out); end
+end
+
+class RSpec::Core::Invocations::DRbWithFallback
+end
+
+class RSpec::Core::Invocations::InitializeProject
+  def call(*_args); end
+end
+
+class RSpec::Core::Invocations::InitializeProject
+end
+
+class RSpec::Core::Invocations::PrintHelp
+  def call(_options, _err, out); end
+
+  def hidden_options(); end
+
+  def hidden_options=(_); end
+
+  def parser(); end
+
+  def parser=(_); end
+end
+
+class RSpec::Core::Invocations::PrintHelp
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Invocations::PrintVersion
+  def call(_options, _err, out); end
+end
+
+class RSpec::Core::Invocations::PrintVersion
 end
 
 module RSpec::Core::Invocations
   extend ::T::Sig
 end
 
+class RSpec::Core::LegacyExampleGroupHash
+  include ::RSpec::Core::HashImitatable
+  def initialize(metadata); end
+end
+
+class RSpec::Core::LegacyExampleGroupHash
+  extend ::RSpec::Core::HashImitatable::ClassMethods
+end
+
+module RSpec::Core::MemoizedHelpers
+  def initialize(*_); end
+
+  def is_expected(); end
+
+  def should(matcher=T.unsafe(nil), message=T.unsafe(nil)); end
+
+  def should_not(matcher=T.unsafe(nil), message=T.unsafe(nil)); end
+
+  def subject(); end
+end
+
+module RSpec::Core::MemoizedHelpers::ClassMethods
+  def let(name, &block); end
+
+  def let!(name, &block); end
+
+  def subject(name=T.unsafe(nil), &block); end
+
+  def subject!(name=T.unsafe(nil), &block); end
+end
+
 module RSpec::Core::MemoizedHelpers::ClassMethods
   extend ::T::Sig
 end
 
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized
+end
+
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized::After
+end
+
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized::After
+  def self.article(); end
+
+  def self.hook_expression(); end
+
+  def self.hook_intention(); end
+end
+
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized::Before
+end
+
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized::Before
+  def self.article(); end
+
+  def self.hook_expression(); end
+
+  def self.hook_intention(); end
+end
+
+class RSpec::Core::MemoizedHelpers::ContextHookMemoized
+  def self.fetch_or_store(key, &_block); end
+
+  def self.isolate_for_context_hook(example_group_instance); end
+end
+
+class RSpec::Core::MemoizedHelpers::NonThreadSafeMemoized
+  def fetch_or_store(key); end
+end
+
+class RSpec::Core::MemoizedHelpers::NonThreadSafeMemoized
+end
+
+class RSpec::Core::MemoizedHelpers::ThreadsafeMemoized
+  def fetch_or_store(key); end
+end
+
+class RSpec::Core::MemoizedHelpers::ThreadsafeMemoized
+end
+
 module RSpec::Core::MemoizedHelpers
   extend ::T::Sig
+  def self.define_helpers_on(example_group); end
+
+  def self.get_constant_or_yield(example_group, name); end
+
+  def self.module_for(example_group); end
 end
 
 module RSpec::Core::Metadata
   RESERVED_KEYS = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Core::Metadata::ExampleGroupHash
+end
+
+class RSpec::Core::Metadata::ExampleGroupHash
+  def self.backwards_compatibility_default_proc(&example_group_selector); end
+
+  def self.create(parent_group_metadata, user_metadata, example_group_index, *args, &block); end
+
+  def self.hash_with_backwards_compatibility_default_proc(); end
+end
+
+class RSpec::Core::Metadata::ExampleHash
+end
+
+class RSpec::Core::Metadata::ExampleHash
+  def self.create(group_metadata, user_metadata, index_provider, description, block); end
+end
+
+class RSpec::Core::Metadata::HashPopulator
+  def block(); end
+
+  def description_args(); end
+
+  def initialize(metadata, user_metadata, index_provider, description_args, block); end
+
+  def metadata(); end
+
+  def populate(); end
+
+  def user_metadata(); end
+end
+
+class RSpec::Core::Metadata::HashPopulator
+end
+
 module RSpec::Core::Metadata
   extend ::T::Sig
+  def self.ascend(metadata); end
+
+  def self.ascending(metadata); end
+
+  def self.build_hash_from(args, warn_about_example_group_filtering=T.unsafe(nil)); end
+
+  def self.deep_hash_dup(object); end
+
+  def self.id_from(metadata); end
+
+  def self.location_tuple_from(metadata); end
+
+  def self.relative_path(line); end
+
+  def self.relative_path_regex(); end
+end
+
+module RSpec::Core::MetadataFilter
 end
 
 module RSpec::Core::MetadataFilter
   extend ::T::Sig
+  def self.apply?(predicate, filters, metadata); end
+
+  def self.filter_applies?(key, filter_value, metadata); end
+
+  def self.silence_metadata_example_group_deprecations(); end
+end
+
+module RSpec::Core::MockingAdapters
+end
+
+module RSpec::Core::MockingAdapters::RSpec
+  include ::RSpec::Mocks::ExampleMethods
+  include ::RSpec::Mocks::ArgumentMatchers
+  include ::RSpec::Mocks::ExampleMethods::ExpectHost
+  def setup_mocks_for_rspec(); end
+
+  def teardown_mocks_for_rspec(); end
+
+  def verify_mocks_for_rspec(); end
 end
 
 module RSpec::Core::MockingAdapters::RSpec
   extend ::T::Sig
+  def self.configuration(); end
+
+  def self.framework_name(); end
 end
 
 module RSpec::Core::MockingAdapters
   extend ::T::Sig
 end
 
+class RSpec::Core::MultipleExceptionError
+  include ::RSpec::Core::MultipleExceptionError::InterfaceTag
+  def aggregation_block_label(); end
+
+  def aggregation_metadata(); end
+
+  def all_exceptions(); end
+
+  def exception_count_description(); end
+
+  def failures(); end
+
+  def initialize(*exceptions); end
+
+  def other_errors(); end
+
+  def summary(); end
+end
+
+module RSpec::Core::MultipleExceptionError::InterfaceTag
+  def add(exception); end
+end
+
 module RSpec::Core::MultipleExceptionError::InterfaceTag
   extend ::T::Sig
+  def self.for(ex); end
+end
+
+class RSpec::Core::MultipleExceptionError
+end
+
+module RSpec::Core::Notifications
+end
+
+class RSpec::Core::Notifications::CustomNotification
+end
+
+class RSpec::Core::Notifications::CustomNotification
+  def self.for(options=T.unsafe(nil)); end
+end
+
+class RSpec::Core::Notifications::DeprecationNotification
+  def call_site(); end
+
+  def call_site=(_); end
+
+  def deprecated(); end
+
+  def deprecated=(_); end
+
+  def message(); end
+
+  def message=(_); end
+
+  def replacement(); end
+
+  def replacement=(_); end
+end
+
+class RSpec::Core::Notifications::DeprecationNotification
+  def self.[](*_); end
+
+  def self.from_hash(data); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Notifications::ExampleNotification
+  def example(); end
+
+  def example=(_); end
+end
+
+class RSpec::Core::Notifications::ExampleNotification
+  def self.[](*_); end
+
+  def self.for(example); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Notifications::ExamplesNotification
+  def examples(); end
+
+  def failed_examples(); end
+
+  def failure_notifications(); end
+
+  def fully_formatted_failed_examples(colorizer=T.unsafe(nil)); end
+
+  def fully_formatted_pending_examples(colorizer=T.unsafe(nil)); end
+
+  def initialize(reporter); end
+
+  def notifications(); end
+
+  def pending_examples(); end
+
+  def pending_notifications(); end
+end
+
+class RSpec::Core::Notifications::ExamplesNotification
+end
+
+class RSpec::Core::Notifications::FailedExampleNotification
+  def colorized_formatted_backtrace(colorizer=T.unsafe(nil)); end
+
+  def colorized_message_lines(colorizer=T.unsafe(nil)); end
+
+  def description(); end
+
+  def exception(); end
+
+  def formatted_backtrace(); end
+
+  def fully_formatted(failure_number, colorizer=T.unsafe(nil)); end
+
+  def fully_formatted_lines(failure_number, colorizer=T.unsafe(nil)); end
+
+  def initialize(example, exception_presenter=T.unsafe(nil)); end
+
+  def message_lines(); end
+end
+
+class RSpec::Core::Notifications::FailedExampleNotification
+end
+
+class RSpec::Core::Notifications::GroupNotification
+  def group(); end
+
+  def group=(_); end
+end
+
+class RSpec::Core::Notifications::GroupNotification
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Notifications::MessageNotification
+  def message(); end
+
+  def message=(_); end
+end
+
+class RSpec::Core::Notifications::MessageNotification
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+module RSpec::Core::Notifications::NullColorizer
 end
 
 module RSpec::Core::Notifications::NullColorizer
   extend ::T::Sig
+  def self.wrap(line, _code_or_symbol); end
+end
+
+class RSpec::Core::Notifications::NullNotification
+end
+
+class RSpec::Core::Notifications::NullNotification
+end
+
+class RSpec::Core::Notifications::PendingExampleFailedAsExpectedNotification
+end
+
+class RSpec::Core::Notifications::PendingExampleFailedAsExpectedNotification
+end
+
+class RSpec::Core::Notifications::PendingExampleFixedNotification
+end
+
+class RSpec::Core::Notifications::PendingExampleFixedNotification
+end
+
+class RSpec::Core::Notifications::ProfileNotification
+  def duration(); end
+
+  def examples(); end
+
+  def initialize(duration, examples, number_of_examples, example_groups); end
+
+  def number_of_examples(); end
+
+  def percentage(); end
+
+  def slow_duration(); end
+
+  def slowest_examples(); end
+
+  def slowest_groups(); end
+end
+
+class RSpec::Core::Notifications::ProfileNotification
+end
+
+class RSpec::Core::Notifications::SeedNotification
+  def fully_formatted(); end
+
+  def seed(); end
+
+  def seed=(_); end
+
+  def seed_used?(); end
+
+  def used=(_); end
+end
+
+class RSpec::Core::Notifications::SeedNotification
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Notifications::SkippedExampleNotification
+  def fully_formatted(pending_number, colorizer=T.unsafe(nil)); end
+end
+
+class RSpec::Core::Notifications::SkippedExampleNotification
+end
+
+class RSpec::Core::Notifications::StartNotification
+  def count(); end
+
+  def count=(_); end
+
+  def load_time(); end
+
+  def load_time=(_); end
+end
+
+class RSpec::Core::Notifications::StartNotification
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Core::Notifications::SummaryNotification
+  include ::RSpec::Core::ShellEscape
+  def colorized_rerun_commands(colorizer=T.unsafe(nil)); end
+
+  def colorized_totals_line(colorizer=T.unsafe(nil)); end
+
+  def duration(); end
+
+  def duration=(_); end
+
+  def errors_outside_of_examples_count(); end
+
+  def errors_outside_of_examples_count=(_); end
+
+  def example_count(); end
+
+  def examples(); end
+
+  def examples=(_); end
+
+  def failed_examples(); end
+
+  def failed_examples=(_); end
+
+  def failure_count(); end
+
+  def formatted_duration(); end
+
+  def formatted_load_time(); end
+
+  def fully_formatted(colorizer=T.unsafe(nil)); end
+
+  def load_time(); end
+
+  def load_time=(_); end
+
+  def pending_count(); end
+
+  def pending_examples(); end
+
+  def pending_examples=(_); end
+
+  def totals_line(); end
+end
+
+class RSpec::Core::Notifications::SummaryNotification
+  def self.[](*_); end
+
+  def self.members(); end
 end
 
 module RSpec::Core::Notifications
   extend ::T::Sig
 end
 
+class RSpec::Core::NullReporter
+end
+
+class RSpec::Core::NullReporter
+end
+
+module RSpec::Core::Ordering
+end
+
+class RSpec::Core::Ordering::ConfigurationManager
+  def force(hash); end
+
+  def order=(type); end
+
+  def ordering_registry(); end
+
+  def register_ordering(name, strategy=T.unsafe(nil)); end
+
+  def seed(); end
+
+  def seed=(seed); end
+
+  def seed_used?(); end
+end
+
+class RSpec::Core::Ordering::ConfigurationManager
+end
+
+class RSpec::Core::Ordering::Custom
+  def initialize(callable); end
+
+  def order(list); end
+end
+
+class RSpec::Core::Ordering::Custom
+end
+
+class RSpec::Core::Ordering::Identity
+  def order(items); end
+end
+
+class RSpec::Core::Ordering::Identity
+end
+
 class RSpec::Core::Ordering::Random
+  def initialize(configuration); end
+
+  def order(items); end
+
+  def used?(); end
   MAX_32_BIT = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::Ordering::Random
+end
+
+class RSpec::Core::Ordering::Registry
+  def fetch(name, &fallback); end
+
+  def initialize(configuration); end
+
+  def register(sym, strategy); end
+
+  def used_random_seed?(); end
+end
+
+class RSpec::Core::Ordering::Registry
 end
 
 module RSpec::Core::Ordering
   extend ::T::Sig
 end
 
+class RSpec::Core::OutputWrapper
+  def <<(*args, &block); end
+
+  def advise(*args, &block); end
+
+  def autoclose=(*args, &block); end
+
+  def autoclose?(*args, &block); end
+
+  def binmode(*args, &block); end
+
+  def binmode?(*args, &block); end
+
+  def bytes(*args, &block); end
+
+  def chars(*args, &block); end
+
+  def close(*args, &block); end
+
+  def close_on_exec=(*args, &block); end
+
+  def close_on_exec?(*args, &block); end
+
+  def close_read(*args, &block); end
+
+  def close_write(*args, &block); end
+
+  def closed?(*args, &block); end
+
+  def codepoints(*args, &block); end
+
+  def each(*args, &block); end
+
+  def each_byte(*args, &block); end
+
+  def each_char(*args, &block); end
+
+  def each_codepoint(*args, &block); end
+
+  def each_line(*args, &block); end
+
+  def eof(*args, &block); end
+
+  def eof?(*args, &block); end
+
+  def external_encoding(*args, &block); end
+
+  def fcntl(*args, &block); end
+
+  def fdatasync(*args, &block); end
+
+  def fileno(*args, &block); end
+
+  def flush(*args, &block); end
+
+  def fsync(*args, &block); end
+
+  def getbyte(*args, &block); end
+
+  def getc(*args, &block); end
+
+  def gets(*args, &block); end
+
+  def initialize(output); end
+
+  def inspect(*args, &block); end
+
+  def internal_encoding(*args, &block); end
+
+  def ioctl(*args, &block); end
+
+  def isatty(*args, &block); end
+
+  def lineno(*args, &block); end
+
+  def lineno=(*args, &block); end
+
+  def lines(*args, &block); end
+
+  def method_missing(name, *args, &block); end
+
+  def output(); end
+
+  def output=(output); end
+
+  def pathconf(*args, &block); end
+
+  def pid(*args, &block); end
+
+  def pos(*args, &block); end
+
+  def pos=(*args, &block); end
+
+  def pread(*args, &block); end
+
+  def print(*args, &block); end
+
+  def printf(*args, &block); end
+
+  def putc(*args, &block); end
+
+  def puts(*args, &block); end
+
+  def pwrite(*args, &block); end
+
+  def read(*args, &block); end
+
+  def read_nonblock(*args, &block); end
+
+  def readbyte(*args, &block); end
+
+  def readchar(*args, &block); end
+
+  def readline(*args, &block); end
+
+  def readlines(*args, &block); end
+
+  def readpartial(*args, &block); end
+
+  def reopen(*args, &block); end
+
+  def respond_to?(name, priv=T.unsafe(nil)); end
+
+  def rewind(*args, &block); end
+
+  def seek(*args, &block); end
+
+  def set_encoding(*args, &block); end
+
+  def stat(*args, &block); end
+
+  def sync(*args, &block); end
+
+  def sync=(*args, &block); end
+
+  def sysread(*args, &block); end
+
+  def sysseek(*args, &block); end
+
+  def syswrite(*args, &block); end
+
+  def tell(*args, &block); end
+
+  def to_i(*args, &block); end
+
+  def to_io(*args, &block); end
+
+  def tty?(*args, &block); end
+
+  def ungetbyte(*args, &block); end
+
+  def ungetc(*args, &block); end
+
+  def write(*args, &block); end
+
+  def write_nonblock(*args, &block); end
+end
+
+class RSpec::Core::OutputWrapper
+end
+
+class RSpec::Core::Parser
+  def initialize(original_args); end
+
+  def original_args(); end
+
+  def parse(source=T.unsafe(nil)); end
+end
+
+class RSpec::Core::Parser
+  def self.parse(args, source=T.unsafe(nil)); end
+end
+
 module RSpec::Core::Pending
+  def pending(message=T.unsafe(nil)); end
+
+  def skip(message=T.unsafe(nil)); end
   NOT_YET_IMPLEMENTED = ::T.let(nil, ::T.untyped)
   NO_REASON_GIVEN = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Core::Pending::PendingExampleFixedError
+end
+
+class RSpec::Core::Pending::PendingExampleFixedError
+end
+
+class RSpec::Core::Pending::SkipDeclaredInExample
+  def argument(); end
+
+  def initialize(argument); end
+end
+
+class RSpec::Core::Pending::SkipDeclaredInExample
+end
+
 module RSpec::Core::Pending
   extend ::T::Sig
+  def self.mark_fixed!(example); end
+
+  def self.mark_pending!(example, message_or_bool); end
+
+  def self.mark_skipped!(example, message_or_bool); end
 end
 
 class RSpec::Core::Profiler
@@ -9143,11 +14738,141 @@ class RSpec::Core::Profiler
 end
 
 class RSpec::Core::Reporter
+  def abort_with(msg, exit_status); end
+
+  def close_after(); end
+
+  def deprecation(hash); end
+
+  def example_failed(example); end
+
+  def example_finished(example); end
+
+  def example_group_finished(group); end
+
+  def example_group_started(group); end
+
+  def example_passed(example); end
+
+  def example_pending(example); end
+
+  def example_started(example); end
+
+  def examples(); end
+
+  def fail_fast_limit_met?(); end
+
+  def failed_examples(); end
+
+  def finish(); end
+
+  def initialize(configuration); end
+
+  def message(message); end
+
+  def notify(event, notification); end
+
+  def notify_non_example_exception(exception, context_description); end
+
+  def pending_examples(); end
+
+  def prepare_default(loader, output_stream, deprecation_stream); end
+
+  def publish(event, options=T.unsafe(nil)); end
+
+  def register_listener(listener, *notifications); end
+
+  def registered_listeners(notification); end
+
+  def report(expected_example_count); end
+
+  def start(expected_example_count, time=T.unsafe(nil)); end
+
+  def stop(); end
   RSPEC_NOTIFICATIONS = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Core::Reporter
+end
+
+module RSpec::Core::RubyProject
 end
 
 module RSpec::Core::RubyProject
   extend ::T::Sig
+  def self.add_dir_to_load_path(dir); end
+
+  def self.add_to_load_path(*dirs); end
+
+  def self.ascend_until(); end
+
+  def self.determine_root(); end
+
+  def self.find_first_parent_containing(dir); end
+
+  def self.root(); end
+end
+
+class RSpec::Core::Runner
+  def configuration(); end
+
+  def configure(err, out); end
+
+  def initialize(options, configuration=T.unsafe(nil), world=T.unsafe(nil)); end
+
+  def options(); end
+
+  def run(err, out); end
+
+  def run_specs(example_groups); end
+
+  def setup(err, out); end
+
+  def world(); end
+end
+
+class RSpec::Core::Runner
+  def self.autorun(); end
+
+  def self.autorun_disabled?(); end
+
+  def self.disable_autorun!(); end
+
+  def self.handle_interrupt(); end
+
+  def self.installed_at_exit?(); end
+
+  def self.invoke(); end
+
+  def self.perform_at_exit(); end
+
+  def self.run(args, err=T.unsafe(nil), out=T.unsafe(nil)); end
+
+  def self.running_in_drb?(); end
+
+  def self.trap_interrupt(); end
+end
+
+class RSpec::Core::Set
+  include ::Enumerable
+  def <<(key); end
+
+  def clear(); end
+
+  def delete(key); end
+
+  def each(&block); end
+
+  def empty?(); end
+
+  def include?(key); end
+
+  def initialize(array=T.unsafe(nil)); end
+
+  def merge(values); end
+end
+
+class RSpec::Core::Set
 end
 
 module RSpec::Core::SharedContext
@@ -9211,12 +14936,72 @@ module RSpec::Core::SharedContext
   def self.record(methods); end
 end
 
+module RSpec::Core::SharedExampleGroup
+  def shared_context(name, *args, &block); end
+
+  def shared_examples(name, *args, &block); end
+
+  def shared_examples_for(name, *args, &block); end
+end
+
+class RSpec::Core::SharedExampleGroup::Registry
+  def add(context, name, *metadata_args, &block); end
+
+  def find(lookup_contexts, name); end
+end
+
+class RSpec::Core::SharedExampleGroup::Registry
+end
+
+module RSpec::Core::SharedExampleGroup::TopLevelDSL
+end
+
 module RSpec::Core::SharedExampleGroup::TopLevelDSL
   extend ::T::Sig
+  def self.definitions(); end
+
+  def self.expose_globally!(); end
+
+  def self.exposed_globally?(); end
+
+  def self.remove_globally!(); end
 end
 
 module RSpec::Core::SharedExampleGroup
   extend ::T::Sig
+end
+
+class RSpec::Core::SharedExampleGroupInclusionStackFrame
+  def description(); end
+
+  def formatted_inclusion_location(); end
+
+  def inclusion_location(); end
+
+  def initialize(shared_group_name, inclusion_location); end
+
+  def shared_group_name(); end
+end
+
+class RSpec::Core::SharedExampleGroupInclusionStackFrame
+  def self.current_backtrace(); end
+
+  def self.shared_example_group_inclusions(); end
+
+  def self.with_frame(name, location); end
+end
+
+class RSpec::Core::SharedExampleGroupModule
+  def definition(); end
+
+  def include_in(klass, inclusion_line, args, customization_block); end
+
+  def included(klass); end
+
+  def initialize(description, definition, metadata); end
+end
+
+class RSpec::Core::SharedExampleGroupModule
 end
 
 module RSpec::Core::ShellEscape
@@ -9225,6 +15010,27 @@ end
 
 module RSpec::Core::ShellEscape
   extend ::T::Sig
+  def self.conditionally_quote(id); end
+
+  def self.escape(shell_command); end
+
+  def self.quote(argument); end
+
+  def self.shell_allows_unquoted_ids?(); end
+end
+
+class RSpec::Core::SuiteHookContext
+  def initialize(hook_description, reporter); end
+end
+
+class RSpec::Core::SuiteHookContext
+end
+
+class RSpec::Core::Time
+end
+
+class RSpec::Core::Time
+  def self.now(); end
 end
 
 module RSpec::Core::Version
@@ -9236,19 +15042,134 @@ module RSpec::Core::Version
 end
 
 module RSpec::Core::Warnings
+  def deprecate(deprecated, data=T.unsafe(nil)); end
+
+  def warn_deprecation(message, opts=T.unsafe(nil)); end
+
+  def warn_with(message, options=T.unsafe(nil)); end
+end
+
+module RSpec::Core::Warnings
   extend ::T::Sig
+end
+
+class RSpec::Core::World
+  def all_example_groups(); end
+
+  def all_examples(); end
+
+  def announce_exclusion_filter(announcements); end
+
+  def announce_filters(); end
+
+  def announce_inclusion_filter(announcements); end
+
+  def everything_filtered_message(); end
+
+  def example_count(groups=T.unsafe(nil)); end
+
+  def example_groups(); end
+
+  def exclusion_filter(); end
+
+  def filter_manager(); end
+
+  def filtered_examples(); end
+
+  def inclusion_filter(); end
+
+  def initialize(configuration=T.unsafe(nil)); end
+
+  def non_example_failure(); end
+
+  def non_example_failure=(non_example_failure); end
+
+  def num_example_groups_defined_in(file); end
+
+  def ordered_example_groups(); end
+
+  def preceding_declaration_line(absolute_file_name, filter_line); end
+
+  def prepare_example_filtering(); end
+
+  def record(example_group); end
+
+  def registered_example_group_files(); end
+
+  def report_filter_message(message); end
+
+  def reporter(); end
+
+  def reset(); end
+
+  def shared_example_group_registry(); end
+
+  def source_from_file(path); end
+
+  def syntax_highlighter(); end
+
+  def traverse_example_group_trees_until(&block); end
+
+  def wants_to_quit(); end
+
+  def wants_to_quit=(wants_to_quit); end
+end
+
+module RSpec::Core::World::Null
 end
 
 module RSpec::Core::World::Null
   extend ::T::Sig
+  def self.all_example_groups(); end
+
+  def self.example_groups(); end
+
+  def self.non_example_failure(); end
+
+  def self.non_example_failure=(_); end
+
+  def self.registered_example_group_files(); end
+
+  def self.traverse_example_group_trees_until(); end
+end
+
+class RSpec::Core::World
 end
 
 module RSpec::Core
   extend ::T::Sig
+  def self.path_to_executable(); end
 end
 
 module RSpec::ExampleGroups
+end
+
+module RSpec::ExampleGroups
+  extend ::RSpec::Support::RecursiveConstMethods
   extend ::T::Sig
+  def self.assign_const(group); end
+
+  def self.base_name_for(group); end
+
+  def self.constant_scope_for(group); end
+
+  def self.disambiguate(name, const_scope); end
+
+  def self.remove_all_constants(); end
+end
+
+module RSpec::Expectations
+end
+
+class RSpec::Expectations::BlockExpectationTarget
+  def not_to(matcher, message=T.unsafe(nil), &block); end
+
+  def to(matcher, message=T.unsafe(nil), &block); end
+
+  def to_not(matcher, message=T.unsafe(nil), &block); end
+end
+
+class RSpec::Expectations::BlockExpectationTarget
 end
 
 class RSpec::Expectations::BlockSnippetExtractor
@@ -9330,15 +15251,82 @@ class RSpec::Expectations::BlockSnippetExtractor
 end
 
 class RSpec::Expectations::Configuration
+  def add_should_and_should_not_to(*modules); end
+
+  def backtrace_formatter(); end
+
+  def backtrace_formatter=(backtrace_formatter); end
+
+  def color?(); end
+
+  def false_positives_handler(); end
+
+  def include_chain_clauses_in_custom_matcher_descriptions=(include_chain_clauses_in_custom_matcher_descriptions); end
+
+  def include_chain_clauses_in_custom_matcher_descriptions?(); end
+
+  def max_formatted_output_length=(length); end
+
+  def on_potential_false_positives(); end
+
+  def on_potential_false_positives=(behavior); end
+
+  def reset_syntaxes_to_default(); end
+
+  def syntax(); end
+
+  def syntax=(values); end
+
+  def warn_about_potential_false_positives=(boolean); end
+
+  def warn_about_potential_false_positives?(); end
   FALSE_POSITIVE_BEHAVIOURS = ::T.let(nil, ::T.untyped)
 end
 
 module RSpec::Expectations::Configuration::NullBacktraceFormatter
+end
+
+module RSpec::Expectations::Configuration::NullBacktraceFormatter
   extend ::T::Sig
+  def self.format_backtrace(backtrace); end
+end
+
+class RSpec::Expectations::Configuration
+end
+
+module RSpec::Expectations::ExpectationHelper
 end
 
 module RSpec::Expectations::ExpectationHelper
   extend ::T::Sig
+  def self.check_message(msg); end
+
+  def self.handle_failure(matcher, message, failure_message_method); end
+
+  def self.modern_matcher_from(matcher); end
+
+  def self.with_matcher(handler, matcher, message); end
+end
+
+class RSpec::Expectations::ExpectationNotMetError
+end
+
+class RSpec::Expectations::ExpectationNotMetError
+end
+
+class RSpec::Expectations::ExpectationTarget
+  include ::RSpec::Expectations::ExpectationTarget::InstanceMethods
+  def initialize(value); end
+
+  def target(); end
+end
+
+module RSpec::Expectations::ExpectationTarget::InstanceMethods
+  def not_to(matcher=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def to(matcher=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def to_not(matcher=T.unsafe(nil), message=T.unsafe(nil), &block); end
 end
 
 module RSpec::Expectations::ExpectationTarget::InstanceMethods
@@ -9346,7 +15334,14 @@ module RSpec::Expectations::ExpectationTarget::InstanceMethods
 end
 
 module RSpec::Expectations::ExpectationTarget::UndefinedValue
+end
+
+module RSpec::Expectations::ExpectationTarget::UndefinedValue
   extend ::T::Sig
+end
+
+class RSpec::Expectations::ExpectationTarget
+  def self.for(value, block); end
 end
 
 class RSpec::Expectations::FailureAggregator
@@ -9370,6 +15365,34 @@ end
 
 RSpec::Expectations::LegacyMacherAdapter = RSpec::Expectations::LegacyMatcherAdapter
 
+class RSpec::Expectations::LegacyMatcherAdapter
+  def initialize(matcher); end
+end
+
+class RSpec::Expectations::LegacyMatcherAdapter::RSpec1
+  def failure_message(); end
+
+  def failure_message_when_negated(); end
+end
+
+class RSpec::Expectations::LegacyMatcherAdapter::RSpec1
+  def self.interface_matches?(matcher); end
+end
+
+class RSpec::Expectations::LegacyMatcherAdapter::RSpec2
+  def failure_message(); end
+
+  def failure_message_when_negated(); end
+end
+
+class RSpec::Expectations::LegacyMatcherAdapter::RSpec2
+  def self.interface_matches?(matcher); end
+end
+
+class RSpec::Expectations::LegacyMatcherAdapter
+  def self.wrap(matcher); end
+end
+
 class RSpec::Expectations::MultipleExpectationsNotMetError
   include ::RSpec::Core::MultipleExceptionError::InterfaceTag
   def aggregation_block_label(); end
@@ -9389,8 +15412,59 @@ class RSpec::Expectations::MultipleExpectationsNotMetError
   def summary(); end
 end
 
+class RSpec::Expectations::MultipleExpectationsNotMetError
+end
+
+class RSpec::Expectations::NegativeExpectationHandler
+end
+
+class RSpec::Expectations::NegativeExpectationHandler
+  def self.does_not_match?(matcher, actual, &block); end
+
+  def self.handle_matcher(actual, initial_matcher, message=T.unsafe(nil), &block); end
+
+  def self.opposite_should_method(); end
+
+  def self.should_method(); end
+
+  def self.verb(); end
+end
+
+class RSpec::Expectations::PositiveExpectationHandler
+end
+
+class RSpec::Expectations::PositiveExpectationHandler
+  def self.handle_matcher(actual, initial_matcher, message=T.unsafe(nil), &block); end
+
+  def self.opposite_should_method(); end
+
+  def self.should_method(); end
+
+  def self.verb(); end
+end
+
+module RSpec::Expectations::Syntax
+end
+
 module RSpec::Expectations::Syntax
   extend ::T::Sig
+  def self.default_should_host(); end
+
+  def self.disable_expect(syntax_host=T.unsafe(nil)); end
+
+  def self.disable_should(syntax_host=T.unsafe(nil)); end
+
+  def self.enable_expect(syntax_host=T.unsafe(nil)); end
+
+  def self.enable_should(syntax_host=T.unsafe(nil)); end
+
+  def self.expect_enabled?(syntax_host=T.unsafe(nil)); end
+
+  def self.should_enabled?(syntax_host=T.unsafe(nil)); end
+
+  def self.warn_about_should!(); end
+
+  def self.warn_about_should_unless_configured(method_name); end
 end
 
 module RSpec::Expectations::Version
@@ -9403,18 +15477,248 @@ end
 
 module RSpec::Expectations
   extend ::T::Sig
+  def self.configuration(); end
+
+  def self.differ(); end
+
+  def self.fail_with(message, expected=T.unsafe(nil), actual=T.unsafe(nil)); end
 end
 
 module RSpec::Matchers
+  def a_block_changing(*args, &block); end
+
+  def a_block_outputting(*args, &block); end
+
+  def a_block_raising(*args, &block); end
+
+  def a_block_throwing(*args, &block); end
+
+  def a_block_yielding_control(*args, &block); end
+
+  def a_block_yielding_successive_args(*args, &block); end
+
+  def a_block_yielding_with_args(*args, &block); end
+
+  def a_block_yielding_with_no_args(*args, &block); end
+
+  def a_collection_containing_exactly(*args, &block); end
+
+  def a_collection_ending_with(*args, &block); end
+
+  def a_collection_including(*args, &block); end
+
+  def a_collection_starting_with(*args, &block); end
+
+  def a_falsey_value(*args, &block); end
+
+  def a_falsy_value(*args, &block); end
+
+  def a_hash_including(*args, &block); end
+
+  def a_kind_of(*args, &block); end
+
+  def a_nil_value(*args, &block); end
+
+  def a_range_covering(*args, &block); end
+
+  def a_string_ending_with(*args, &block); end
+
+  def a_string_including(*args, &block); end
+
+  def a_string_matching(*args, &block); end
+
+  def a_string_starting_with(*args, &block); end
+
+  def a_truthy_value(*args, &block); end
+
+  def a_value(*args, &block); end
+
+  def a_value_between(*args, &block); end
+
+  def a_value_within(*args, &block); end
+
+  def aggregate_failures(label=T.unsafe(nil), metadata=T.unsafe(nil), &block); end
+
+  def all(expected); end
+
+  def an_instance_of(*args, &block); end
+
+  def an_object_eq_to(*args, &block); end
+
+  def an_object_eql_to(*args, &block); end
+
+  def an_object_equal_to(*args, &block); end
+
+  def an_object_existing(*args, &block); end
+
+  def an_object_having_attributes(*args, &block); end
+
+  def an_object_matching(*args, &block); end
+
+  def an_object_responding_to(*args, &block); end
+
+  def an_object_satisfying(*args, &block); end
+
+  def be(*args); end
+
+  def be_a(klass); end
+
+  def be_a_kind_of(expected); end
+
+  def be_an(klass); end
+
+  def be_an_instance_of(expected); end
+
+  def be_between(min, max); end
+
+  def be_falsey(); end
+
+  def be_falsy(*args, &block); end
+
+  def be_instance_of(expected); end
+
+  def be_kind_of(expected); end
+
+  def be_nil(); end
+
+  def be_truthy(); end
+
+  def be_within(delta); end
+
+  def change(receiver=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def changing(*args, &block); end
+
+  def contain_exactly(*items); end
+
+  def containing_exactly(*args, &block); end
+
+  def cover(*values); end
+
+  def covering(*args, &block); end
+
+  def end_with(*expected); end
+
+  def ending_with(*args, &block); end
+
+  def eq(expected); end
+
+  def eq_to(*args, &block); end
+
+  def eql(expected); end
+
+  def eql_to(*args, &block); end
+
+  def equal(expected); end
+
+  def equal_to(*args, &block); end
+
+  def exist(*args); end
+
+  def existing(*args, &block); end
+
+  def expect(value=T.unsafe(nil), &block); end
+
+  def have_attributes(expected); end
+
+  def having_attributes(*args, &block); end
+
+  def include(*expected); end
+
+  def including(*args, &block); end
+
   def log(*expected, &block_arg); end
 
+  def match(expected); end
+
+  def match_array(items); end
+
+  def match_regex(*args, &block); end
+
+  def matching(*args, &block); end
+
   def not_log(*expected, &block_arg); end
+
+  def output(expected=T.unsafe(nil)); end
+
+  def raise_error(error=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def raise_exception(error=T.unsafe(nil), message=T.unsafe(nil), &block); end
+
+  def raising(*args, &block); end
+
+  def respond_to(*names); end
+
+  def responding_to(*args, &block); end
+
+  def satisfy(description=T.unsafe(nil), &block); end
+
+  def satisfying(*args, &block); end
+
+  def start_with(*expected); end
+
+  def starting_with(*args, &block); end
+
+  def throw_symbol(expected_symbol=T.unsafe(nil), expected_arg=T.unsafe(nil)); end
+
+  def throwing(*args, &block); end
+
+  def within(*args, &block); end
+
+  def yield_control(); end
+
+  def yield_successive_args(*args); end
+
+  def yield_with_args(*args); end
+
+  def yield_with_no_args(); end
+
+  def yielding_control(*args, &block); end
+
+  def yielding_successive_args(*args, &block); end
+
+  def yielding_with_args(*args, &block); end
+
+  def yielding_with_no_args(*args, &block); end
   BE_PREDICATE_REGEX = ::T.let(nil, ::T.untyped)
   DYNAMIC_MATCHER_REGEX = ::T.let(nil, ::T.untyped)
   HAS_REGEX = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Matchers::AliasedMatcher
+  def description(); end
+
+  def failure_message(); end
+
+  def failure_message_when_negated(); end
+
+  def initialize(base_matcher, description_block); end
+
+  def method_missing(*_); end
+end
+
+class RSpec::Matchers::AliasedMatcher
+end
+
+class RSpec::Matchers::AliasedMatcherWithOperatorSupport
+end
+
+class RSpec::Matchers::AliasedMatcherWithOperatorSupport
+end
+
+class RSpec::Matchers::AliasedNegatedMatcher
+  def does_not_match?(*args, &block); end
+
+  def matches?(*args, &block); end
+end
+
 RSpec::Matchers::AliasedNegatedMatcher::DefaultFailureMessages = RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
+
+class RSpec::Matchers::AliasedNegatedMatcher
+end
+
+module RSpec::Matchers::BuiltIn
+end
 
 class RSpec::Matchers::BuiltIn::All
   def does_not_match?(_actual); end
@@ -9430,15 +15734,62 @@ class RSpec::Matchers::BuiltIn::All
 end
 
 class RSpec::Matchers::BuiltIn::BaseMatcher
+  include ::RSpec::Matchers::Composable
+  include ::RSpec::Matchers::BuiltIn::BaseMatcher::HashFormatting
+  include ::RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
+  def actual(); end
+
+  def actual_formatted(); end
+
+  def description(); end
+
+  def diffable?(); end
+
+  def expected(); end
+
+  def expected_formatted(); end
+
+  def expects_call_stack_jump?(); end
+
+  def initialize(expected=T.unsafe(nil)); end
+
+  def match_unless_raises(*exceptions); end
+
+  def matcher_name(); end
+
+  def matcher_name=(matcher_name); end
+
+  def matches?(actual); end
+
+  def present_ivars(); end
+
+  def rescued_exception(); end
+
+  def supports_block_expectations?(); end
   UNDEFINED = ::T.let(nil, ::T.untyped)
 end
 
 module RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
+  def failure_message(); end
+
+  def failure_message_when_negated(); end
+end
+
+module RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
   extend ::T::Sig
+  def self.has_default_failure_messages?(matcher); end
+end
+
+module RSpec::Matchers::BuiltIn::BaseMatcher::HashFormatting
 end
 
 module RSpec::Matchers::BuiltIn::BaseMatcher::HashFormatting
   extend ::T::Sig
+  def self.improve_hash_formatting(inspect_string); end
+end
+
+class RSpec::Matchers::BuiltIn::BaseMatcher
+  def self.matcher_name(); end
 end
 
 class RSpec::Matchers::BuiltIn::Be
@@ -9998,7 +16349,45 @@ module RSpec::Matchers::BuiltIn
 end
 
 module RSpec::Matchers::Composable
+  def &(matcher); end
+
+  def ===(value); end
+
+  def and(matcher); end
+
+  def or(matcher); end
+
+  def |(matcher); end
+end
+
+module RSpec::Matchers::Composable
   extend ::T::Sig
+  def self.should_enumerate?(item); end
+
+  def self.surface_descriptions_in(item); end
+
+  def self.unreadable_io?(object); end
+end
+
+module RSpec::Matchers::DSL
+  def alias_matcher(new_name, old_name, options=T.unsafe(nil), &description_override); end
+
+  def define(name, &declarations); end
+
+  def define_negated_matcher(negated_name, base_name, &description_override); end
+
+  def matcher(name, &declarations); end
+end
+
+module RSpec::Matchers::DSL::DefaultImplementations
+  include ::RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
+  def description(); end
+
+  def diffable?(); end
+
+  def expects_call_stack_jump?(); end
+
+  def supports_block_expectations?(); end
 end
 
 module RSpec::Matchers::DSL::DefaultImplementations
@@ -10006,7 +16395,34 @@ module RSpec::Matchers::DSL::DefaultImplementations
 end
 
 module RSpec::Matchers::DSL::Macros
+  def chain(method_name, *attr_names, &definition); end
+
+  def description(&definition); end
+
+  def diffable(); end
+
+  def failure_message(&definition); end
+
+  def failure_message_when_negated(&definition); end
+
+  def match(options=T.unsafe(nil), &match_block); end
+
+  def match_unless_raises(expected_exception=T.unsafe(nil), &match_block); end
+
+  def match_when_negated(&match_block); end
+
+  def supports_block_expectations(); end
   RAISE_NOTIFIER = ::T.let(nil, ::T.untyped)
+end
+
+module RSpec::Matchers::DSL::Macros::Deprecated
+  def failure_message_for_should(&definition); end
+
+  def failure_message_for_should_not(&definition); end
+
+  def match_for_should(&definition); end
+
+  def match_for_should_not(&definition); end
 end
 
 module RSpec::Matchers::DSL::Macros::Deprecated
@@ -10017,26 +16433,160 @@ module RSpec::Matchers::DSL::Macros
   extend ::T::Sig
 end
 
+class RSpec::Matchers::DSL::Matcher
+  include ::RSpec::Matchers::DSL::DefaultImplementations
+  include ::RSpec::Matchers::BuiltIn::BaseMatcher::DefaultFailureMessages
+  include ::RSpec::Matchers
+  include ::RSpec::Matchers::Composable
+  def actual(); end
+
+  def block_arg(); end
+
+  def expected(); end
+
+  def expected_as_array(); end
+
+  def initialize(name, declarations, matcher_execution_context, *expected, &block_arg); end
+
+  def name(); end
+
+  def rescued_exception(); end
+end
+
+class RSpec::Matchers::DSL::Matcher
+  extend ::RSpec::Matchers::DSL::Macros
+  extend ::RSpec::Matchers::DSL::Macros::Deprecated
+end
+
 module RSpec::Matchers::DSL
   extend ::T::Sig
 end
 
 module RSpec::Matchers::EnglishPhrasing
+end
+
+module RSpec::Matchers::EnglishPhrasing
   extend ::T::Sig
+  def self.list(obj); end
+
+  def self.split_words(sym); end
 end
 
 class RSpec::Matchers::ExpectedsForMultipleDiffs
+  def initialize(expected_list); end
+
+  def message_with_diff(message, differ, actual); end
   DEFAULT_DIFF_LABEL = ::T.let(nil, ::T.untyped)
   DESCRIPTION_MAX_LENGTH = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Matchers::ExpectedsForMultipleDiffs
+  def self.diff_label_for(matcher); end
+
+  def self.for_many_matchers(matchers); end
+
+  def self.from(expected); end
+
+  def self.truncated(description); end
+end
+
+class RSpec::Matchers::MatcherDelegator
+  include ::RSpec::Matchers::Composable
+  def base_matcher(); end
+
+  def initialize(base_matcher); end
+
+  def method_missing(*args, &block); end
+end
+
+class RSpec::Matchers::MatcherDelegator
+end
+
 module RSpec::Matchers
+  extend ::RSpec::Matchers::DSL
   extend ::T::Sig
+  def self.alias_matcher(*args, &block); end
+
+  def self.clear_generated_description(); end
+
+  def self.configuration(); end
+
+  def self.generated_description(); end
+
+  def self.is_a_describable_matcher?(obj); end
+
+  def self.is_a_matcher?(obj); end
+
+  def self.last_description(); end
+
+  def self.last_expectation_handler(); end
+
+  def self.last_expectation_handler=(last_expectation_handler); end
+
+  def self.last_matcher(); end
+
+  def self.last_matcher=(last_matcher); end
 end
 
 module RSpec::Mocks
   DEFAULT_CALLBACK_INVOCATION_STRATEGY = ::T.let(nil, ::T.untyped)
   IGNORED_BACKTRACE_LINE = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Mocks::AllowanceTarget
+  def expression(); end
+
+  def not_to(matcher, *_args); end
+
+  def to(matcher, &block); end
+
+  def to_not(matcher, *_args); end
+end
+
+class RSpec::Mocks::AllowanceTarget
+end
+
+class RSpec::Mocks::AndReturnImplementation
+  def call(*_args_to_ignore, &_block); end
+
+  def initialize(values_to_return); end
+end
+
+class RSpec::Mocks::AndReturnImplementation
+end
+
+class RSpec::Mocks::AndWrapOriginalImplementation
+  def call(*args, &block); end
+
+  def initial_action=(_value); end
+
+  def initialize(method, block); end
+
+  def inner_action(); end
+
+  def inner_action=(_value); end
+
+  def present?(); end
+
+  def terminal_action=(_value); end
+end
+
+class RSpec::Mocks::AndWrapOriginalImplementation::CannotModifyFurtherError
+end
+
+class RSpec::Mocks::AndWrapOriginalImplementation::CannotModifyFurtherError
+end
+
+class RSpec::Mocks::AndWrapOriginalImplementation
+end
+
+class RSpec::Mocks::AndYieldImplementation
+  def call(*_args_to_ignore, &block); end
+
+  def initialize(args_to_yield, eval_context, error_generator); end
+end
+
+class RSpec::Mocks::AndYieldImplementation
 end
 
 module RSpec::Mocks::AnyInstance
@@ -10248,12 +16798,387 @@ module RSpec::Mocks::AnyInstance
   def self.error_generator(); end
 end
 
+class RSpec::Mocks::AnyInstanceAllowanceTarget
+  def expression(); end
+
+  def not_to(matcher, *_args); end
+
+  def to(matcher, &block); end
+
+  def to_not(matcher, *_args); end
+end
+
+class RSpec::Mocks::AnyInstanceAllowanceTarget
+end
+
+class RSpec::Mocks::AnyInstanceExpectationTarget
+  def expression(); end
+
+  def not_to(matcher, &block); end
+
+  def to(matcher, &block); end
+
+  def to_not(matcher, &block); end
+end
+
+class RSpec::Mocks::AnyInstanceExpectationTarget
+end
+
 class RSpec::Mocks::ArgumentListMatcher
+  def args_match?(*args); end
+
+  def expected_args(); end
+
+  def initialize(*expected_args); end
+
+  def resolve_expected_args_based_on(actual_args); end
   MATCH_ALL = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Mocks::ArgumentListMatcher
+end
+
+module RSpec::Mocks::ArgumentMatchers
+  def a_kind_of(klass); end
+
+  def an_instance_of(klass); end
+
+  def any_args(); end
+
+  def anything(); end
+
+  def array_including(*args); end
+
+  def boolean(); end
+
+  def duck_type(*args); end
+
+  def hash_excluding(*args); end
+
+  def hash_including(*args); end
+
+  def hash_not_including(*args); end
+
+  def instance_of(klass); end
+
+  def kind_of(klass); end
+
+  def no_args(); end
 end
 
 module RSpec::Mocks::ArgumentMatchers
   extend ::T::Sig
+  def self.anythingize_lonely_keys(*args); end
+end
+
+class RSpec::Mocks::CallbackInvocationStrategy
+  def call(doubled_module); end
+end
+
+class RSpec::Mocks::CallbackInvocationStrategy
+end
+
+class RSpec::Mocks::CannotSupportArgMutationsError
+end
+
+class RSpec::Mocks::CannotSupportArgMutationsError
+end
+
+class RSpec::Mocks::ClassNewMethodReference
+end
+
+class RSpec::Mocks::ClassNewMethodReference
+  def self.applies_to?(method_name); end
+end
+
+class RSpec::Mocks::ClassVerifyingDouble
+  include ::RSpec::Mocks::ObjectVerifyingDoubleMethods
+  include ::RSpec::Mocks::TestDouble
+  include ::RSpec::Mocks::VerifyingDouble
+end
+
+class RSpec::Mocks::ClassVerifyingDouble
+end
+
+class RSpec::Mocks::Configuration
+  def add_stub_and_should_receive_to(*modules); end
+
+  def allow_message_expectations_on_nil(); end
+
+  def allow_message_expectations_on_nil=(allow_message_expectations_on_nil); end
+
+  def before_verifying_doubles(&block); end
+
+  def color?(); end
+
+  def patch_marshal_to_support_partial_doubles=(val); end
+
+  def reset_syntaxes_to_default(); end
+
+  def syntax(); end
+
+  def syntax=(*values); end
+
+  def temporarily_suppress_partial_double_verification(); end
+
+  def temporarily_suppress_partial_double_verification=(temporarily_suppress_partial_double_verification); end
+
+  def transfer_nested_constants=(transfer_nested_constants); end
+
+  def transfer_nested_constants?(); end
+
+  def verify_doubled_constant_names=(verify_doubled_constant_names); end
+
+  def verify_doubled_constant_names?(); end
+
+  def verify_partial_doubles=(val); end
+
+  def verify_partial_doubles?(); end
+
+  def verifying_double_callbacks(); end
+
+  def when_declaring_verifying_double(&block); end
+
+  def yield_receiver_to_any_instance_implementation_blocks=(yield_receiver_to_any_instance_implementation_blocks); end
+
+  def yield_receiver_to_any_instance_implementation_blocks?(); end
+end
+
+class RSpec::Mocks::Configuration
+end
+
+class RSpec::Mocks::Constant
+  def hidden=(hidden); end
+
+  def hidden?(); end
+
+  def initialize(name); end
+
+  def mutated?(); end
+
+  def name(); end
+
+  def original_value(); end
+
+  def original_value=(original_value); end
+
+  def previously_defined=(previously_defined); end
+
+  def previously_defined?(); end
+
+  def stubbed=(stubbed); end
+
+  def stubbed?(); end
+
+  def valid_name=(valid_name); end
+
+  def valid_name?(); end
+end
+
+class RSpec::Mocks::Constant
+  extend ::RSpec::Support::RecursiveConstMethods
+  def self.original(name); end
+
+  def self.unmutated(name); end
+end
+
+class RSpec::Mocks::ConstantMutator
+end
+
+class RSpec::Mocks::ConstantMutator::BaseMutator
+  include ::RSpec::Support::RecursiveConstMethods
+  def full_constant_name(); end
+
+  def idempotently_reset(); end
+
+  def initialize(full_constant_name, mutated_value, transfer_nested_constants); end
+
+  def original_value(); end
+
+  def to_constant(); end
+end
+
+class RSpec::Mocks::ConstantMutator::BaseMutator
+end
+
+class RSpec::Mocks::ConstantMutator::ConstantHider
+  def mutate(); end
+
+  def reset(); end
+end
+
+class RSpec::Mocks::ConstantMutator::ConstantHider
+end
+
+class RSpec::Mocks::ConstantMutator::DefinedConstantReplacer
+  def initialize(*args); end
+
+  def mutate(); end
+
+  def reset(); end
+
+  def should_transfer_nested_constants?(); end
+
+  def transfer_nested_constants(); end
+
+  def verify_constants_to_transfer!(); end
+end
+
+class RSpec::Mocks::ConstantMutator::DefinedConstantReplacer
+end
+
+class RSpec::Mocks::ConstantMutator::UndefinedConstantSetter
+  def mutate(); end
+
+  def reset(); end
+end
+
+class RSpec::Mocks::ConstantMutator::UndefinedConstantSetter
+end
+
+class RSpec::Mocks::ConstantMutator
+  extend ::RSpec::Support::RecursiveConstMethods
+  def self.hide(constant_name); end
+
+  def self.mutate(mutator); end
+
+  def self.raise_on_invalid_const(); end
+
+  def self.stub(constant_name, value, options=T.unsafe(nil)); end
+end
+
+class RSpec::Mocks::DirectObjectReference
+  def const_to_replace(); end
+
+  def defined?(); end
+
+  def description(); end
+
+  def initialize(object); end
+
+  def target(); end
+
+  def when_loaded(); end
+end
+
+class RSpec::Mocks::DirectObjectReference
+end
+
+class RSpec::Mocks::Double
+  include ::RSpec::Mocks::TestDouble
+end
+
+class RSpec::Mocks::Double
+end
+
+class RSpec::Mocks::ErrorGenerator
+  def default_error_message(expectation, expected_args, actual_args); end
+
+  def describe_expectation(verb, message, expected_received_count, _actual_received_count, args); end
+
+  def expectation_on_nil_message(method_name); end
+
+  def initialize(target=T.unsafe(nil)); end
+
+  def intro(unwrapped=T.unsafe(nil)); end
+
+  def method_call_args_description(args, generic_prefix=T.unsafe(nil), matcher_prefix=T.unsafe(nil)); end
+
+  def opts(); end
+
+  def opts=(opts); end
+
+  def raise_already_invoked_error(message, calling_customization); end
+
+  def raise_cant_constrain_count_for_negated_have_received_error(count_constraint); end
+
+  def raise_double_negation_error(wrapped_expression); end
+
+  def raise_expectation_error(message, expected_received_count, argument_list_matcher, actual_received_count, expectation_count_type, args, backtrace_line=T.unsafe(nil), source_id=T.unsafe(nil)); end
+
+  def raise_expectation_on_mocked_method(method); end
+
+  def raise_expectation_on_nil_error(method_name); end
+
+  def raise_expectation_on_unstubbed_method(method); end
+
+  def raise_expired_test_double_error(); end
+
+  def raise_have_received_disallowed(type, reason); end
+
+  def raise_invalid_arguments_error(verifier); end
+
+  def raise_method_not_stubbed_error(method_name); end
+
+  def raise_missing_block_error(args_to_yield); end
+
+  def raise_missing_default_stub_error(expectation, args_for_multiple_calls); end
+
+  def raise_non_public_error(method_name, visibility); end
+
+  def raise_only_valid_on_a_partial_double(method); end
+
+  def raise_out_of_order_error(message); end
+
+  def raise_similar_message_args_error(expectation, args_for_multiple_calls, backtrace_line=T.unsafe(nil)); end
+
+  def raise_unexpected_message_args_error(expectation, args_for_multiple_calls, source_id=T.unsafe(nil)); end
+
+  def raise_unexpected_message_error(message, args); end
+
+  def raise_unimplemented_error(doubled_module, method_name, object); end
+
+  def raise_verifying_double_not_defined_error(ref); end
+
+  def raise_wrong_arity_error(args_to_yield, signature); end
+end
+
+class RSpec::Mocks::ErrorGenerator
+end
+
+module RSpec::Mocks::ExampleMethods
+  include ::RSpec::Mocks::ArgumentMatchers
+  def allow(target); end
+
+  def allow_any_instance_of(klass); end
+
+  def allow_message_expectations_on_nil(); end
+
+  def class_double(doubled_class, *args); end
+
+  def class_spy(*args); end
+
+  def double(*args); end
+
+  def expect_any_instance_of(klass); end
+
+  def have_received(method_name, &block); end
+
+  def hide_const(constant_name); end
+
+  def instance_double(doubled_class, *args); end
+
+  def instance_spy(*args); end
+
+  def object_double(object_or_name, *args); end
+
+  def object_spy(*args); end
+
+  def receive(method_name, &block); end
+
+  def receive_message_chain(*messages, &block); end
+
+  def receive_messages(message_return_value_hash); end
+
+  def spy(*args); end
+
+  def stub_const(constant_name, value, options=T.unsafe(nil)); end
+
+  def without_partial_double_verification(); end
+end
+
+module RSpec::Mocks::ExampleMethods::ExpectHost
+  def expect(target); end
 end
 
 module RSpec::Mocks::ExampleMethods::ExpectHost
@@ -10262,6 +17187,13 @@ end
 
 module RSpec::Mocks::ExampleMethods
   extend ::T::Sig
+  def self.declare_double(type, *args); end
+
+  def self.declare_verifying_double(type, ref, *args); end
+
+  def self.extended(object); end
+
+  def self.included(klass); end
 end
 
 class RSpec::Mocks::ExpectChain
@@ -10271,8 +17203,85 @@ class RSpec::Mocks::ExpectChain
   def self.expect_chain_on(object, *chain, &blk); end
 end
 
+class RSpec::Mocks::ExpectationTarget
+  include ::RSpec::Mocks::ExpectationTargetMethods
+end
+
+class RSpec::Mocks::ExpectationTarget
+end
+
 module RSpec::Mocks::ExpectationTargetMethods
+  include ::RSpec::Mocks::TargetDelegationInstanceMethods
+  def expression(); end
+
+  def not_to(matcher, &block); end
+
+  def to(matcher, &block); end
+
+  def to_not(matcher, &block); end
+end
+
+module RSpec::Mocks::ExpectationTargetMethods
+  extend ::RSpec::Mocks::TargetDelegationClassMethods
   extend ::T::Sig
+end
+
+class RSpec::Mocks::ExpiredTestDoubleError
+end
+
+class RSpec::Mocks::ExpiredTestDoubleError
+end
+
+class RSpec::Mocks::Implementation
+  def call(*args, &block); end
+
+  def initial_action(); end
+
+  def initial_action=(initial_action); end
+
+  def inner_action(); end
+
+  def inner_action=(inner_action); end
+
+  def present?(); end
+
+  def terminal_action(); end
+
+  def terminal_action=(terminal_action); end
+end
+
+class RSpec::Mocks::Implementation
+end
+
+class RSpec::Mocks::InstanceMethodReference
+end
+
+class RSpec::Mocks::InstanceMethodReference
+end
+
+class RSpec::Mocks::InstanceMethodStasher
+  def handle_restoration_failures(); end
+
+  def initialize(object, method); end
+
+  def method_is_stashed?(); end
+
+  def original_method(); end
+
+  def restore(); end
+
+  def stash(); end
+end
+
+class RSpec::Mocks::InstanceMethodStasher
+end
+
+class RSpec::Mocks::InstanceVerifyingDouble
+  include ::RSpec::Mocks::TestDouble
+  include ::RSpec::Mocks::VerifyingDouble
+end
+
+class RSpec::Mocks::InstanceVerifyingDouble
 end
 
 class RSpec::Mocks::MarshalExtension
@@ -10282,6 +17291,9 @@ class RSpec::Mocks::MarshalExtension
   def self.patch!(); end
 
   def self.unpatch!(); end
+end
+
+module RSpec::Mocks::Matchers
 end
 
 class RSpec::Mocks::Matchers::HaveReceived
@@ -10335,6 +17347,9 @@ class RSpec::Mocks::Matchers::HaveReceived
 end
 
 class RSpec::Mocks::Matchers::HaveReceived
+end
+
+module RSpec::Mocks::Matchers::Matcher
 end
 
 module RSpec::Mocks::Matchers::Matcher
@@ -10495,24 +17510,543 @@ end
 class RSpec::Mocks::MessageChain
 end
 
+class RSpec::Mocks::MessageExpectation
+  include ::RSpec::Mocks::MessageExpectation::ImplementationDetails
+  def and_call_original(); end
+
+  def and_raise(*args); end
+
+  def and_return(first_value, *values); end
+
+  def and_throw(*args); end
+
+  def and_wrap_original(&block); end
+
+  def and_yield(*args, &block); end
+
+  def at_least(n, &block); end
+
+  def at_most(n, &block); end
+
+  def exactly(n, &block); end
+
+  def never(); end
+
+  def once(&block); end
+
+  def ordered(&block); end
+
+  def thrice(&block); end
+
+  def times(&block); end
+
+  def twice(&block); end
+
+  def with(*args, &block); end
+end
+
+module RSpec::Mocks::MessageExpectation::ImplementationDetails
+  def actual_received_count_matters?(); end
+
+  def additional_expected_calls(); end
+
+  def advise(*args); end
+
+  def and_yield_receiver_to_implementation(); end
+
+  def argument_list_matcher=(argument_list_matcher); end
+
+  def called_max_times?(); end
+
+  def description_for(verb); end
+
+  def ensure_expected_ordering_received!(); end
+
+  def error_generator(); end
+
+  def error_generator=(error_generator); end
+
+  def expectation_count_type(); end
+
+  def expected_args(); end
+
+  def expected_from=(expected_from); end
+
+  def expected_messages_received?(); end
+
+  def expected_received_count=(expected_received_count); end
+
+  def generate_error(); end
+
+  def ignoring_args?(); end
+
+  def implementation(); end
+
+  def implementation=(implementation); end
+
+  def increase_actual_received_count!(); end
+
+  def initialize(error_generator, expectation_ordering, expected_from, method_double, type=T.unsafe(nil), opts=T.unsafe(nil), &implementation_block); end
+
+  def invoke(parent_stub, *args, &block); end
+
+  def invoke_without_incrementing_received_count(parent_stub, *args, &block); end
+
+  def matches?(message, *args); end
+
+  def matches_at_least_count?(); end
+
+  def matches_at_most_count?(); end
+
+  def matches_exact_count?(); end
+
+  def matches_name_but_not_args(message, *args); end
+
+  def message(); end
+
+  def negative?(); end
+
+  def negative_expectation_for?(message); end
+
+  def ordered?(); end
+
+  def orig_object(); end
+
+  def raise_out_of_order_error(); end
+
+  def raise_unexpected_message_args_error(args_for_multiple_calls); end
+
+  def safe_invoke(parent_stub, *args, &block); end
+
+  def similar_messages(); end
+
+  def type(); end
+
+  def unadvise(args); end
+
+  def verify_messages_received(); end
+
+  def yield_receiver_to_implementation_block?(); end
+end
+
 module RSpec::Mocks::MessageExpectation::ImplementationDetails
   extend ::T::Sig
+end
+
+class RSpec::Mocks::MessageExpectation
+end
+
+class RSpec::Mocks::MethodDouble
+  def add_default_stub(*args, &implementation); end
+
+  def add_expectation(error_generator, expectation_ordering, expected_from, opts, &implementation); end
+
+  def add_simple_expectation(method_name, response, error_generator, backtrace_line); end
+
+  def add_simple_stub(method_name, response); end
+
+  def add_stub(error_generator, expectation_ordering, expected_from, opts=T.unsafe(nil), &implementation); end
+
+  def build_expectation(error_generator, expectation_ordering); end
+
+  def clear(); end
+
+  def configure_method(); end
+
+  def define_proxy_method(); end
+
+  def expectations(); end
+
+  def initialize(object, method_name, proxy); end
+
+  def message_expectation_class(); end
+
+  def method_name(); end
+
+  def method_stasher(); end
+
+  def object(); end
+
+  def object_singleton_class(); end
+
+  def original_implementation_callable(); end
+
+  def original_method(); end
+
+  def proxy_method_invoked(_obj, *args, &block); end
+
+  def raise_method_not_stubbed_error(); end
+
+  def remove_stub(); end
+
+  def remove_stub_if_present(); end
+
+  def reset(); end
+
+  def restore_original_method(); end
+
+  def restore_original_visibility(); end
+
+  def save_original_implementation_callable!(); end
+
+  def setup_simple_method_double(method_name, response, collection, error_generator=T.unsafe(nil), backtrace_line=T.unsafe(nil)); end
+
+  def show_frozen_warning(); end
+
+  def stubs(); end
+
+  def verify(); end
+
+  def visibility(); end
+end
+
+class RSpec::Mocks::MethodDouble::RSpecPrependedModule
+end
+
+class RSpec::Mocks::MethodDouble::RSpecPrependedModule
+end
+
+class RSpec::Mocks::MethodDouble
+end
+
+class RSpec::Mocks::MethodReference
+  def defined?(); end
+
+  def implemented?(); end
+
+  def initialize(object_reference, method_name); end
+
+  def unimplemented?(); end
+
+  def visibility(); end
+
+  def with_signature(); end
+end
+
+class RSpec::Mocks::MethodReference
+  def self.for(object_reference, method_name); end
+
+  def self.instance_method_visibility_for(klass, method_name); end
+
+  def self.method_defined_at_any_visibility?(klass, method_name); end
+
+  def self.method_visibility_for(object, method_name); end
+end
+
+class RSpec::Mocks::MockExpectationAlreadyInvokedError
+end
+
+class RSpec::Mocks::MockExpectationAlreadyInvokedError
+end
+
+class RSpec::Mocks::MockExpectationError
+end
+
+class RSpec::Mocks::MockExpectationError
+end
+
+class RSpec::Mocks::NamedObjectReference
+  def const_to_replace(); end
+
+  def defined?(); end
+
+  def description(); end
+
+  def initialize(const_name); end
+
+  def target(); end
+
+  def when_loaded(); end
+end
+
+class RSpec::Mocks::NamedObjectReference
+end
+
+class RSpec::Mocks::NegationUnsupportedError
+end
+
+class RSpec::Mocks::NegationUnsupportedError
+end
+
+class RSpec::Mocks::NestedSpace
+  def initialize(parent); end
+end
+
+class RSpec::Mocks::NestedSpace
+end
+
+class RSpec::Mocks::NoCallbackInvocationStrategy
+  def call(_doubled_module); end
+end
+
+class RSpec::Mocks::NoCallbackInvocationStrategy
+end
+
+class RSpec::Mocks::ObjectMethodReference
+end
+
+class RSpec::Mocks::ObjectMethodReference
 end
 
 class RSpec::Mocks::ObjectReference
   MODULE_NAME_METHOD = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Mocks::ObjectReference
+  def self.for(object_module_or_name, allow_direct_object_refs=T.unsafe(nil)); end
+end
+
+class RSpec::Mocks::ObjectVerifyingDouble
+  include ::RSpec::Mocks::ObjectVerifyingDoubleMethods
+  include ::RSpec::Mocks::TestDouble
+  include ::RSpec::Mocks::VerifyingDouble
+end
+
+class RSpec::Mocks::ObjectVerifyingDouble
+end
+
+module RSpec::Mocks::ObjectVerifyingDoubleMethods
+  include ::RSpec::Mocks::TestDouble
+  include ::RSpec::Mocks::VerifyingDouble
+  def as_stubbed_const(options=T.unsafe(nil)); end
+end
+
 module RSpec::Mocks::ObjectVerifyingDoubleMethods
   extend ::T::Sig
+end
+
+class RSpec::Mocks::OrderGroup
+  def clear(); end
+
+  def consume(); end
+
+  def empty?(); end
+
+  def handle_order_constraint(expectation); end
+
+  def invoked(message); end
+
+  def ready_for?(expectation); end
+
+  def register(expectation); end
+
+  def verify_invocation_order(expectation); end
+end
+
+class RSpec::Mocks::OrderGroup
+end
+
+class RSpec::Mocks::OutsideOfExampleError
+end
+
+class RSpec::Mocks::OutsideOfExampleError
+end
+
+class RSpec::Mocks::PartialClassDoubleProxy
+  include ::RSpec::Mocks::PartialClassDoubleProxyMethods
+end
+
+class RSpec::Mocks::PartialClassDoubleProxy
+end
+
+module RSpec::Mocks::PartialClassDoubleProxyMethods
+  def initialize(source_space, *args); end
+
+  def method_double_from_ancestor_for(message); end
+
+  def original_method_handle_for(message); end
+
+  def original_unbound_method_handle_from_ancestor_for(message); end
+
+  def superclass_proxy(); end
 end
 
 module RSpec::Mocks::PartialClassDoubleProxyMethods
   extend ::T::Sig
 end
 
+class RSpec::Mocks::PartialDoubleProxy
+  def original_method_handle_for(message); end
+
+  def visibility_for(method_name); end
+end
+
+class RSpec::Mocks::PartialDoubleProxy
+end
+
 class RSpec::Mocks::Proxy
+  def add_message_expectation(method_name, opts=T.unsafe(nil), &block); end
+
+  def add_simple_expectation(method_name, response, location); end
+
+  def add_simple_stub(method_name, response); end
+
+  def add_stub(method_name, opts=T.unsafe(nil), &implementation); end
+
+  def build_expectation(method_name); end
+
+  def check_for_unexpected_arguments(expectation); end
+
+  def ensure_implemented(*_args); end
+
+  def has_negative_expectation?(message); end
+
+  def initialize(object, order_group, options=T.unsafe(nil)); end
+
+  def message_received(message, *args, &block); end
+
+  def messages_arg_list(); end
+
+  def method_double_if_exists_for_message(message); end
+
+  def object(); end
+
+  def original_method_handle_for(_message); end
+
+  def prepended_modules_of_singleton_class(); end
+
+  def raise_missing_default_stub_error(expectation, args_for_multiple_calls); end
+
+  def raise_unexpected_message_error(method_name, args); end
+
+  def received_message?(method_name, *args, &block); end
+
+  def record_message_received(message, *args, &block); end
+
+  def remove_stub(method_name); end
+
+  def remove_stub_if_present(method_name); end
+
+  def replay_received_message_on(expectation, &block); end
+
+  def reset(); end
+
+  def verify(); end
+
+  def visibility_for(_method_name); end
   DEFAULT_MESSAGE_EXPECTATION_OPTS = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Mocks::Proxy::SpecificMessage
+  def ==(expectation); end
+
+  def args(); end
+
+  def args=(_); end
+
+  def message(); end
+
+  def message=(_); end
+
+  def object(); end
+
+  def object=(_); end
+end
+
+class RSpec::Mocks::Proxy::SpecificMessage
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Mocks::Proxy
+  def self.prepended_modules_of(klass); end
+end
+
+class RSpec::Mocks::ProxyForNil
+  def disallow_expectations(); end
+
+  def disallow_expectations=(disallow_expectations); end
+
+  def initialize(order_group); end
+
+  def warn_about_expectations(); end
+
+  def warn_about_expectations=(warn_about_expectations); end
+end
+
+class RSpec::Mocks::ProxyForNil
+end
+
+class RSpec::Mocks::RootSpace
+  def any_instance_proxy_for(*_args); end
+
+  def any_instance_recorder_for(*_args); end
+
+  def any_instance_recorders_from_ancestry_of(_object); end
+
+  def new_scope(); end
+
+  def proxy_for(*_args); end
+
+  def register_constant_mutator(_mutator); end
+
+  def registered?(_object); end
+
+  def reset_all(); end
+
+  def superclass_proxy_for(*_args); end
+
+  def verify_all(); end
+end
+
+class RSpec::Mocks::RootSpace
+end
+
+class RSpec::Mocks::SimpleMessageExpectation
+  def called_max_times?(); end
+
+  def initialize(message, response, error_generator, backtrace_line=T.unsafe(nil)); end
+
+  def invoke(*_); end
+
+  def matches?(message, *_); end
+
+  def unadvise(_); end
+
+  def verify_messages_received(); end
+end
+
+class RSpec::Mocks::SimpleMessageExpectation
+end
+
+class RSpec::Mocks::Space
+  def any_instance_mutex(); end
+
+  def any_instance_proxy_for(klass); end
+
+  def any_instance_recorder_for(klass, only_return_existing=T.unsafe(nil)); end
+
+  def any_instance_recorders(); end
+
+  def any_instance_recorders_from_ancestry_of(object); end
+
+  def constant_mutator_for(name); end
+
+  def ensure_registered(object); end
+
+  def new_scope(); end
+
+  def proxies(); end
+
+  def proxies_of(klass); end
+
+  def proxy_for(object); end
+
+  def proxy_mutex(); end
+
+  def register_constant_mutator(mutator); end
+
+  def registered?(object); end
+
+  def reset_all(); end
+
+  def superclass_proxy_for(klass); end
+
+  def verify_all(); end
+end
+
+class RSpec::Mocks::Space
 end
 
 class RSpec::Mocks::StubChain
@@ -10523,7 +18057,44 @@ class RSpec::Mocks::StubChain
 end
 
 module RSpec::Mocks::Syntax
+end
+
+module RSpec::Mocks::Syntax
   extend ::T::Sig
+  def self.default_should_syntax_host(); end
+
+  def self.disable_expect(syntax_host=T.unsafe(nil)); end
+
+  def self.disable_should(syntax_host=T.unsafe(nil)); end
+
+  def self.enable_expect(syntax_host=T.unsafe(nil)); end
+
+  def self.enable_should(syntax_host=T.unsafe(nil)); end
+
+  def self.expect_enabled?(syntax_host=T.unsafe(nil)); end
+
+  def self.should_enabled?(syntax_host=T.unsafe(nil)); end
+
+  def self.warn_about_should!(); end
+
+  def self.warn_unless_should_configured(method_name, replacement=T.unsafe(nil)); end
+end
+
+class RSpec::Mocks::TargetBase
+  include ::RSpec::Mocks::TargetDelegationInstanceMethods
+  def initialize(target); end
+end
+
+class RSpec::Mocks::TargetBase
+  extend ::RSpec::Mocks::TargetDelegationClassMethods
+end
+
+module RSpec::Mocks::TargetDelegationClassMethods
+  def delegate_not_to(matcher_method, options=T.unsafe(nil)); end
+
+  def delegate_to(matcher_method); end
+
+  def disallow_negation(method_name); end
 end
 
 module RSpec::Mocks::TargetDelegationClassMethods
@@ -10531,7 +18102,33 @@ module RSpec::Mocks::TargetDelegationClassMethods
 end
 
 module RSpec::Mocks::TargetDelegationInstanceMethods
+  def target(); end
+end
+
+module RSpec::Mocks::TargetDelegationInstanceMethods
   extend ::T::Sig
+end
+
+module RSpec::Mocks::TestDouble
+  def ==(other); end
+
+  def __build_mock_proxy_unless_expired(order_group); end
+
+  def __disallow_further_usage!(); end
+
+  def as_null_object(); end
+
+  def freeze(); end
+
+  def initialize(name=T.unsafe(nil), stubs=T.unsafe(nil)); end
+
+  def inspect(); end
+
+  def null_object?(); end
+
+  def respond_to?(message, incl_private=T.unsafe(nil)); end
+
+  def to_s(); end
 end
 
 module RSpec::Mocks::TestDouble
@@ -10539,7 +18136,38 @@ module RSpec::Mocks::TestDouble
 end
 
 module RSpec::Mocks::TestDoubleFormatter
+end
+
+module RSpec::Mocks::TestDoubleFormatter
   extend ::T::Sig
+  def self.format(dbl, unwrap=T.unsafe(nil)); end
+end
+
+class RSpec::Mocks::TestDoubleProxy
+end
+
+class RSpec::Mocks::TestDoubleProxy
+end
+
+class RSpec::Mocks::UnsupportedMatcherError
+end
+
+class RSpec::Mocks::UnsupportedMatcherError
+end
+
+module RSpec::Mocks::VerifyingDouble
+  def __send__(name, *args, &block); end
+
+  def initialize(doubled_module, *args); end
+
+  def method_missing(message, *args, &block); end
+
+  def respond_to?(message, include_private=T.unsafe(nil)); end
+
+  def send(name, *args, &block); end
+end
+
+module RSpec::Mocks::VerifyingDouble::SilentIO
 end
 
 module RSpec::Mocks::VerifyingDouble::SilentIO
@@ -10548,6 +18176,101 @@ end
 
 module RSpec::Mocks::VerifyingDouble
   extend ::T::Sig
+end
+
+class RSpec::Mocks::VerifyingDoubleNotDefinedError
+end
+
+class RSpec::Mocks::VerifyingDoubleNotDefinedError
+end
+
+class RSpec::Mocks::VerifyingExistingClassNewMethodDouble
+end
+
+class RSpec::Mocks::VerifyingExistingClassNewMethodDouble
+end
+
+class RSpec::Mocks::VerifyingExistingMethodDouble
+  def initialize(object, method_name, proxy); end
+
+  def unimplemented?(); end
+
+  def with_signature(); end
+end
+
+class RSpec::Mocks::VerifyingExistingMethodDouble
+  def self.for(object, method_name, proxy); end
+end
+
+class RSpec::Mocks::VerifyingMessageExpectation
+  def initialize(*args); end
+
+  def method_reference(); end
+
+  def method_reference=(method_reference); end
+end
+
+class RSpec::Mocks::VerifyingMessageExpectation
+end
+
+class RSpec::Mocks::VerifyingMethodDouble
+  def add_expectation(*args, &block); end
+
+  def add_stub(*args, &block); end
+
+  def initialize(object, method_name, proxy, method_reference); end
+
+  def proxy_method_invoked(obj, *args, &block); end
+
+  def validate_arguments!(actual_args); end
+end
+
+class RSpec::Mocks::VerifyingMethodDouble
+end
+
+class RSpec::Mocks::VerifyingPartialClassDoubleProxy
+  include ::RSpec::Mocks::PartialClassDoubleProxyMethods
+end
+
+class RSpec::Mocks::VerifyingPartialClassDoubleProxy
+end
+
+class RSpec::Mocks::VerifyingPartialDoubleProxy
+  include ::RSpec::Mocks::VerifyingProxyMethods
+  def ensure_implemented(_method_name); end
+
+  def initialize(object, expectation_ordering, optional_callback_invocation_strategy=T.unsafe(nil)); end
+
+  def method_reference(); end
+end
+
+class RSpec::Mocks::VerifyingPartialDoubleProxy
+end
+
+class RSpec::Mocks::VerifyingProxy
+  include ::RSpec::Mocks::VerifyingProxyMethods
+  def initialize(object, order_group, doubled_module, method_reference_class); end
+
+  def method_reference(); end
+
+  def validate_arguments!(method_name, args); end
+
+  def visibility_for(method_name); end
+end
+
+class RSpec::Mocks::VerifyingProxy
+end
+
+module RSpec::Mocks::VerifyingProxyMethods
+  def add_message_expectation(method_name, opts=T.unsafe(nil), &block); end
+
+  def add_simple_stub(method_name, *args); end
+
+  def add_stub(method_name, opts=T.unsafe(nil), &implementation); end
+
+  def ensure_implemented(method_name); end
+
+  def ensure_publicly_implemented(method_name, _object); end
 end
 
 module RSpec::Mocks::VerifyingProxyMethods
@@ -10564,6 +18287,23 @@ end
 
 module RSpec::Mocks
   extend ::T::Sig
+  def self.allow_message(subject, message, opts=T.unsafe(nil), &block); end
+
+  def self.configuration(); end
+
+  def self.error_generator(); end
+
+  def self.expect_message(subject, message, opts=T.unsafe(nil), &block); end
+
+  def self.setup(); end
+
+  def self.space(); end
+
+  def self.teardown(); end
+
+  def self.verify(); end
+
+  def self.with_temporary_scope(); end
 end
 
 RSpec::SharedContext = RSpec::Core::SharedContext
@@ -10580,6 +18320,25 @@ end
 
 module RSpec::Support::AllExceptionsExceptOnesWeMustNotRescue
   extend ::T::Sig
+  def self.===(exception); end
+end
+
+class RSpec::Support::BlockSignature
+end
+
+class RSpec::Support::BlockSignature
+end
+
+class RSpec::Support::ComparableVersion
+  include ::Comparable
+  def initialize(string); end
+
+  def segments(); end
+
+  def string(); end
+end
+
+class RSpec::Support::ComparableVersion
 end
 
 class RSpec::Support::Differ
@@ -10597,7 +18356,33 @@ end
 class RSpec::Support::Differ
 end
 
+class RSpec::Support::DirectoryMaker
+end
+
+class RSpec::Support::DirectoryMaker
+  def self.mkdir_p(path); end
+end
+
 class RSpec::Support::EncodedString
+  def <<(string); end
+
+  def ==(*args, &block); end
+
+  def empty?(*args, &block); end
+
+  def encoding(*args, &block); end
+
+  def eql?(*args, &block); end
+
+  def initialize(string, encoding=T.unsafe(nil)); end
+
+  def lines(*args, &block); end
+
+  def source_encoding(); end
+
+  def split(regex_or_string); end
+
+  def to_str(); end
   ENCODE_NO_CONVERTER = ::T.let(nil, ::T.untyped)
   ENCODE_UNCONVERTABLE_BYTES = ::T.let(nil, ::T.untyped)
   REPLACE = ::T.let(nil, ::T.untyped)
@@ -10605,47 +18390,329 @@ class RSpec::Support::EncodedString
   UTF_8 = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Support::EncodedString
+  def self.pick_encoding(source_a, source_b); end
+end
+
+module RSpec::Support::FuzzyMatcher
+end
+
 module RSpec::Support::FuzzyMatcher
   extend ::T::Sig
+  def self.values_match?(expected, actual); end
+end
+
+class RSpec::Support::LooseSignatureVerifier
+end
+
+class RSpec::Support::LooseSignatureVerifier::SignatureWithKeywordArgumentsMatcher
+  def has_kw_args_in?(args); end
+
+  def initialize(signature); end
+
+  def invalid_kw_args_from(_kw_args); end
+
+  def missing_kw_args_from(_kw_args); end
+
+  def non_kw_args_arity_description(); end
+
+  def valid_non_kw_args?(*args); end
+end
+
+class RSpec::Support::LooseSignatureVerifier::SignatureWithKeywordArgumentsMatcher
+end
+
+class RSpec::Support::LooseSignatureVerifier
 end
 
 class RSpec::Support::MethodSignature
+  def arbitrary_kw_args?(); end
+
+  def classify_arity(arity=T.unsafe(nil)); end
+
+  def classify_parameters(); end
+
+  def could_contain_kw_args?(args); end
+
+  def description(); end
+
+  def has_kw_args_in?(args); end
+
+  def initialize(method); end
+
+  def invalid_kw_args_from(given_kw_args); end
+
+  def max_non_kw_args(); end
+
+  def min_non_kw_args(); end
+
+  def missing_kw_args_from(given_kw_args); end
+
+  def non_kw_args_arity_description(); end
+
+  def optional_kw_args(); end
+
+  def required_kw_args(); end
+
+  def unlimited_args?(); end
+
+  def valid_non_kw_args?(positional_arg_count, optional_max_arg_count=T.unsafe(nil)); end
   INFINITY = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Support::MethodSignature
+end
+
+class RSpec::Support::MethodSignatureExpectation
+  def empty?(); end
+
+  def expect_arbitrary_keywords(); end
+
+  def expect_arbitrary_keywords=(expect_arbitrary_keywords); end
+
+  def expect_unlimited_arguments(); end
+
+  def expect_unlimited_arguments=(expect_unlimited_arguments); end
+
+  def keywords(); end
+
+  def keywords=(values); end
+
+  def max_count(); end
+
+  def max_count=(number); end
+
+  def min_count(); end
+
+  def min_count=(number); end
+end
+
+class RSpec::Support::MethodSignatureExpectation
+end
+
+class RSpec::Support::MethodSignatureVerifier
+  def error_message(); end
+
+  def initialize(signature, args=T.unsafe(nil)); end
+
+  def kw_args(); end
+
+  def max_non_kw_args(); end
+
+  def min_non_kw_args(); end
+
+  def non_kw_args(); end
+
+  def valid?(); end
+
+  def with_expectation(expectation); end
+end
+
+class RSpec::Support::MethodSignatureVerifier
 end
 
 RSpec::Support::Mutex = Thread::Mutex
 
 module RSpec::Support::OS
+end
+
+module RSpec::Support::OS
   extend ::T::Sig
+  def self.windows?(); end
+
+  def self.windows_file_path?(); end
 end
 
 class RSpec::Support::ObjectFormatter
+  def format(object); end
+
+  def initialize(max_formatted_output_length=T.unsafe(nil)); end
+
+  def max_formatted_output_length(); end
+
+  def max_formatted_output_length=(max_formatted_output_length); end
+
+  def prepare_array(array); end
+
+  def prepare_element(element); end
+
+  def prepare_for_inspection(object); end
+
+  def prepare_hash(input_hash); end
+
+  def recursive_structure?(object); end
+
+  def sort_hash_keys(input_hash); end
+
+  def with_entering_structure(structure); end
   ELLIPSIS = ::T.let(nil, ::T.untyped)
   INSPECTOR_CLASSES = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Support::ObjectFormatter::BaseInspector
+  def formatter(); end
+
+  def formatter=(_); end
+
+  def object(); end
+
+  def object=(_); end
+
+  def pretty_print(pp); end
+end
+
+class RSpec::Support::ObjectFormatter::BaseInspector
+  def self.[](*_); end
+
+  def self.can_inspect?(_object); end
+
+  def self.members(); end
+end
+
+class RSpec::Support::ObjectFormatter::BigDecimalInspector
+end
+
+class RSpec::Support::ObjectFormatter::BigDecimalInspector
+  def self.can_inspect?(object); end
 end
 
 class RSpec::Support::ObjectFormatter::DateTimeInspector
   FORMAT = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Support::ObjectFormatter::DateTimeInspector
+  def self.can_inspect?(object); end
+end
+
+class RSpec::Support::ObjectFormatter::DelegatorInspector
+end
+
+class RSpec::Support::ObjectFormatter::DelegatorInspector
+  def self.can_inspect?(object); end
+end
+
+class RSpec::Support::ObjectFormatter::DescribableMatcherInspector
+end
+
+class RSpec::Support::ObjectFormatter::DescribableMatcherInspector
+  def self.can_inspect?(object); end
+end
+
+class RSpec::Support::ObjectFormatter::InspectableItem
+  def pretty_print(pp); end
+
+  def text(); end
+
+  def text=(_); end
+end
+
+class RSpec::Support::ObjectFormatter::InspectableItem
+  def self.[](*_); end
+
+  def self.members(); end
+end
+
+class RSpec::Support::ObjectFormatter::InspectableObjectInspector
+end
+
+class RSpec::Support::ObjectFormatter::InspectableObjectInspector
+  def self.can_inspect?(object); end
+end
+
 class RSpec::Support::ObjectFormatter::TimeInspector
   FORMAT = ::T.let(nil, ::T.untyped)
 end
 
+class RSpec::Support::ObjectFormatter::TimeInspector
+  def self.can_inspect?(object); end
+end
+
 class RSpec::Support::ObjectFormatter::UninspectableObjectInspector
+  def klass(); end
+
+  def native_object_id(); end
   OBJECT_ID_FORMAT = ::T.let(nil, ::T.untyped)
+end
+
+class RSpec::Support::ObjectFormatter::UninspectableObjectInspector
+  def self.can_inspect?(object); end
+end
+
+class RSpec::Support::ObjectFormatter
+  def self.default_instance(); end
+
+  def self.format(object); end
+
+  def self.prepare_for_inspection(object); end
+end
+
+module RSpec::Support::RecursiveConstMethods
+  def const_defined_on?(mod, const_name); end
+
+  def constants_defined_on(mod); end
+
+  def get_const_defined_on(mod, const_name); end
+
+  def normalize_const_name(const_name); end
+
+  def recursive_const_defined?(const_name); end
+
+  def recursive_const_get(const_name); end
 end
 
 module RSpec::Support::RecursiveConstMethods
   extend ::T::Sig
 end
 
+class RSpec::Support::ReentrantMutex
+  def synchronize(); end
+end
+
+class RSpec::Support::ReentrantMutex
+end
+
+module RSpec::Support::Ruby
+end
+
 module RSpec::Support::Ruby
   extend ::T::Sig
+  def self.jruby?(); end
+
+  def self.jruby_9000?(); end
+
+  def self.jruby_version(); end
+
+  def self.mri?(); end
+
+  def self.non_mri?(); end
+
+  def self.rbx?(); end
+end
+
+module RSpec::Support::RubyFeatures
 end
 
 module RSpec::Support::RubyFeatures
   extend ::T::Sig
+  def self.caller_locations_supported?(); end
+
+  def self.fork_supported?(); end
+
+  def self.kw_args_supported?(); end
+
+  def self.module_prepends_supported?(); end
+
+  def self.module_refinement_supported?(); end
+
+  def self.optional_and_splat_args_supported?(); end
+
+  def self.required_kw_args_supported?(); end
+
+  def self.ripper_supported?(); end
+
+  def self.supports_exception_cause?(); end
+
+  def self.supports_rebinding_module_methods?(); end
 end
 
 RSpec::Support::StrictSignatureVerifier = RSpec::Support::MethodSignatureVerifier
@@ -10659,11 +18726,60 @@ module RSpec::Support::Version
 end
 
 module RSpec::Support::Warnings
+  def deprecate(deprecated, options=T.unsafe(nil)); end
+
+  def warn_deprecation(message, options=T.unsafe(nil)); end
+
+  def warn_with(message, options=T.unsafe(nil)); end
+
+  def warning(text, options=T.unsafe(nil)); end
+end
+
+module RSpec::Support::Warnings
   extend ::T::Sig
 end
 
 module RSpec::Support
   extend ::T::Sig
+  def self.class_of(object); end
+
+  def self.define_optimized_require_for_rspec(lib, &require_relative); end
+
+  def self.deregister_matcher_definition(&block); end
+
+  def self.failure_notifier(); end
+
+  def self.failure_notifier=(callable); end
+
+  def self.is_a_matcher?(object); end
+
+  def self.matcher_definitions(); end
+
+  def self.method_handle_for(object, method_name); end
+
+  def self.notify_failure(failure, options=T.unsafe(nil)); end
+
+  def self.register_matcher_definition(&block); end
+
+  def self.require_rspec_core(f); end
+
+  def self.require_rspec_expectations(f); end
+
+  def self.require_rspec_matchers(f); end
+
+  def self.require_rspec_mocks(f); end
+
+  def self.require_rspec_support(f); end
+
+  def self.rspec_description_for_object(object); end
+
+  def self.thread_local_data(); end
+
+  def self.warning_notifier(); end
+
+  def self.warning_notifier=(warning_notifier); end
+
+  def self.with_failure_notifier(callable); end
 end
 
 module RSpec::Version
@@ -10675,15 +18791,231 @@ module RSpec::Version
 end
 
 module RSpec
+  extend ::RSpec::Support::Warnings
+  extend ::RSpec::Core::Warnings
   extend ::T::Sig
+  def self.clear_examples(); end
+
+  def self.configuration(); end
+
+  def self.configuration=(configuration); end
+
+  def self.configure(); end
+
+  def self.const_missing(name); end
+
+  def self.context(*args, &example_group_block); end
+
+  def self.current_example(); end
+
+  def self.current_example=(example); end
+
+  def self.describe(*args, &example_group_block); end
+
+  def self.example_group(*args, &example_group_block); end
+
+  def self.fcontext(*args, &example_group_block); end
+
+  def self.fdescribe(*args, &example_group_block); end
+
+  def self.reset(); end
+
+  def self.world(); end
+
+  def self.world=(world); end
+
+  def self.xcontext(*args, &example_group_block); end
+
+  def self.xdescribe(*args, &example_group_block); end
+end
+
+module Rainbow
+end
+
+class Rainbow::Color
+  def ground(); end
+end
+
+class Rainbow::Color::Indexed
+  def codes(); end
+
+  def initialize(ground, num); end
+
+  def num(); end
+end
+
+class Rainbow::Color::Indexed
 end
 
 class Rainbow::Color::Named
+  def initialize(ground, name); end
   NAMES = ::T.let(nil, ::T.untyped)
 end
 
+class Rainbow::Color::Named
+  def self.color_names(); end
+
+  def self.valid_names(); end
+end
+
+class Rainbow::Color::RGB
+  def b(); end
+
+  def g(); end
+
+  def initialize(ground, *values); end
+
+  def r(); end
+end
+
+class Rainbow::Color::RGB
+  def self.to_ansi_domain(value); end
+end
+
+class Rainbow::Color::X11Named
+  include ::Rainbow::X11ColorNames
+  def initialize(ground, name); end
+end
+
+class Rainbow::Color::X11Named
+  def self.color_names(); end
+
+  def self.valid_names(); end
+end
+
+class Rainbow::Color
+  def self.build(ground, values); end
+
+  def self.parse_hex_color(hex); end
+end
+
+class Rainbow::NullPresenter
+  def background(*_values); end
+
+  def bg(*_values); end
+
+  def black(); end
+
+  def blink(); end
+
+  def blue(); end
+
+  def bold(); end
+
+  def bright(); end
+
+  def color(*_values); end
+
+  def cyan(); end
+
+  def dark(); end
+
+  def faint(); end
+
+  def fg(*_values); end
+
+  def foreground(*_values); end
+
+  def green(); end
+
+  def hide(); end
+
+  def inverse(); end
+
+  def italic(); end
+
+  def magenta(); end
+
+  def method_missing(method_name, *args); end
+
+  def red(); end
+
+  def reset(); end
+
+  def underline(); end
+
+  def white(); end
+
+  def yellow(); end
+end
+
+class Rainbow::NullPresenter
+end
+
 class Rainbow::Presenter
+  def background(*values); end
+
+  def bg(*values); end
+
+  def black(); end
+
+  def blink(); end
+
+  def blue(); end
+
+  def bold(); end
+
+  def bright(); end
+
+  def color(*values); end
+
+  def cyan(); end
+
+  def dark(); end
+
+  def faint(); end
+
+  def fg(*values); end
+
+  def foreground(*values); end
+
+  def green(); end
+
+  def hide(); end
+
+  def inverse(); end
+
+  def italic(); end
+
+  def magenta(); end
+
+  def method_missing(method_name, *args); end
+
+  def red(); end
+
+  def reset(); end
+
+  def underline(); end
+
+  def white(); end
+
+  def yellow(); end
   TERM_EFFECTS = ::T.let(nil, ::T.untyped)
+end
+
+class Rainbow::Presenter
+end
+
+class Rainbow::StringUtils
+end
+
+class Rainbow::StringUtils
+  def self.uncolor(string); end
+
+  def self.wrap_with_sgr(string, codes); end
+end
+
+class Rainbow::Wrapper
+  def enabled(); end
+
+  def enabled=(enabled); end
+
+  def initialize(enabled=T.unsafe(nil)); end
+
+  def wrap(string); end
+end
+
+class Rainbow::Wrapper
 end
 
 module Rainbow::X11ColorNames
@@ -10696,6 +19028,15 @@ end
 
 module Rainbow
   extend ::T::Sig
+  def self.enabled(); end
+
+  def self.enabled=(value); end
+
+  def self.global(); end
+
+  def self.new(); end
+
+  def self.uncolor(string); end
 end
 
 module Rake
@@ -10711,11 +19052,118 @@ end
 
 module Rake::AltSystem
   extend ::T::Sig
+  def self.backticks(_); end
+
+  def self.define_module_function(name, &block); end
 end
 
 class Rake::Application
+  include ::Rake::TaskManager
+  include ::Rake::TraceOutput
+  def add_import(fn); end
+
+  def add_loader(ext, loader); end
+
+  def collect_command_line_tasks(args); end
+
+  def default_task_name(); end
+
+  def deprecate(old_usage, new_usage, call_site); end
+
+  def display_error_message(ex); end
+
+  def display_exception_backtrace(ex); end
+
+  def display_exception_details(ex); end
+
+  def display_exception_message_details(ex); end
+
+  def display_prerequisites(); end
+
+  def display_tasks_and_comments(); end
+
+  def dynamic_width(); end
+
+  def dynamic_width_stty(); end
+
+  def dynamic_width_tput(); end
+
+  def exit_because_of_exception(ex); end
+
+  def find_rakefile_location(); end
+
+  def handle_options(); end
+
+  def has_cause?(ex); end
+
+  def have_rakefile(); end
+
+  def init(app_name=T.unsafe(nil)); end
+
+  def invoke_task(task_string); end
+
+  def load_imports(); end
+
+  def load_rakefile(); end
+
+  def name(); end
+
+  def options(); end
+
+  def original_dir(); end
+
+  def parse_task_string(string); end
+
+  def print_rakefile_directory(location); end
+
+  def rake_require(file_name, paths=T.unsafe(nil), loaded=T.unsafe(nil)); end
+
+  def rakefile(); end
+
+  def rakefile_location(backtrace=T.unsafe(nil)); end
+
+  def raw_load_rakefile(); end
+
+  def run(); end
+
+  def run_with_threads(); end
+
+  def standard_exception_handling(); end
+
+  def standard_rake_options(); end
+
+  def system_dir(); end
+
+  def terminal_columns(); end
+
+  def terminal_columns=(terminal_columns); end
+
+  def terminal_width(); end
+
+  def thread_pool(); end
+
+  def top_level(); end
+
+  def top_level_tasks(); end
+
+  def trace(*strings); end
+
+  def truncate(string, width); end
+
+  def truncate_output?(); end
+
+  def tty_output=(tty_output_state); end
+
+  def tty_output?(); end
+
+  def unix?(); end
+
+  def windows?(); end
   DEFAULT_RAKEFILES = ::T.let(nil, ::T.untyped)
   FIXNUM_MAX = ::T.let(nil, ::T.untyped)
+end
+
+class Rake::Application
 end
 
 module Rake::Backtrace
@@ -10728,13 +19176,35 @@ end
 
 module Rake::Backtrace
   extend ::T::Sig
+  def self.collapse(backtrace); end
+end
+
+module Rake::Cloneable
 end
 
 module Rake::Cloneable
   extend ::T::Sig
 end
 
+class Rake::CommandLineOptionError
+end
+
+class Rake::CommandLineOptionError
+end
+
+class Rake::CpuCounter
+  def count(); end
+
+  def count_with_default(default=T.unsafe(nil)); end
+end
+
+class Rake::CpuCounter
+  def self.count(); end
+end
+
 module Rake::DSL
+  include ::Rake::FileUtilsExt
+  include ::FileUtils
   include ::FileUtils::StreamUtils_
 end
 
@@ -10742,7 +19212,332 @@ module Rake::DSL
   extend ::T::Sig
 end
 
+class Rake::DefaultLoader
+  def load(fn); end
+end
+
+class Rake::DefaultLoader
+end
+
+class Rake::EarlyTime
+  include ::Comparable
+  include ::Singleton
+end
+
+class Rake::EarlyTime
+  extend ::Singleton::SingletonClassMethods
+  def self.instance(); end
+end
+
+class Rake::FileCreationTask
+end
+
+class Rake::FileCreationTask
+end
+
 class Rake::FileList
+  include ::Rake::Cloneable
+  def &(*args, &block); end
+
+  def *(other); end
+
+  def +(*args, &block); end
+
+  def -(*args, &block); end
+
+  def <<(obj); end
+
+  def ==(array); end
+
+  def [](*args, &block); end
+
+  def []=(*args, &block); end
+
+  def add(*filenames); end
+
+  def all?(*args, &block); end
+
+  def any?(*args, &block); end
+
+  def append(*args, &block); end
+
+  def assoc(*args, &block); end
+
+  def at(*args, &block); end
+
+  def bsearch(*args, &block); end
+
+  def bsearch_index(*args, &block); end
+
+  def chain(*args, &block); end
+
+  def chunk(*args, &block); end
+
+  def chunk_while(*args, &block); end
+
+  def clear(*args, &block); end
+
+  def clear_exclude(); end
+
+  def collect(*args, &block); end
+
+  def collect!(*args, &block); end
+
+  def collect_concat(*args, &block); end
+
+  def combination(*args, &block); end
+
+  def compact(*args, &block); end
+
+  def compact!(*args, &block); end
+
+  def concat(*args, &block); end
+
+  def count(*args, &block); end
+
+  def cycle(*args, &block); end
+
+  def delete(*args, &block); end
+
+  def delete_at(*args, &block); end
+
+  def delete_if(*args, &block); end
+
+  def detect(*args, &block); end
+
+  def difference(*args, &block); end
+
+  def dig(*args, &block); end
+
+  def drop(*args, &block); end
+
+  def drop_while(*args, &block); end
+
+  def each(*args, &block); end
+
+  def each_cons(*args, &block); end
+
+  def each_entry(*args, &block); end
+
+  def each_index(*args, &block); end
+
+  def each_slice(*args, &block); end
+
+  def each_with_index(*args, &block); end
+
+  def each_with_object(*args, &block); end
+
+  def egrep(pattern, *options); end
+
+  def empty?(*args, &block); end
+
+  def entries(*args, &block); end
+
+  def exclude(*patterns, &block); end
+
+  def excluded_from_list?(fn); end
+
+  def existing(); end
+
+  def existing!(); end
+
+  def ext(newext=T.unsafe(nil)); end
+
+  def fetch(*args, &block); end
+
+  def fill(*args, &block); end
+
+  def filter(*args, &block); end
+
+  def filter!(*args, &block); end
+
+  def find(*args, &block); end
+
+  def find_all(*args, &block); end
+
+  def find_index(*args, &block); end
+
+  def first(*args, &block); end
+
+  def flat_map(*args, &block); end
+
+  def flatten(*args, &block); end
+
+  def flatten!(*args, &block); end
+
+  def grep(*args, &block); end
+
+  def grep_v(*args, &block); end
+
+  def group_by(*args, &block); end
+
+  def gsub(pat, rep); end
+
+  def gsub!(pat, rep); end
+
+  def import(array); end
+
+  def include(*filenames); end
+
+  def include?(*args, &block); end
+
+  def index(*args, &block); end
+
+  def initialize(*patterns); end
+
+  def inject(*args, &block); end
+
+  def insert(*args, &block); end
+
+  def inspect(*args, &block); end
+
+  def is_a?(klass); end
+
+  def join(*args, &block); end
+
+  def keep_if(*args, &block); end
+
+  def kind_of?(klass); end
+
+  def last(*args, &block); end
+
+  def lazy(*args, &block); end
+
+  def length(*args, &block); end
+
+  def map(*args, &block); end
+
+  def map!(*args, &block); end
+
+  def max(*args, &block); end
+
+  def max_by(*args, &block); end
+
+  def member?(*args, &block); end
+
+  def min(*args, &block); end
+
+  def min_by(*args, &block); end
+
+  def minmax(*args, &block); end
+
+  def minmax_by(*args, &block); end
+
+  def none?(*args, &block); end
+
+  def one?(*args, &block); end
+
+  def pack(*args, &block); end
+
+  def partition(&block); end
+
+  def pathmap(spec=T.unsafe(nil)); end
+
+  def permutation(*args, &block); end
+
+  def pop(*args, &block); end
+
+  def prepend(*args, &block); end
+
+  def product(*args, &block); end
+
+  def push(*args, &block); end
+
+  def rassoc(*args, &block); end
+
+  def reduce(*args, &block); end
+
+  def reject(*args, &block); end
+
+  def reject!(*args, &block); end
+
+  def repeated_combination(*args, &block); end
+
+  def repeated_permutation(*args, &block); end
+
+  def replace(*args, &block); end
+
+  def resolve(); end
+
+  def reverse(*args, &block); end
+
+  def reverse!(*args, &block); end
+
+  def reverse_each(*args, &block); end
+
+  def rindex(*args, &block); end
+
+  def rotate(*args, &block); end
+
+  def rotate!(*args, &block); end
+
+  def sample(*args, &block); end
+
+  def select(*args, &block); end
+
+  def select!(*args, &block); end
+
+  def shelljoin(*args, &block); end
+
+  def shift(*args, &block); end
+
+  def shuffle(*args, &block); end
+
+  def shuffle!(*args, &block); end
+
+  def size(*args, &block); end
+
+  def slice(*args, &block); end
+
+  def slice!(*args, &block); end
+
+  def slice_after(*args, &block); end
+
+  def slice_before(*args, &block); end
+
+  def slice_when(*args, &block); end
+
+  def sort(*args, &block); end
+
+  def sort!(*args, &block); end
+
+  def sort_by(*args, &block); end
+
+  def sort_by!(*args, &block); end
+
+  def sub(pat, rep); end
+
+  def sub!(pat, rep); end
+
+  def sum(*args, &block); end
+
+  def take(*args, &block); end
+
+  def take_while(*args, &block); end
+
+  def to_a(); end
+
+  def to_ary(); end
+
+  def to_h(*args, &block); end
+
+  def to_set(*args, &block); end
+
+  def transpose(*args, &block); end
+
+  def union(*args, &block); end
+
+  def uniq(*args, &block); end
+
+  def uniq!(*args, &block); end
+
+  def unshift(*args, &block); end
+
+  def values_at(*args, &block); end
+
+  def zip(*args, &block); end
+
+  def |(*args, &block); end
   ARRAY_METHODS = ::T.let(nil, ::T.untyped)
   DEFAULT_IGNORE_PATTERNS = ::T.let(nil, ::T.untyped)
   DEFAULT_IGNORE_PROCS = ::T.let(nil, ::T.untyped)
@@ -10752,26 +19547,212 @@ class Rake::FileList
   SPECIAL_RETURN = ::T.let(nil, ::T.untyped)
 end
 
+class Rake::FileList
+  def self.[](*args); end
+
+  def self.glob(pattern, *args); end
+end
+
+class Rake::FileTask
+end
+
+class Rake::FileTask
+end
+
 module Rake::FileUtilsExt
+  include ::FileUtils
   include ::FileUtils::StreamUtils_
+  def cd(*args, &block); end
+
+  def chdir(*args, &block); end
+
+  def chmod(*args, &block); end
+
+  def chmod_R(*args, &block); end
+
+  def chown(*args, &block); end
+
+  def chown_R(*args, &block); end
+
+  def copy(*args, &block); end
+
+  def cp(*args, &block); end
+
+  def cp_lr(*args, &block); end
+
+  def cp_r(*args, &block); end
+
+  def install(*args, &block); end
+
+  def link(*args, &block); end
+
+  def ln(*args, &block); end
+
+  def ln_s(*args, &block); end
+
+  def ln_sf(*args, &block); end
+
+  def makedirs(*args, &block); end
+
+  def mkdir(*args, &block); end
+
+  def mkdir_p(*args, &block); end
+
+  def mkpath(*args, &block); end
+
+  def move(*args, &block); end
+
+  def mv(*args, &block); end
+
+  def nowrite(value=T.unsafe(nil)); end
+
+  def rake_check_options(options, *optdecl); end
+
+  def rake_merge_option(args, defaults); end
+
+  def rake_output_message(message); end
+
+  def remove(*args, &block); end
+
+  def rm(*args, &block); end
+
+  def rm_f(*args, &block); end
+
+  def rm_r(*args, &block); end
+
+  def rm_rf(*args, &block); end
+
+  def rmdir(*args, &block); end
+
+  def rmtree(*args, &block); end
+
+  def ruby(*args, &block); end
+
+  def safe_unlink(*args, &block); end
+
+  def sh(*args, &block); end
+
+  def symlink(*args, &block); end
+
+  def touch(*args, &block); end
+
+  def verbose(value=T.unsafe(nil)); end
+
+  def when_writing(msg=T.unsafe(nil)); end
   DEFAULT = ::T.let(nil, ::T.untyped)
 end
 
 module Rake::FileUtilsExt
+  extend ::Rake::FileUtilsExt
+  extend ::FileUtils
   extend ::FileUtils::StreamUtils_
   extend ::T::Sig
+  def self.nowrite_flag(); end
+
+  def self.nowrite_flag=(nowrite_flag); end
+
+  def self.verbose_flag(); end
+
+  def self.verbose_flag=(verbose_flag); end
 end
 
 class Rake::InvocationChain
+  def append(invocation); end
+
+  def member?(invocation); end
   EMPTY = ::T.let(nil, ::T.untyped)
+end
+
+class Rake::InvocationChain::EmptyInvocationChain
+  def append(invocation); end
+
+  def member?(obj); end
+end
+
+class Rake::InvocationChain::EmptyInvocationChain
+end
+
+class Rake::InvocationChain
+  def self.append(invocation, chain); end
+end
+
+module Rake::InvocationExceptionMixin
+  def chain(); end
+
+  def chain=(value); end
 end
 
 module Rake::InvocationExceptionMixin
   extend ::T::Sig
 end
 
+class Rake::LateTime
+  include ::Comparable
+  include ::Singleton
+end
+
+class Rake::LateTime
+  extend ::Singleton::SingletonClassMethods
+  def self.instance(); end
+end
+
 class Rake::LinkedList
+  include ::Enumerable
+  def ==(other); end
+
+  def conj(item); end
+
+  def each(&blk); end
+
+  def empty?(); end
+
+  def head(); end
+
+  def initialize(head, tail=T.unsafe(nil)); end
+
+  def tail(); end
   EMPTY = ::T.let(nil, ::T.untyped)
+end
+
+class Rake::LinkedList::EmptyLinkedList
+  def initialize(); end
+end
+
+class Rake::LinkedList::EmptyLinkedList
+end
+
+class Rake::LinkedList
+  def self.cons(head, tail); end
+
+  def self.empty(); end
+
+  def self.make(*args); end
+end
+
+class Rake::MultiTask
+end
+
+class Rake::MultiTask
+end
+
+class Rake::NameSpace
+  def [](name); end
+
+  def initialize(task_manager, scope_list); end
+
+  def scope(); end
+
+  def tasks(); end
+end
+
+class Rake::NameSpace
+end
+
+module Rake::PrivateReader
+end
+
+module Rake::PrivateReader::ClassMethods
+  def private_reader(*names); end
 end
 
 module Rake::PrivateReader::ClassMethods
@@ -10780,14 +19761,198 @@ end
 
 module Rake::PrivateReader
   extend ::T::Sig
+  def self.included(base); end
 end
 
 class Rake::Promise
+  def initialize(args, &block); end
+
+  def recorder(); end
+
+  def recorder=(recorder); end
+
+  def value(); end
+
+  def work(); end
   NOT_SET = ::T.let(nil, ::T.untyped)
 end
 
+class Rake::Promise
+end
+
+class Rake::PseudoStatus
+  def >>(n); end
+
+  def exited?(); end
+
+  def exitstatus(); end
+
+  def initialize(code=T.unsafe(nil)); end
+
+  def stopped?(); end
+
+  def to_i(); end
+end
+
+class Rake::PseudoStatus
+end
+
+class Rake::RuleRecursionOverflowError
+  def add_target(target); end
+
+  def initialize(*args); end
+end
+
+class Rake::RuleRecursionOverflowError
+end
+
 class Rake::Scope
+  def path(); end
+
+  def path_with_task_name(task_name); end
+
+  def trim(n); end
   EMPTY = ::T.let(nil, ::T.untyped)
+end
+
+class Rake::Scope::EmptyScope
+  def path(); end
+
+  def path_with_task_name(task_name); end
+end
+
+class Rake::Scope::EmptyScope
+end
+
+class Rake::Scope
+end
+
+class Rake::Task
+  def actions(); end
+
+  def add_description(description); end
+
+  def all_prerequisite_tasks(); end
+
+  def application(); end
+
+  def application=(application); end
+
+  def arg_description(); end
+
+  def arg_names(); end
+
+  def clear(); end
+
+  def clear_actions(); end
+
+  def clear_comments(); end
+
+  def clear_prerequisites(); end
+
+  def collect_prerequisites(seen); end
+
+  def comment(); end
+
+  def comment=(comment); end
+
+  def enhance(deps=T.unsafe(nil), &block); end
+
+  def execute(args=T.unsafe(nil)); end
+
+  def full_comment(); end
+
+  def initialize(task_name, app); end
+
+  def investigation(); end
+
+  def invoke(*args); end
+
+  def invoke_prerequisites(task_args, invocation_chain); end
+
+  def invoke_prerequisites_concurrently(task_args, invocation_chain); end
+
+  def invoke_with_call_chain(task_args, invocation_chain); end
+
+  def locations(); end
+
+  def name(); end
+
+  def name_with_args(); end
+
+  def needed?(); end
+
+  def prerequisite_tasks(); end
+
+  def prerequisites(); end
+
+  def reenable(); end
+
+  def scope(); end
+
+  def set_arg_names(args); end
+
+  def source(); end
+
+  def sources(); end
+
+  def sources=(sources); end
+
+  def timestamp(); end
+end
+
+class Rake::Task
+  def self.[](task_name); end
+
+  def self.clear(); end
+
+  def self.create_rule(*args, &block); end
+
+  def self.define_task(*args, &block); end
+
+  def self.scope_name(scope, task_name); end
+
+  def self.task_defined?(task_name); end
+
+  def self.tasks(); end
+end
+
+class Rake::TaskArgumentError
+end
+
+class Rake::TaskArgumentError
+end
+
+class Rake::TaskArguments
+  include ::Enumerable
+  def [](index); end
+
+  def each(&block); end
+
+  def extras(); end
+
+  def has_key?(key); end
+
+  def initialize(names, values, parent=T.unsafe(nil)); end
+
+  def lookup(name); end
+
+  def method_missing(sym, *args); end
+
+  def names(); end
+
+  def new_scope(names); end
+
+  def to_a(); end
+
+  def to_hash(); end
+
+  def values_at(*keys); end
+
+  def with_defaults(defaults); end
+end
+
+class Rake::TaskArguments
 end
 
 class Rake::TaskLib
@@ -10803,7 +19968,78 @@ class Rake::TaskLib
 end
 
 module Rake::TaskManager
+  def [](task_name, scopes=T.unsafe(nil)); end
+
+  def clear(); end
+
+  def create_rule(*args, &block); end
+
+  def current_scope(); end
+
+  def define_task(task_class, *args, &block); end
+
+  def enhance_with_matching_rule(task_name, level=T.unsafe(nil)); end
+
+  def in_namespace(name); end
+
+  def initialize(); end
+
+  def intern(task_class, task_name); end
+
+  def last_comment(); end
+
+  def last_description(); end
+
+  def last_description=(last_description); end
+
+  def lookup(task_name, initial_scope=T.unsafe(nil)); end
+
+  def resolve_args(args); end
+
+  def synthesize_file_task(task_name); end
+
+  def tasks(); end
+
+  def tasks_in_scope(scope); end
+end
+
+module Rake::TaskManager
   extend ::T::Sig
+  def self.record_task_metadata(); end
+
+  def self.record_task_metadata=(record_task_metadata); end
+end
+
+class Rake::ThreadHistoryDisplay
+  include ::Rake::PrivateReader
+  def initialize(stats); end
+
+  def show(); end
+end
+
+class Rake::ThreadHistoryDisplay
+  extend ::Rake::PrivateReader::ClassMethods
+end
+
+class Rake::ThreadPool
+  def future(*args, &block); end
+
+  def gather_history(); end
+
+  def history(); end
+
+  def initialize(thread_count); end
+
+  def join(); end
+
+  def statistics(); end
+end
+
+class Rake::ThreadPool
+end
+
+module Rake::TraceOutput
+  def trace_on(out, *strings); end
 end
 
 module Rake::TraceOutput
@@ -10823,12 +20059,45 @@ module Rake::Version
 end
 
 module Rake::Win32
+end
+
+class Rake::Win32::Win32HomeError
+end
+
+class Rake::Win32::Win32HomeError
+end
+
+module Rake::Win32
   extend ::T::Sig
+  def self.normalize(path); end
+
+  def self.rake_system(*cmd); end
+
+  def self.win32_system_dir(); end
+
+  def self.windows?(); end
 end
 
 module Rake
+  extend ::Rake::FileUtilsExt
+  extend ::FileUtils
   extend ::FileUtils::StreamUtils_
   extend ::T::Sig
+  def self.add_rakelib(*files); end
+
+  def self.application(); end
+
+  def self.application=(app); end
+
+  def self.each_dir_parent(dir); end
+
+  def self.from_pathname(path); end
+
+  def self.load_rakefile(path); end
+
+  def self.original_dir(); end
+
+  def self.suggested_thread_count(); end
 end
 
 RakeFileUtils = Rake::FileUtilsExt
@@ -11071,8 +20340,90 @@ module SimpleCov
   VERSION = ::T.let(nil, ::T.untyped)
 end
 
+class SimpleCov::ArrayFilter
+  def matches?(source_files_list); end
+end
+
+class SimpleCov::ArrayFilter
+end
+
+class SimpleCov::BlockFilter
+  def matches?(source_file); end
+end
+
+class SimpleCov::BlockFilter
+end
+
+module SimpleCov::CommandGuesser
+end
+
 module SimpleCov::CommandGuesser
   extend ::T::Sig
+  def self.guess(); end
+
+  def self.original_run_command(); end
+
+  def self.original_run_command=(original_run_command); end
+end
+
+module SimpleCov::Configuration
+  def adapters(); end
+
+  def add_filter(filter_argument=T.unsafe(nil), &filter_proc); end
+
+  def add_group(group_name, filter_argument=T.unsafe(nil), &filter_proc); end
+
+  def at_exit(&block); end
+
+  def command_name(name=T.unsafe(nil)); end
+
+  def configure(&block); end
+
+  def coverage_dir(dir=T.unsafe(nil)); end
+
+  def coverage_path(); end
+
+  def filters(); end
+
+  def filters=(filters); end
+
+  def formatter(formatter=T.unsafe(nil)); end
+
+  def formatter=(formatter); end
+
+  def formatters(); end
+
+  def formatters=(formatters); end
+
+  def groups(); end
+
+  def groups=(groups); end
+
+  def maximum_coverage_drop(coverage_drop=T.unsafe(nil)); end
+
+  def merge_timeout(seconds=T.unsafe(nil)); end
+
+  def minimum_coverage(coverage=T.unsafe(nil)); end
+
+  def minimum_coverage_by_file(coverage=T.unsafe(nil)); end
+
+  def nocov_token(nocov_token=T.unsafe(nil)); end
+
+  def profiles(); end
+
+  def project_name(new_name=T.unsafe(nil)); end
+
+  def refuse_coverage_drop(); end
+
+  def root(root=T.unsafe(nil)); end
+
+  def skip_token(nocov_token=T.unsafe(nil)); end
+
+  def track_files(glob); end
+
+  def tracked_files(); end
+
+  def use_merging(use=T.unsafe(nil)); end
 end
 
 module SimpleCov::Configuration
@@ -11090,12 +20441,80 @@ module SimpleCov::ExitCodes
   extend ::T::Sig
 end
 
+class SimpleCov::FileList
+  def covered_lines(); end
+
+  def covered_percent(); end
+
+  def covered_percentages(); end
+
+  def covered_strength(); end
+
+  def least_covered_file(); end
+
+  def lines_of_code(); end
+
+  def missed_lines(); end
+
+  def never_lines(); end
+
+  def skipped_lines(); end
+end
+
+class SimpleCov::FileList
+end
+
+class SimpleCov::Filter
+  def filter_argument(); end
+
+  def initialize(filter_argument); end
+
+  def matches?(_); end
+
+  def passes?(source_file); end
+end
+
+class SimpleCov::Filter
+  def self.build_filter(filter_argument); end
+
+  def self.class_for_argument(filter_argument); end
+end
+
+module SimpleCov::Formatter
+end
+
 class SimpleCov::Formatter::HTMLFormatter
+  def format(result); end
+
+  def output_message(result); end
   VERSION = ::T.let(nil, ::T.untyped)
+end
+
+class SimpleCov::Formatter::HTMLFormatter
+end
+
+class SimpleCov::Formatter::MultiFormatter
+end
+
+module SimpleCov::Formatter::MultiFormatter::InstanceMethods
+  def format(result); end
 end
 
 module SimpleCov::Formatter::MultiFormatter::InstanceMethods
   extend ::T::Sig
+end
+
+class SimpleCov::Formatter::MultiFormatter
+  def self.[](*args); end
+
+  def self.new(formatters=T.unsafe(nil)); end
+end
+
+class SimpleCov::Formatter::SimpleFormatter
+  def format(result); end
+end
+
+class SimpleCov::Formatter::SimpleFormatter
 end
 
 module SimpleCov::Formatter
@@ -11103,10 +20522,19 @@ module SimpleCov::Formatter
 end
 
 module SimpleCov::LastRun
+end
+
+module SimpleCov::LastRun
   extend ::T::Sig
+  def self.last_run_path(); end
+
+  def self.read(); end
+
+  def self.write(json); end
 end
 
 class SimpleCov::LinesClassifier
+  def classify(lines); end
   COMMENT_LINE = ::T.let(nil, ::T.untyped)
   NOT_RELEVANT = ::T.let(nil, ::T.untyped)
   RELEVANT = ::T.let(nil, ::T.untyped)
@@ -11114,16 +20542,252 @@ class SimpleCov::LinesClassifier
   WHITESPACE_OR_COMMENT_LINE = ::T.let(nil, ::T.untyped)
 end
 
+class SimpleCov::LinesClassifier
+  def self.no_cov_line(); end
+
+  def self.no_cov_line?(line); end
+
+  def self.whitespace_line?(line); end
+end
+
+class SimpleCov::Profiles
+  def define(name, &blk); end
+
+  def load(name); end
+end
+
+class SimpleCov::Profiles
+end
+
+module SimpleCov::RawCoverage
+end
+
 module SimpleCov::RawCoverage
   extend ::T::Sig
+  def self.merge_file_coverage(file1, file2); end
+
+  def self.merge_line_coverage(count1, count2); end
+
+  def self.merge_results(*results); end
+
+  def self.merge_resultsets(result1, result2); end
+end
+
+class SimpleCov::RegexFilter
+  def matches?(source_file); end
+end
+
+class SimpleCov::RegexFilter
+end
+
+class SimpleCov::Result
+  def command_name(); end
+
+  def command_name=(command_name); end
+
+  def covered_lines(*args, &block); end
+
+  def covered_percent(*args, &block); end
+
+  def covered_percentages(*args, &block); end
+
+  def covered_strength(*args, &block); end
+
+  def created_at(); end
+
+  def created_at=(created_at); end
+
+  def filenames(); end
+
+  def files(); end
+
+  def format!(); end
+
+  def groups(); end
+
+  def initialize(original_result); end
+
+  def least_covered_file(*args, &block); end
+
+  def missed_lines(*args, &block); end
+
+  def original_result(); end
+
+  def source_files(); end
+
+  def to_hash(); end
+
+  def total_lines(*args, &block); end
+end
+
+class SimpleCov::Result
+  extend ::Forwardable
+  def self.from_hash(hash); end
+end
+
+module SimpleCov::ResultMerger
 end
 
 module SimpleCov::ResultMerger
   extend ::T::Sig
+  def self.clear_resultset(); end
+
+  def self.merge_results(*results); end
+
+  def self.merged_result(); end
+
+  def self.results(); end
+
+  def self.resultset(); end
+
+  def self.resultset_path(); end
+
+  def self.resultset_writelock(); end
+
+  def self.store_result(result); end
+
+  def self.stored_data(); end
+
+  def self.synchronize_resultset(); end
+end
+
+class SimpleCov::SourceFile
+  def build_lines(); end
+
+  def coverage(); end
+
+  def coverage_exceeding_source_warn(); end
+
+  def covered_lines(); end
+
+  def covered_percent(); end
+
+  def covered_strength(); end
+
+  def filename(); end
+
+  def initialize(filename, coverage); end
+
+  def line(number); end
+
+  def lines(); end
+
+  def lines_of_code(); end
+
+  def lines_strength(); end
+
+  def missed_lines(); end
+
+  def never_lines(); end
+
+  def no_lines?(); end
+
+  def process_skipped_lines(lines); end
+
+  def project_filename(); end
+
+  def relevant_lines(); end
+
+  def skipped_lines(); end
+
+  def source(); end
+
+  def source_lines(); end
+
+  def src(); end
+end
+
+class SimpleCov::SourceFile::Line
+  def coverage(); end
+
+  def covered?(); end
+
+  def initialize(src, line_number, coverage); end
+
+  def line(); end
+
+  def line_number(); end
+
+  def missed?(); end
+
+  def never?(); end
+
+  def number(); end
+
+  def skipped(); end
+
+  def skipped!(); end
+
+  def skipped?(); end
+
+  def source(); end
+
+  def src(); end
+
+  def status(); end
+end
+
+class SimpleCov::SourceFile::Line
+end
+
+class SimpleCov::SourceFile
+end
+
+class SimpleCov::StringFilter
+  def matches?(source_file); end
+end
+
+class SimpleCov::StringFilter
 end
 
 module SimpleCov
+  extend ::SimpleCov::Configuration
   extend ::T::Sig
+  def self.add_not_loaded_files(result); end
+
+  def self.clear_result(); end
+
+  def self.exit_exception(); end
+
+  def self.exit_status_from_exception(); end
+
+  def self.filtered(files); end
+
+  def self.final_result_process?(); end
+
+  def self.grouped(files); end
+
+  def self.load_adapter(name); end
+
+  def self.load_profile(name); end
+
+  def self.pid(); end
+
+  def self.pid=(pid); end
+
+  def self.process_result(result, exit_status); end
+
+  def self.result(); end
+
+  def self.result?(); end
+
+  def self.result_exit_status(result, covered_percent); end
+
+  def self.run_exit_tasks!(); end
+
+  def self.running(); end
+
+  def self.running=(running); end
+
+  def self.set_exit_exception(); end
+
+  def self.start(profile=T.unsafe(nil), &block); end
+
+  def self.usable?(); end
+
+  def self.wait_for_other_processes(); end
+
+  def self.write_last_run(covered_percent); end
 end
 
 class SimpleDelegator
@@ -11589,6 +21253,9 @@ module Sord::Logging
   extend ::T::Sig
 end
 
+class Sord::ParlourPlugin
+end
+
 module Sord::Resolver
   extend ::T::Sig
 end
@@ -11646,9 +21313,21 @@ class String
 
   def encode!(*_); end
 
+  def ext(newext=T.unsafe(nil)); end
+
   def grapheme_clusters(); end
 
+  def pathmap(spec=T.unsafe(nil), &block); end
+
+  def pathmap_explode(); end
+
+  def pathmap_partial(n); end
+
+  def pathmap_replace(patterns, &block); end
+
   def reverse!(); end
+
+  def shell_split(); end
 
   def shellescape(); end
 
@@ -11832,6 +21511,30 @@ end
 
 class Symbol
   extend ::T::Sig
+end
+
+class SymbolHash
+  def [](key); end
+
+  def []=(key, value); end
+
+  def delete(key); end
+
+  def has_key?(key); end
+
+  def initialize(symbolize_value=T.unsafe(nil)); end
+
+  def key?(key); end
+
+  def merge(hash); end
+
+  def merge!(hash); end
+
+  def update(hash); end
+end
+
+class SymbolHash
+  def self.[](*hsh); end
 end
 
 class SyntaxError
@@ -12498,6 +22201,25 @@ module YARD
   VERSION = ::T.let(nil, ::T.untyped)
 end
 
+module YARD::CLI
+end
+
+class YARD::CLI::Command
+  def common_options(opts); end
+
+  def description(); end
+
+  def load_script(file); end
+
+  def parse_options(opts, args); end
+
+  def unrecognized_option(err); end
+end
+
+class YARD::CLI::Command
+  def self.run(*args); end
+end
+
 class YARD::CLI::CommandParser
   def run(*args); end
 end
@@ -12688,8 +22410,130 @@ end
 class YARD::CLI::YRI
 end
 
+class YARD::CLI::Yardoc
+  def all_objects(); end
+
+  def apis(); end
+
+  def apis=(apis); end
+
+  def assets(); end
+
+  def assets=(assets); end
+
+  def excluded(); end
+
+  def excluded=(excluded); end
+
+  def fail_on_warning(); end
+
+  def fail_on_warning=(fail_on_warning); end
+
+  def files(); end
+
+  def files=(files); end
+
+  def generate(); end
+
+  def generate=(generate); end
+
+  def has_markup(); end
+
+  def has_markup=(has_markup); end
+
+  def hidden_apis(); end
+
+  def hidden_apis=(hidden_apis); end
+
+  def hidden_tags(); end
+
+  def hidden_tags=(hidden_tags); end
+
+  def list(); end
+
+  def list=(list); end
+
+  def options(); end
+
+  def run(*args); end
+
+  def save_yardoc(); end
+
+  def save_yardoc=(save_yardoc); end
+
+  def statistics(); end
+
+  def statistics=(statistics); end
+
+  def use_cache(); end
+
+  def use_cache=(use_cache); end
+
+  def visibilities(); end
+
+  def visibilities=(visibilities); end
+end
+
+class YARD::CLI::Yardoc
+end
+
+class YARD::CLI::YardocOptions
+  def file(); end
+
+  def file=(file); end
+
+  def files(); end
+
+  def files=(files); end
+
+  def item(); end
+
+  def item=(item); end
+
+  def locale(); end
+
+  def locale=(locale); end
+
+  def objects(); end
+
+  def objects=(objects); end
+
+  def onefile(); end
+
+  def onefile=(onefile); end
+
+  def readme(); end
+
+  def readme=(readme); end
+
+  def title(); end
+
+  def title=(title); end
+end
+
+class YARD::CLI::YardocOptions
+end
+
 class YARD::CLI::YardoptsCommand
+  def options_file(); end
+
+  def options_file=(options_file); end
+
+  def parse_arguments(*args); end
+
+  def use_document_file(); end
+
+  def use_document_file=(use_document_file); end
+
+  def use_yardopts_file(); end
+
+  def use_yardopts_file=(use_yardopts_file); end
+
+  def yardopts_options(opts); end
   DEFAULT_YARDOPTS_FILE = ::T.let(nil, ::T.untyped)
+end
+
+class YARD::CLI::YardoptsCommand
 end
 
 module YARD::CLI
@@ -13126,6 +22970,42 @@ class YARD::Config
   YARD_PLUGIN_PREFIX = ::T.let(nil, ::T.untyped)
 end
 
+class YARD::Config
+  def self.add_ignored_plugins_file(); end
+
+  def self.arguments(); end
+
+  def self.load(); end
+
+  def self.load_autoload_plugins(); end
+
+  def self.load_commandline_plugins(); end
+
+  def self.load_commandline_safemode(); end
+
+  def self.load_gem_plugins(); end
+
+  def self.load_plugin(name); end
+
+  def self.load_plugin_failed(name, exception); end
+
+  def self.load_plugins(); end
+
+  def self.options(); end
+
+  def self.options=(options); end
+
+  def self.read_config_file(); end
+
+  def self.save(); end
+
+  def self.translate_plugin_name(name); end
+
+  def self.translate_plugin_names(); end
+
+  def self.with_yardopts(); end
+end
+
 class YARD::Docstring
   def +(other); end
 
@@ -13260,6 +23140,9 @@ module YARD::GemIndex
   def self.find_all_by_name(*args); end
 end
 
+module YARD::Handlers
+end
+
 class YARD::Handlers::Base
   include ::YARD::CodeObjects
   include ::YARD::Parser
@@ -13346,6 +23229,9 @@ class YARD::Handlers::Base
   def self.process(&block); end
 
   def self.subclasses(); end
+end
+
+module YARD::Handlers::C
 end
 
 class YARD::Handlers::C::AliasHandler
@@ -13487,6 +23373,9 @@ module YARD::Handlers::C
   extend ::T::Sig
 end
 
+module YARD::Handlers::Common
+end
+
 module YARD::Handlers::Common::MethodHandler
   def add_predicate_return_tag(obj); end
 end
@@ -13562,6 +23451,9 @@ class YARD::Handlers::Processor
   def self.namespace_for_handler(); end
 
   def self.register_handler_namespace(type, ns); end
+end
+
+module YARD::Handlers::Ruby
 end
 
 class YARD::Handlers::Ruby::AliasHandler
@@ -13666,6 +23558,9 @@ class YARD::Handlers::Ruby::ExtendHandler
 end
 
 class YARD::Handlers::Ruby::ExtendHandler
+end
+
+module YARD::Handlers::Ruby::Legacy
 end
 
 class YARD::Handlers::Ruby::Legacy::AliasHandler
@@ -13902,6 +23797,9 @@ module YARD::Handlers
   extend ::T::Sig
 end
 
+module YARD::I18n
+end
+
 class YARD::I18n::Locale
   def initialize(name); end
 
@@ -14030,6 +23928,35 @@ class YARD::Logger
   def self.instance(pipe=T.unsafe(nil)); end
 end
 
+class YARD::Options
+  def ==(other); end
+
+  def [](key); end
+
+  def []=(key, value); end
+
+  def delete(key); end
+
+  def each(&blk); end
+
+  def merge(opts); end
+
+  def method_missing(meth, *args, &block); end
+
+  def reset_defaults(); end
+
+  def to_hash(); end
+
+  def update(opts); end
+end
+
+class YARD::Options
+  def self.default_attr(key, default); end
+end
+
+module YARD::Parser
+end
+
 class YARD::Parser::Base
   def enumerator(); end
 
@@ -14042,6 +23969,9 @@ end
 
 class YARD::Parser::Base
   def self.parse(source, filename=T.unsafe(nil)); end
+end
+
+module YARD::Parser::C
 end
 
 module YARD::Parser::C
@@ -14170,6 +24100,9 @@ end
 
 module YARD::Parser
   extend ::T::Sig
+end
+
+module YARD::Rake
 end
 
 class YARD::Rake::YardocTask
@@ -14350,6 +24283,9 @@ end
 class YARD::RegistryStore
 end
 
+module YARD::Serializers
+end
+
 class YARD::Serializers::Base
   def after_serialize(data); end
 
@@ -14433,6 +24369,9 @@ module YARD::Serializers
   extend ::T::Sig
 end
 
+module YARD::Server
+end
+
 class YARD::Server::Adapter
   def add_library(library); end
 
@@ -14465,6 +24404,9 @@ class YARD::Server::Adapter
   def self.setup(); end
 
   def self.shutdown(); end
+end
+
+module YARD::Server::Commands
 end
 
 class YARD::Server::Commands::Base
@@ -14808,6 +24750,7 @@ end
 
 module YARD::Server
   extend ::T::Sig
+  def self.register_static_path(path); end
 end
 
 class YARD::StubProxy
@@ -14821,6 +24764,9 @@ end
 
 class YARD::StubProxy
   def self._load(str); end
+end
+
+module YARD::Tags
 end
 
 class YARD::Tags::AttributeDirective
@@ -15230,6 +25176,9 @@ module YARD::Tags
   extend ::T::Sig
 end
 
+module YARD::Templates
+end
+
 module YARD::Templates::Engine
 end
 
@@ -15260,6 +25209,9 @@ module YARD::Templates::ErbCache
   def self.clear!(); end
 
   def self.method_for(filename); end
+end
+
+module YARD::Templates::Helpers
 end
 
 module YARD::Templates::Helpers::BaseHelper
@@ -15411,6 +25363,9 @@ end
 
 module YARD::Templates::Helpers::HtmlSyntaxHighlightHelper
   extend ::T::Sig
+end
+
+module YARD::Templates::Helpers::Markup
 end
 
 class YARD::Templates::Helpers::Markup::RDocMarkdown
@@ -16518,6 +26473,87 @@ module YARD::Templates::Template
   def self.included(klass); end
 end
 
+class YARD::Templates::TemplateOptions
+  def __globals(); end
+
+  def default_return(); end
+
+  def default_return=(default_return); end
+
+  def embed_mixins(); end
+
+  def embed_mixins=(embed_mixins); end
+
+  def embed_mixins_match?(mixin); end
+
+  def format(); end
+
+  def format=(format); end
+
+  def globals(); end
+
+  def globals=(globals); end
+
+  def hide_void_return(); end
+
+  def hide_void_return=(hide_void_return); end
+
+  def highlight(); end
+
+  def highlight=(highlight); end
+
+  def index(); end
+
+  def index=(index); end
+
+  def markup(); end
+
+  def markup=(markup); end
+
+  def markup_provider(); end
+
+  def markup_provider=(markup_provider); end
+
+  def no_highlight(); end
+
+  def no_highlight=(value); end
+
+  def object(); end
+
+  def object=(object); end
+
+  def owner(); end
+
+  def owner=(owner); end
+
+  def page_title(); end
+
+  def page_title=(page_title); end
+
+  def serialize(); end
+
+  def serialize=(serialize); end
+
+  def serializer(); end
+
+  def serializer=(serializer); end
+
+  def template(); end
+
+  def template=(template); end
+
+  def type(); end
+
+  def type=(type); end
+
+  def verifier(); end
+
+  def verifier=(verifier); end
+end
+
+class YARD::Templates::TemplateOptions
+end
+
 module YARD::Templates
   extend ::T::Sig
 end
@@ -16548,6 +26584,19 @@ end
 
 module YARD
   extend ::T::Sig
+  def self.load_plugins(); end
+
+  def self.parse(*args); end
+
+  def self.parse_string(*args); end
+
+  def self.ruby18?(); end
+
+  def self.ruby19?(); end
+
+  def self.ruby2?(); end
+
+  def self.windows?(); end
 end
 
 class ZeroDivisionError
