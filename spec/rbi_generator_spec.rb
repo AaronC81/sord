@@ -5,6 +5,7 @@ describe Sord::RbiGenerator do
   before do
     YARD::Registry.clear
     Sord::Logging.silent = true
+    YARD::Logger.instance.level = Logger::ERROR
   end
 
   subject do
