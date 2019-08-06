@@ -339,6 +339,30 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
+  it 'does not attempt inference when there is no setter type' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        def x; end
+
+        def x=(value); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD return type given, using T.untyped
+        sig { returns(T.untyped) }
+        def x; end
+
+        # sord omit - no YARD type given for "value", using T.untyped
+        # sord omit - no YARD return type given, using T.untyped
+        sig { params(value: T.untyped).returns(T.untyped) }
+        def x=(value); end
+      end
+    RUBY
+  end
+
   it 'infers one missing argument name in standard methods' do
     YARD.parse_string(<<-RUBY)
       module A

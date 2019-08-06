@@ -158,8 +158,13 @@ module Sord
               end
             end
 
+            return_types = getter.tags('return').flat_map(&:types)
+            unless return_types.any?
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+              next 'T.untyped'
+            end
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
             inferred_type
