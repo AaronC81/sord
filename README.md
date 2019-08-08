@@ -116,9 +116,13 @@ The `test.rbi` file then contains a complete RBI file for `test.rb`:
 # typed: strong
 module Example
   class Person
+    # @param [String] name
+    # @param [Integer] age
+    # @return [Example::Person]
     sig { params(name: String, age: Integer).returns(Example::Person) }
     def initialize(name, age); end
 
+    # @return [String] name
     sig { returns(String) }
     def name(); end
 
@@ -126,6 +130,7 @@ module Example
     sig { params(value: String).returns(String) }
     def name=(value); end
 
+    # @return [Integer] age
     sig { returns(Integer) }
     def age(); end
 
@@ -133,6 +138,9 @@ module Example
     sig { params(value: Integer).returns(Integer) }
     def age=(value); end
 
+    # @param [Array<String>] possible_names
+    # @param [Array<Integer>] possible_ages
+    # @return [Example::Person]
     sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
     def self.construct_randomly(possible_names, possible_ages); end
   end
