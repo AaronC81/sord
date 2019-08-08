@@ -88,7 +88,9 @@ module Sord
         constant_name = constant.to_s.split('::').last
         
         # Add the constant to the current object being generated.
-        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)")
+        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
+          c.add_comments(constant.docstring.all.split("\n"))
+        end
       end
     end
 
@@ -214,7 +216,9 @@ module Sord
           parameters: parlour_params,
           returns: returns,
           class_method: meth.scope == :class
-        )
+        ) do |m|
+          m.add_comments(meth.docstring.all.split("\n"))
+        end
       end
     end
 
@@ -232,6 +236,7 @@ module Sord
       @current_object = item.type == :class \
         ? parent.create_class(item.name.to_s, superclass: superclass)
         : parent.create_module(item.name.to_s)
+      @current_object.add_comments(item.docstring.all.split("\n"))
 
       add_mixins(item)
       add_methods(item)
