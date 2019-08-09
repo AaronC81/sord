@@ -11,7 +11,7 @@ describe Sord::RbiGenerator do
   subject do
     # Create an unnamed class to emulate everything required in "options"
     Sord::RbiGenerator.new(
-      comments: true,
+      sord_comments: true,
       break_params: 4,
       replace_errors_with_untyped: false,
       replace_unresolved_with_untyped: false
@@ -80,12 +80,15 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         class B
+          # @return [Integer]
           sig { returns(Integer) }
           def foo; end
         end
 
         module C
           class D
+            # @param [String] x
+            # @return [void]
             sig { params(x: String).void }
             def bar(x); end
           end
@@ -243,6 +246,11 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # @param [String] x
+        # @return [Boolean]
+        # @yieldparam [Integer] a
+        # @yieldparam [Float] b
+        # @yieldreturn [Boolean] c
         sig { params(x: String, blk: T.proc.params(a: Integer, b: Float).returns(T::Boolean)).returns(T::Boolean) }
         def foo(x, &blk); end
       end
@@ -262,6 +270,9 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # @yieldparam [Symbol] foo
+        # @yieldreturn [void]
+        # @return [void]
         sig { params(blk: T.proc.params(foo: Symbol).void).void }
         def self.foo(&blk); end
       end
@@ -281,6 +292,9 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # @param [Integer] x
+        # @param [Array<String>] y
+        # @return [void]
         sig { params(x: Integer, y: T::Array[String]).void }
         def foo(x, *y); end
       end
@@ -302,6 +316,11 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # @param [Integer] a
+        # @param [String] b
+        # @param [Float] c
+        # @param [Object] d
+        # @return [void]
         sig do
           params(
             a: Integer,
@@ -328,12 +347,37 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # @return [Integer]
         sig { returns(Integer) }
         def x; end
 
         # sord infer - inferred type of parameter "value" as Integer using getter's return type
         # sord omit - no YARD return type given, using T.untyped
         sig { params(value: Integer).returns(T.untyped) }
+        def x=(value); end
+      end
+    RUBY
+  end
+
+  it 'does not attempt inference when there is no setter type' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        def x; end
+
+        def x=(value); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD return type given, using T.untyped
+        sig { returns(T.untyped) }
+        def x; end
+
+        # sord omit - no YARD type given for "value", using T.untyped
+        # sord omit - no YARD return type given, using T.untyped
+        sig { params(value: T.untyped).returns(T.untyped) }
         def x=(value); end
       end
     RUBY
@@ -352,6 +396,8 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         # sord infer - argument name in single @param inferred as "a"
+        # @param [String]
+        # @return [void]
         sig { params(a: String).void }
         def x(a); end
       end
@@ -371,6 +417,8 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         # sord infer - argument name in single @param inferred as "value"
+        # @param [String]
+        # @return [String]
         sig { params(value: String).returns(String) }
         def x=(value); end
       end
@@ -393,6 +441,10 @@ describe Sord::RbiGenerator do
       module A
         # sord omit - no YARD type given for "a", using T.untyped
         # sord omit - no YARD type given for "c", using T.untyped
+        # @param [String] 
+        # @param [Integer] b
+        # @param [Boolean]
+        # @return [void]
         sig { params(a: T.untyped, b: Integer, c: T.untyped).void }
         def x(a, b, c); end
       end
@@ -415,11 +467,13 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # @return [void]
         sig { void }
         def x; end
       end
 
       class B < A
+        # @return [void]
         sig { void }
         def y; end
       end
@@ -447,12 +501,18 @@ describe Sord::RbiGenerator do
       # typed: strong
       class A
         # sord omit - no YARD type given for "b:", using T.untyped
+        # @param [String] a
+        # @return [void]
         sig { params(a: T.nilable(String), b: T.untyped).void }
         def x(a: nil, b: nil); end
 
+        # @param [String] a
+        # @return [void]
         sig { params(a: T.nilable(String)).void }
         def y(a = nil); end
 
+        # @param [String, nil] a
+        # @return [void]
         sig { params(a: T.nilable(String)).void }
         def z(a = nil); end
       end
@@ -474,6 +534,11 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # @param [String] a
+        # @param [String] b
+        # @param [String] c
+        # @param [String] d
+        # @return [void]
         sig do
           params(
             a: String,
@@ -504,6 +569,13 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # @param [Array] array
+        # @param [Hash] hash
+        # @param [Range] range
+        # @param [Set] set
+        # @param [Enumerator] enumerator
+        # @param [Enumerable] enumerable
+        # @return [void]
         sig do
           params(
             array: T::Array[T.untyped],
@@ -542,6 +614,7 @@ describe Sord::RbiGenerator do
       end
       
       class A < Alphabet::Letters
+        # @return [void]
         sig { void }
         def x; end
       end

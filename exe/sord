@@ -11,7 +11,7 @@ default_command :gen
 command :gen do |c|
   c.syntax = 'sord gen <output-file> [options]'
   c.description = 'Generates an RBI file from this directory\'s YARD docs'
-  c.option '--[no-]comments', 'Controls informational/warning comments in the RBI file'
+  c.option '--[no-]sord-comments', 'Controls informational/warning comments in the RBI file'
   c.option '--[no-]regenerate', 'Controls whether YARD is executed before Sord runs'
   c.option '--break-params INTEGER', Integer, 'Break params onto their own lines if there are this many'
   c.option '--replace-errors-with-untyped', 'Uses T.untyped rather than SORD_ERROR_ constants'
@@ -21,7 +21,7 @@ command :gen do |c|
 
   c.action do |args, options|
     options.default(
-      comments: true,
+      sord_comments: true,
       regenerate: true,
       break_params: 4,
       replace_errors_with_untyped: false,

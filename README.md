@@ -52,8 +52,9 @@ where the maintainer is unwilling to ship type signatures with the gem itself.
 
 Sord also takes some flags to alter the generated `.rbi` file:
 
-  - `--no-comments`: Generates the `.rbi` file without any comments about
-    warnings/inferences/errors.
+  - `--no-sord-comments`: Generates the `.rbi` file without any Sord comments 
+    about warnings/inferences/errors. (The original file's comments will still
+    be included.)
   - `--no-regenerate`: By default, Sord will regenerate a repository's YARD
     docs for you. This option skips regenerating the YARD docs.
   - `--break-params`: Determines how many parameters are necessary before
@@ -116,9 +117,13 @@ The `test.rbi` file then contains a complete RBI file for `test.rb`:
 # typed: strong
 module Example
   class Person
+    # @param [String] name
+    # @param [Integer] age
+    # @return [Example::Person]
     sig { params(name: String, age: Integer).returns(Example::Person) }
     def initialize(name, age); end
 
+    # @return [String] name
     sig { returns(String) }
     def name(); end
 
@@ -126,6 +131,7 @@ module Example
     sig { params(value: String).returns(String) }
     def name=(value); end
 
+    # @return [Integer] age
     sig { returns(Integer) }
     def age(); end
 
@@ -133,6 +139,9 @@ module Example
     sig { params(value: Integer).returns(Integer) }
     def age=(value); end
 
+    # @param [Array<String>] possible_names
+    # @param [Array<Integer>] possible_ages
+    # @return [Example::Person]
     sig { params(possible_names: T::Array[String], possible_ages: T::Array[Integer]).returns(Example::Person) }
     def self.construct_randomly(possible_names, possible_ages); end
   end

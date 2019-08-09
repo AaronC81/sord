@@ -42,7 +42,7 @@ module Sord
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
         @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
-      end if options[:comments]
+      end if options[:sord_comments]
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item|
@@ -88,7 +88,9 @@ module Sord
         constant_name = constant.to_s.split('::').last
         
         # Add the constant to the current object being generated.
-        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)")
+        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
+          c.add_comments(constant.docstring.all.split("\n"))
+        end
       end
     end
 
@@ -158,8 +160,13 @@ module Sord
               end
             end
 
+            return_types = getter.tags('return').flat_map(&:types)
+            unless return_types.any?
+              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
+              next 'T.untyped'
+            end
             inferred_type = TypeConverter.yard_to_sorbet(
-              getter.tags('return').flat_map(&:types), meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
             inferred_type
@@ -209,7 +216,9 @@ module Sord
           parameters: parlour_params,
           returns: returns,
           class_method: meth.scope == :class
-        )
+        ) do |m|
+          m.add_comments(meth.docstring.all.split("\n"))
+        end
       end
     end
 
@@ -227,6 +236,7 @@ module Sord
       @current_object = item.type == :class \
         ? parent.create_class(item.name.to_s, superclass: superclass)
         : parent.create_module(item.name.to_s)
+      @current_object.add_comments(item.docstring.all.split("\n"))
 
       add_mixins(item)
       add_methods(item)
