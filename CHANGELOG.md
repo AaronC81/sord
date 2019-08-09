@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.9.0] - 2019-08-09
+### Added
+- Add the `--replace-constants-with-untyped` flag, which generates `T.untyped` instead of `SORD_ERROR` constants.
+- Added an option to clean the `sord_examples` directory when seeding or reseeding.
+- Added a Rake task to typecheck the `sord_examples` directory.
+- Added a `.parlour` file to the project for generating Sord's RBIs.
+- Added CI with Travis.
+
+### Changed
+- Code generation has been broken out into the Parlour gem, and Sord is now a Parlour plugin.
+- Rainbow is now used for coloured output instead of colorize.
+- Duplicate type signatures are no longer generated for inherited methods.
+- The Resolver can now resolve more objects.
+- If a parameter has `nil` as its default, it now has a nilable type.
+- Generation of constants has been improved.
+- Superclass names are now generated as fully-qualified identifiers.
+
+### Fixed
+- Fixed `T::Hash` and `T::Array` syntax being generated incorrectly.
+- Fix a bug where the `--no-comments` or `--no-generate` flags were ignored.
+- Collections of `T.untyped` now have signatures generated correctly.
+- Fix generation of hashes when they are given too few parameters.
+- YARD no longer prints irrelevant error messages when running rake.
+
 ## [0.8.0] - 2019-07-07
 ### Added
 - Block types can now be generated using `@yieldparam` and `@yieldreturn`.
