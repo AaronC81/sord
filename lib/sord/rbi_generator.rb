@@ -42,7 +42,7 @@ module Sord
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
         @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
-      end if options[:comments]
+      end if options[:sord_comments]
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item|

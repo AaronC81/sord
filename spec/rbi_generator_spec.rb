@@ -11,7 +11,7 @@ describe Sord::RbiGenerator do
   subject do
     # Create an unnamed class to emulate everything required in "options"
     Sord::RbiGenerator.new(
-      comments: true,
+      sord_comments: true,
       break_params: 4,
       replace_errors_with_untyped: false,
       replace_unresolved_with_untyped: false

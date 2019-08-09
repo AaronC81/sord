@@ -45,7 +45,7 @@ namespace :examples do
         # Generate sri
         puts "Generating rbi for #{name}..."
         if args[:clean]
-          system("bundle exec sord ../#{name}.rbi --no-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+          system("bundle exec sord ../#{name}.rbi --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
         else
           system("bundle exec sord ../#{name}.rbi")
         end
@@ -70,7 +70,7 @@ namespace :examples do
       puts "Regenerating rbi file for #{name}..."
       Bundler.with_clean_env do
         if args[:clean]
-          system("bundle exec sord ../#{name}.rbi --no-regenerate --no-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+          system("bundle exec sord ../#{name}.rbi --no-regenerate --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
         else
           system("bundle exec sord ../#{name}.rbi --no-regenerate")
         end
