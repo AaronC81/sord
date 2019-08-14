@@ -404,27 +404,6 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
-  it 'infers one missing argument name in setters' do
-    YARD.parse_string(<<-RUBY)
-      module A
-        # @param [String]
-        # @return [String]
-        attr_writer :x
-      end
-    RUBY
-
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
-      # typed: strong
-      module A
-        # sord infer - argument name in single @param inferred as "value"
-        # @param [String]
-        # @return [String]
-        sig { params(value: String).returns(String) }
-        def x=(value); end
-      end
-    RUBY
-  end
-
   it 'uses T.untyped for many missing argument names' do
     YARD.parse_string(<<-RUBY)
       module A
@@ -676,6 +655,63 @@ describe Sord::RbiGenerator do
         class B
           EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
         end
+      end
+    RUBY
+  end
+
+  it 'generates simple untyped attributes' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        attr_accessor :a
+        attr_writer :b
+        attr_reader :c
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # sord omit - no YARD attribute type given, using T.untyped
+        sig { returns(T.untyped) }
+        attr_accessor :a
+
+        # sord omit - no YARD attribute type given, using T.untyped
+        sig { params(b: T.untyped).returns(T.untyped) }
+        attr_writer :b
+
+        # sord omit - no YARD attribute type given, using T.untyped
+        sig { returns(T.untyped) }
+        attr_reader :c
+      end
+    RUBY
+  end
+
+  it 'generates typed attributes' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @return [String]
+        attr_accessor :a
+
+        # @param [Integer]
+        # @return [Integer]
+        attr_writer :b
+
+        # @return [Boolean]
+        attr_reader :c
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig { returns(String) }
+        attr_accessor :a
+
+        sig { params(b: Integer).returns(Integer) }
+        attr_writer :b
+
+        sig { returns(T::Boolean) }
+        attr_reader :c
       end
     RUBY
   end
