@@ -704,15 +704,90 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # @return [String]
         sig { returns(String) }
         attr_accessor :a
 
+        # @param [Integer]
+        # @return [Integer]
         sig { params(b: Integer).returns(Integer) }
         attr_writer :b
 
+        # @return [Boolean]
         sig { returns(T::Boolean) }
         attr_reader :c
       end
     RUBY
+  end
+
+  context 'when documenting attributes' do
+    it 'includes only specified docs for a single-method attribute' do
+      YARD.parse_string(<<-RUBY)
+        class A
+          # This attribute is documented
+          attr_reader :documented
+          
+          attr_reader :undocumented
+        end
+      RUBY
+
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        class A
+          # sord omit - no YARD attribute type given, using T.untyped
+          # This attribute is documented
+          sig { returns(T.untyped) }
+          attr_reader :documented
+
+          # sord omit - no YARD attribute type given, using T.untyped
+          sig { returns(T.untyped) }
+          attr_reader :undocumented
+        end
+      RUBY
+    end
+
+    it 'merges separate readers and writers based on their docs' do
+      YARD.parse_string(<<-RUBY)
+        class A
+          # An attribute
+          attr_reader :a
+
+          # An attribute
+          attr_writer :a
+
+          # Another attribute
+          attr_reader :b
+
+          # Another attribute, with inconsistent docs
+          attr_writer :b
+
+          attr_reader :c
+          attr_writer :c
+        end
+      RUBY
+
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        class A
+          # sord omit - no YARD attribute type given, using T.untyped
+          # An attribute
+          sig { returns(T.untyped) }
+          attr_accessor :a
+
+          # sord omit - no YARD attribute type given, using T.untyped
+          # Another attribute
+          sig { returns(T.untyped) }
+          attr_reader :b
+
+          # Another attribute, with inconsistent docs
+          sig { params(b: T.untyped).returns(T.untyped) }
+          attr_writer :b
+
+          # sord omit - no YARD attribute type given, using T.untyped
+          sig { returns(T.untyped) }
+          attr_accessor :c
+        end
+      RUBY
+    end
   end
 end

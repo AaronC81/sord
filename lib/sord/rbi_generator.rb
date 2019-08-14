@@ -236,17 +236,6 @@ module Sord
     def add_attributes(item)
       item.attributes[:instance].each do |name, info|
         read, write = info[:read], info[:write]
-        if read && write
-          kind = :accessor
-        elsif read
-          kind = :reader
-        elsif write
-          kind = :writer
-        else
-          # If we end up with an attribute which can't be written or read, just
-          # skip it - I don't think this could ever happen
-          next
-        end
 
         return_tags = (read&.tags('return') || []) | (write&.tags('return') || [])
         returns = if return_tags.length == 0
@@ -258,12 +247,62 @@ module Sord
           type = TypeConverter.yard_to_sorbet(return_tags.first.types, read || write, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
-        # TODO: insert docstring
-        @current_object.create_attribute(
-          name.to_s, 
-          kind: kind,
-          type: type
-        )
+        # Including docs in the attributes is more complicated than it seems.
+        # Here are the rules:
+        #   If the attribute is ONLY readable or ONLY writable
+        #     Generate the attr_reader/writer, and include the docs unless they're default
+        #   Else, if it's both readable AND writeable
+        #     If the getter and setter have different docs:
+        #       If they're the default YARD docs
+        #         Generate an attr_accessor with no docs
+        #       Else
+        #         Generate a separate attr_reader and attr_writer with their own docs
+        #     Else
+        #       Generate an attr_accessor with the docs
+        read_comments = read&.docstring&.all&.split("\n")
+        read_comments = [] if read_comments == [
+          "Returns the value of attribute #{name}"
+        ] 
+        write_comments = write&.docstring&.all&.split("\n")
+        write_comments = [] if write_comments == [
+          "Sets the attribute #{name}",
+          "@param value the value to set the attribute #{name} to."
+        ]
+
+        if (read && write.nil?) || (write && read.nil?)
+          @current_object.create_attribute(
+            name.to_s, 
+            kind: (read ? :reader : :writer),
+            type: type
+          ).add_comments(read ? read_comments : write_comments)
+        else
+          if read_comments != write_comments
+            if read_comments == write_comments
+              @current_object.create_attribute(
+                name.to_s, 
+                kind: :accessor,
+                type: type
+              )
+            else
+              @current_object.create_attribute(
+                name.to_s, 
+                kind: :reader,
+                type: type
+              ).add_comments(read_comments)
+              @current_object.create_attribute(
+                name.to_s, 
+                kind: :writer,
+                type: type
+              ).add_comments(write_comments)
+            end
+          else
+            @current_object.create_attribute(
+              name.to_s, 
+              kind: :accessor,
+              type: type
+            ).add_comments(read_comments)
+          end
+        end
       end
     end
 
