@@ -107,7 +107,7 @@ module Sord
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         "T::Boolean"
       when 'self'
-        item.parent.path
+        'T.self_type'
       when Array
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types
