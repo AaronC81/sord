@@ -38,6 +38,7 @@ module Sord
 
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
+      @keep_original_comments = options[:keep_original_comments]
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
@@ -217,72 +218,76 @@ module Sord
           returns: returns,
           class_method: meth.scope == :class
         ) do |m|
-          parser = YARD::Docstring.parser
-          parser.parse(meth.docstring.all)
+          if @keep_original_comments
+            m.add_comments(meth.docstring.all.split("\n"))
+          else
+            parser = YARD::Docstring.parser
+            parser.parse(meth.docstring.all)
 
-          docs_array = parser.text.split("\n")
+            docs_array = parser.text.split("\n")
 
-          # Add @param tags if there are any with names and descriptions.
-          params = parser.tags.select { |tag| tag.tag_name == 'param' && !tag.name.nil? }
-          # Add a blank line if there's anything before the params.
-          docs_array << '' if docs_array.length.positive? && params.length.positive?
-          params.each do |param|
-            docs_array << '' if docs_array.last != '' && docs_array.length.positive?
-            # Output params in the form of:
-            # _@param_ `foo` — Lorem ipsum.
-            # _@param_ `foo`
-            if param.text.nil?
-              docs_array << "_@param_ `#{param.name}`"
-            else
-              docs_array << "_@param_ `#{param.name}` — #{param.text}"
+            # Add @param tags if there are any with names and descriptions.
+            params = parser.tags.select { |tag| tag.tag_name == 'param' && !tag.name.nil? }
+            # Add a blank line if there's anything before the params.
+            docs_array << '' if docs_array.length.positive? && params.length.positive?
+            params.each do |param|
+              docs_array << '' if docs_array.last != '' && docs_array.length.positive?
+              # Output params in the form of:
+              # _@param_ `foo` — Lorem ipsum.
+              # _@param_ `foo`
+              if param.text.nil?
+                docs_array << "_@param_ `#{param.name}`"
+              else
+                docs_array << "_@param_ `#{param.name}` — #{param.text}"
+              end
             end
-          end
 
-          # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
-          examples = parser.tags.select { |tag| tag.tag_name == 'example' }
-          examples.each do |example|
-            # Only add a blank line if there's anything before the example.
-            docs_array << '' if docs_array.length.positive?
-            # Include the example's 'name' if there is one.
-            docs_array << example.name unless example.name.nil? || example.name == ""
-            docs_array << "```ruby"
-            docs_array.concat(example.text.split("\n"))
-            docs_array << "```"
-          end if examples.length.positive?
+            # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
+            examples = parser.tags.select { |tag| tag.tag_name == 'example' }
+            examples.each do |example|
+              # Only add a blank line if there's anything before the example.
+              docs_array << '' if docs_array.length.positive?
+              # Include the example's 'name' if there is one.
+              docs_array << example.name unless example.name.nil? || example.name == ""
+              docs_array << "```ruby"
+              docs_array.concat(example.text.split("\n"))
+              docs_array << "```"
+            end if examples.length.positive?
 
-          # Add @note and @deprecated tags.
-          notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) }
-          # Add a blank line if there's anything before the params.
-          docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
-          notice_tags.each do |notice_tag|
-            docs_array << '' if docs_array.last != ''
-            # Output note/deprecated/see in the form of:
-            # _@note_ — Lorem ipsum.
-            # _@note_
-            if notice_tag.text.nil?
-              docs_array << "_@#{notice_tag.tag_name}_"
-            else
-              docs_array << "_@#{notice_tag.tag_name}_ — #{notice_tag.text}"
+            # Add @note and @deprecated tags.
+            notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) }
+            # Add a blank line if there's anything before the params.
+            docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
+            notice_tags.each do |notice_tag|
+              docs_array << '' if docs_array.last != ''
+              # Output note/deprecated/see in the form of:
+              # _@note_ — Lorem ipsum.
+              # _@note_
+              if notice_tag.text.nil?
+                docs_array << "_@#{notice_tag.tag_name}_"
+              else
+                docs_array << "_@#{notice_tag.tag_name}_ — #{notice_tag.text}"
+              end
             end
-          end
 
-          # Add @see tags.
-          see_tags = parser.tags.select { |tag| tag.tag_name == 'see' }
-          # Add a blank line if there's anything before the params.
-          docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
-          see_tags.each do |see_tag|
-            docs_array << '' if docs_array.last != ''
-            # Output note/deprecated/see in the form of:
-            # _@see_ `B` — Lorem ipsum.
-            # _@see_ `B`
-            if see_tag.text.nil?
-              docs_array << "_@see_ `#{see_tag.name}`"
-            else
-              docs_array << "_@see_ `#{see_tag.name}` — #{see_tag.text}"
+            # Add @see tags.
+            see_tags = parser.tags.select { |tag| tag.tag_name == 'see' }
+            # Add a blank line if there's anything before the params.
+            docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
+            see_tags.each do |see_tag|
+              docs_array << '' if docs_array.last != ''
+              # Output note/deprecated/see in the form of:
+              # _@see_ `B` — Lorem ipsum.
+              # _@see_ `B`
+              if see_tag.text.nil?
+                docs_array << "_@see_ `#{see_tag.name}`"
+              else
+                docs_array << "_@see_ `#{see_tag.name}` — #{see_tag.text}"
+              end
             end
-          end
 
-          m.add_comments(docs_array)
+            m.add_comments(docs_array)
+          end
         end
       end
     end

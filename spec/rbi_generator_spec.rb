@@ -14,7 +14,8 @@ describe Sord::RbiGenerator do
       sord_comments: true,
       break_params: 4,
       replace_errors_with_untyped: false,
-      replace_unresolved_with_untyped: false
+      replace_unresolved_with_untyped: false,
+      keep_original_comments: false
     )
   end
 

@@ -18,6 +18,7 @@ command :gen do |c|
   c.option '--replace-unresolved-with-untyped', 'Uses T.untyped when Sord is unable to resolve a constant'
   c.option '--exclude-messages STRING', String, 'Blacklists a comma-separated string of log message types'
   c.option '--include-messages STRING', String, 'Whitelists a comma-separated string of log message types'
+  c.option '--keep-original-comments', 'Retains original YARD comments rather than converting them to Markdown'
 
   c.action do |args, options|
     options.default(
@@ -28,6 +29,7 @@ command :gen do |c|
       replace_unresolved_with_untyped: false,
       exclude_messages: nil,
       include_messages: nil,
+      keep_original_comments: false
     )
 
     if args.length != 1
