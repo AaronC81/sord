@@ -719,6 +719,33 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
+  it 'handles method with a multi-line example' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @example
+        #   # This example has multiple lines
+        #   A.x
+        #   #=> foo
+        #
+        # @return [String]
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # ```ruby
+        # # This example has multiple lines
+        # A.x
+        # #=> foo
+        # ```
+        sig { returns(String) }
+        def x; end
+      end
+    RUBY
+  end
+
   it 'handles method with only an example' do
     YARD.parse_string(<<-RUBY)
       module A
@@ -738,6 +765,32 @@ describe Sord::RbiGenerator do
         # ```
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+  end
+
+  it 'handles method with parameters' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        #
+        # @param a [String] Lorem ipsum
+        # @param b [String] Lorem ipsum
+        #
+        # @return [String]
+        def x(a, b); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # @param `a` — Lorem ipsum
+        # @param `b` — Lorem ipsum
+        sig { params(a: String, b: String).returns(String) }
+        def x(a, b); end
       end
     RUBY
   end
