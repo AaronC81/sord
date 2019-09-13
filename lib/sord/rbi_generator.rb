@@ -219,15 +219,22 @@ module Sord
         ) do |m|
           parser = YARD::Docstring.parser
           parser.parse(meth.docstring.all)
+
           docs_array = parser.text.split("\n")
+
+          # TODO: Add @param/@return tag handling?
+
+          # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
           examples = parser.tags.select { |tag| tag.tag_name == 'example' }
           examples.each do |example|
+            # Include the example's 'name' if there is one.
             docs_array << example.name unless example.name.nil? || example.name == ""
             docs_array << ''
             docs_array << "```ruby"
             docs_array.concat(example.text.split("\n"))
             docs_array << "```"
           end if examples.length.positive?
+
           m.add_comments(docs_array)
         end
       end
