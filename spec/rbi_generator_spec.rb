@@ -787,10 +787,61 @@ describe Sord::RbiGenerator do
       module A
         # Lorem ipsum dolor.
         # 
-        # @param `a` — Lorem ipsum
-        # @param `b` — Lorem ipsum
+        # _@param_ `a` — Lorem ipsum
+        # 
+        # _@param_ `b` — Lorem ipsum
         sig { params(a: String, b: String).returns(String) }
         def x(a, b); end
+      end
+    RUBY
+  end
+
+  it 'handles methods with @note, @see, and @deprecated' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        #
+        # @deprecated You shouldn't use this method.
+        #
+        # @return [void]
+        def x; end
+
+        # Lorem ipsum dolor.
+        #
+        # @note This is a note.
+        #
+        # @return [void]
+        def y; end
+
+        # Lorem ipsum dolor.
+        #
+        # @see B Another letter.
+        #
+        # @return [void]
+        def z; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # _@deprecated_ — You shouldn't use this method.
+        sig { void }
+        def x; end
+
+        # Lorem ipsum dolor.
+        # 
+        # _@note_ — This is a note.
+        sig { void }
+        def y; end
+
+        # Lorem ipsum dolor.
+        # 
+        # _@see_ `B` — Another letter.
+        sig { void }
+        def z; end
       end
     RUBY
   end
