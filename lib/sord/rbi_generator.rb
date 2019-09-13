@@ -217,7 +217,18 @@ module Sord
           returns: returns,
           class_method: meth.scope == :class
         ) do |m|
-          m.add_comments(meth.docstring.all.split("\n"))
+          parser = YARD::Docstring.parser
+          parser.parse(meth.docstring.all)
+          docs_array = parser.text.split("\n")
+          examples = parser.tags.select { |tag| tag.tag_name == 'example' }
+          examples.each do |example|
+            docs_array << example.name unless example.name.nil? || example.name == ""
+            docs_array << ''
+            docs_array << "```ruby"
+            docs_array.concat(example.text.split("\n"))
+            docs_array << "```"
+          end if examples.length.positive?
+          m.add_comments(docs_array)
         end
       end
     end
