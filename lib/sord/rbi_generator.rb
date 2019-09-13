@@ -227,9 +227,10 @@ module Sord
           # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
           examples = parser.tags.select { |tag| tag.tag_name == 'example' }
           examples.each do |example|
+            # Only add a blank line if there's anything before the example.
+            docs_array << '' if docs_array.length.positive?
             # Include the example's 'name' if there is one.
             docs_array << example.name unless example.name.nil? || example.name == ""
-            docs_array << ''
             docs_array << "```ruby"
             docs_array.concat(example.text.split("\n"))
             docs_array << "```"

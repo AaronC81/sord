@@ -587,7 +587,6 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
-
   it 'does not generate constants from included classes' do
     YARD.parse_string(<<-RUBY)
       class A
@@ -611,7 +610,6 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
-
   it 'correctly generates constants in nested classes' do
     YARD.parse_string(<<-RUBY)
       class A
@@ -627,6 +625,119 @@ describe Sord::RbiGenerator do
         class B
           EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
         end
+      end
+    RUBY
+  end
+
+  it 'handles method with a long description' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        # eiusmod tempor incididunt ut labore et dolore magna aliqua. Diam
+        # quis enim lobortis scelerisque fermentum dui faucibus in. Id diam
+        # vel quam elementum pulvinar etiam non. Egestas erat imperdiet sed
+        # euismod nisi.
+        #
+        # @return [String]
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        # eiusmod tempor incididunt ut labore et dolore magna aliqua. Diam
+        # quis enim lobortis scelerisque fermentum dui faucibus in. Id diam
+        # vel quam elementum pulvinar etiam non. Egestas erat imperdiet sed
+        # euismod nisi.
+        sig { returns(String) }
+        def x; end
+      end
+    RUBY
+  end
+
+  it 'handles method with examples and description' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # This method returns a string.
+        #
+        # @example 
+        #   A.x #=> foo
+        #
+        # @example
+        #   A.x #=> bar
+        #
+        # @return [String]
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # This method returns a string.
+        # 
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        # 
+        # ```ruby
+        # A.x #=> bar
+        # ```
+        sig { returns(String) }
+        def x; end
+      end
+    RUBY
+  end
+
+  it 'handles method with a named example' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # This method returns a string.
+        #
+        # @example This is a named example.
+        #   A.x #=> foo
+        #
+        # @return [String]
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # This method returns a string.
+        # 
+        # This is a named example.
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        sig { returns(String) }
+        def x; end
+      end
+    RUBY
+  end
+
+  it 'handles method with only an example' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @example
+        #   A.x #=> foo
+        #
+        # @return [String]
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        sig { returns(String) }
+        def x; end
       end
     RUBY
   end
