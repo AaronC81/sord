@@ -223,14 +223,19 @@ module Sord
           docs_array = parser.text.split("\n")
 
           # Add @param tags if there are any with names and descriptions.
-          params = parser.tags.select { |tag| tag.tag_name == 'param' && !tag.name.nil? && !tag.text.nil? }
+          params = parser.tags.select { |tag| tag.tag_name == 'param' && !tag.name.nil? }
           # Add a blank line if there's anything before the params.
           docs_array << '' if docs_array.length.positive? && params.length.positive?
           params.each do |param|
-            docs_array << '' if docs_array.last != ''
+            docs_array << '' if docs_array.last != '' && docs_array.length.positive?
             # Output params in the form of:
             # _@param_ `foo` — Lorem ipsum.
-            docs_array << "_@param_ `#{param.name}` — #{param.text}"
+            # _@param_ `foo`
+            if param.text.nil?
+              docs_array << "_@param_ `#{param.name}`"
+            else
+              docs_array << "_@param_ `#{param.name}` — #{param.text}"
+            end
           end
 
           # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.

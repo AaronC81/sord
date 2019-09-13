@@ -86,6 +86,7 @@ describe Sord::RbiGenerator do
 
         module C
           class D
+            # _@param_ `x`
             sig { params(x: String).void }
             def bar(x); end
           end
@@ -243,6 +244,7 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # _@param_ `x`
         sig { params(x: String, blk: T.proc.params(a: Integer, b: Float).returns(T::Boolean)).returns(T::Boolean) }
         def foo(x, &blk); end
       end
@@ -281,6 +283,9 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # _@param_ `x`
+        # 
+        # _@param_ `y`
         sig { params(x: Integer, y: T::Array[String]).void }
         def foo(x, *y); end
       end
@@ -302,6 +307,13 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        # 
+        # _@param_ `c`
+        # 
+        # _@param_ `d`
         sig do
           params(
             a: Integer,
@@ -417,6 +429,7 @@ describe Sord::RbiGenerator do
       module A
         # sord omit - no YARD type given for "a", using T.untyped
         # sord omit - no YARD type given for "c", using T.untyped
+        # _@param_ `b`
         sig { params(a: T.untyped, b: Integer, c: T.untyped).void }
         def x(a, b, c); end
       end
@@ -471,12 +484,15 @@ describe Sord::RbiGenerator do
       # typed: strong
       class A
         # sord omit - no YARD type given for "b:", using T.untyped
+        # _@param_ `a`
         sig { params(a: T.nilable(String), b: T.untyped).void }
         def x(a: nil, b: nil); end
 
+        # _@param_ `a`
         sig { params(a: T.nilable(String)).void }
         def y(a = nil); end
 
+        # _@param_ `a`
         sig { params(a: T.nilable(String)).void }
         def z(a = nil); end
       end
@@ -498,6 +514,13 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        # 
+        # _@param_ `c`
+        # 
+        # _@param_ `d`
         sig do
           params(
             a: String,
@@ -528,6 +551,17 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
+        # _@param_ `array`
+        # 
+        # _@param_ `hash`
+        # 
+        # _@param_ `range`
+        # 
+        # _@param_ `set`
+        # 
+        # _@param_ `enumerator`
+        # 
+        # _@param_ `enumerable`
         sig do
           params(
             array: T::Array[T.untyped],
