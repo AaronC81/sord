@@ -11,7 +11,6 @@ module Sord
       @options = options
 
       options[:sord_comments] = true if options[:sord_comments].nil?
-      p options[:sord_comments]
       options[:regenerate] = true if options[:regenerate].nil?
       options[:replace_errors_with_untyped] ||= false
       options[:replace_unresolved_with_untyped] ||= false
