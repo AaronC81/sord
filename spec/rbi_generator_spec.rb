@@ -880,4 +880,26 @@ describe Sord::RbiGenerator do
       end
     RUBY
   end
+
+  it 'handles methods with @return descriptions' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # Gets the example string.
+        #
+        # @return [String] The example string.
+        def x; end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # Gets the example string.
+        # 
+        # _@return_ — The example string.
+        sig { returns(String) }
+        def x; end
+      end
+    RUBY
+  end
 end

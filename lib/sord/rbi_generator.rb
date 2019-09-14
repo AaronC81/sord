@@ -242,6 +242,17 @@ module Sord
               end
             end
 
+            # Add @return tags (there could possibly be more than one, despite this not being supported)
+            returns = parser.tags.select { |tag| tag.tag_name == 'return' && !tag.text.nil? && tag.text.strip != '' }
+            # Add a blank line if there's anything before the params.
+            docs_array << '' if docs_array.length.positive? && returns.length.positive?
+            returns.each do |retn|
+              docs_array << '' if docs_array.last != '' && docs_array.length.positive?
+              # Output returns in the form of:
+              # _@return_ — Lorem ipsum.
+              docs_array << "_@return_ — #{retn.text}"
+            end
+
             # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
             examples = parser.tags.select { |tag| tag.tag_name == 'example' }
             examples.each do |example|
