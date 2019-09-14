@@ -227,7 +227,7 @@ module Sord
             docs_array = parser.text.split("\n")
 
             # Add @param tags if there are any with names and descriptions.
-            params = parser.tags.select { |tag| tag.tag_name == 'param' && !tag.name.nil? }
+            params = parser.tags.select { |tag| tag.tag_name == 'param' && tag.is_a?(YARD::Tags::Tag) && !tag.name.nil? }
             # Add a blank line if there's anything before the params.
             docs_array << '' if docs_array.length.positive? && params.length.positive?
             params.each do |param|
@@ -243,8 +243,8 @@ module Sord
             end
 
             # Add @return tags (there could possibly be more than one, despite this not being supported)
-            returns = parser.tags.select { |tag| tag.tag_name == 'return' && !tag.text.nil? && tag.text.strip != '' }
-            # Add a blank line if there's anything before the params.
+            returns = parser.tags.select { |tag| tag.tag_name == 'return' && tag.is_a?(YARD::Tags::Tag) && !tag.text.nil? && tag.text.strip != '' }
+            # Add a blank line if there's anything before the returns.
             docs_array << '' if docs_array.length.positive? && returns.length.positive?
             returns.each do |retn|
               docs_array << '' if docs_array.last != '' && docs_array.length.positive?
@@ -254,7 +254,7 @@ module Sord
             end
 
             # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
-            examples = parser.tags.select { |tag| tag.tag_name == 'example' }
+            examples = parser.tags.select { |tag| tag.tag_name == 'example' && tag.is_a?(YARD::Tags::Tag) }
             examples.each do |example|
               # Only add a blank line if there's anything before the example.
               docs_array << '' if docs_array.length.positive?
@@ -266,7 +266,7 @@ module Sord
             end if examples.length.positive?
 
             # Add @note and @deprecated tags.
-            notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) }
+            notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) && tag.is_a?(YARD::Tags::Tag) }
             # Add a blank line if there's anything before the params.
             docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
             notice_tags.each do |notice_tag|
@@ -282,7 +282,7 @@ module Sord
             end
 
             # Add @see tags.
-            see_tags = parser.tags.select { |tag| tag.tag_name == 'see' }
+            see_tags = parser.tags.select { |tag| tag.tag_name == 'see' && tag.is_a?(YARD::Tags::Tag) }
             # Add a blank line if there's anything before the params.
             docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
             see_tags.each do |see_tag|
