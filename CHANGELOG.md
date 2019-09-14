@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0] - 2019-09-14
+### Added
+- Comments in RBIs are now converted from YARD into Markdown format, making them
+look much better when viewed in an IDE. (To restore the old behaviour of copying
+the YARD comments verbatim, use the `--keep-original-comments` flag.)
+
+### Changed
+- Parlour 0.8.0 is now being used.
+- References to `self` as a type in YARD docs are now generated as
+`T.self_type`, rather than a fixed self type determined by Sord.
+
 ## [0.9.0] - 2019-08-09
 ### Added
 - Add the `--replace-constants-with-untyped` flag, which generates `T.untyped` instead of `SORD_ERROR` constants.
