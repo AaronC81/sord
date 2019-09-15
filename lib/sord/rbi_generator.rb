@@ -235,7 +235,7 @@ module Sord
               # Output params in the form of:
               # _@param_ `foo` — Lorem ipsum.
               # _@param_ `foo`
-              if param.text.nil?
+              if param.text.nil? || param.text == ''
                 docs_array << "_@param_ `#{param.name}`"
               else
                 docs_array << "_@param_ `#{param.name}` — #{param.text}"
