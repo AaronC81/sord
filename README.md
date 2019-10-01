@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sord is a [**So**rbet](https://sorbet.org) and [YA**RD**](https://sorbet.org)
+Sord is a [**So**rbet](https://sorbet.org) and [YA**RD**](https://yardoc.org/)
 crossover. It can automatically generate Sorbet type signatures files by
 looking at the types specified in YARD documentation comments.
 
