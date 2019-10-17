@@ -109,6 +109,8 @@ module Sord
           next
         end
 
+        # Sort parameters
+        meth.parameters.sort! { |pair1, pair2| sort_params(pair1, pair2) }
         # This is better than iterating over YARD's "@param" tags directly 
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
@@ -386,6 +388,51 @@ module Sord
       $@.each do |line|
         puts "         #{line}"
       end
+    end
+
+    # Given two pairs of arrays representing method parameters, in the form
+    # of ["variable_name", "default_value"], sort the parameters so they're
+    # valid for Sorbet. Sorbet requires that, e.g. required kwargs go before
+    # optional kwargs.
+    #
+    # @param [Array] pair1
+    # @param [Array] pair2
+    # @return Integer
+    def sort_params(pair1, pair2)
+      pair_types = []
+
+      [pair1, pair2].each_with_index do |pair, i|
+        if pair[0].start_with?('&')
+          pair_types[i] = :blk
+        elsif pair[0].start_with?('**')
+          pair_types[i] = :doublesplat
+        elsif pair[0].start_with?('*')
+          pair_types[i] = :splat
+        elsif !pair[0].end_with?(':') && pair[1].nil?
+          pair_types[i] = :required_ordered_param
+        elsif !pair[0].end_with?(':') && !pair[1].nil?
+          pair_types[i] = :optional_ordered_param
+        elsif pair[0].end_with?(':') && pair[1].nil?
+          pair_types[i] = :required_kwarg
+        elsif pair[0].end_with?(':') && !pair[1].nil?
+          pair_types[i] = :optional_kwarg
+        end
+      end
+
+      pair1_type = pair_types[0]
+      pair2_type = pair_types[1]
+
+      pair_type_order = {
+        required_ordered_param: 1,
+        optional_ordered_param: 2,
+        splat: 3,
+        required_kwarg: 4,
+        optional_kwarg: 5,
+        doublesplat: 6,
+        blk: 7
+      }
+
+      return pair_type_order[pair1_type] <=> pair_type_order[pair2_type]
     end
   end
 end

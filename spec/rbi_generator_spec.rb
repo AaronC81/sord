@@ -508,7 +508,7 @@ describe Sord::RbiGenerator do
         # @param [String] c
         # @param [String] d
         # @return [void]
-        def x(a, b = 'Foo', c: 'Bar', d:); end
+        def x(a, b = 'Foo', c:, d: 'Bar'); end
       end
     RUBY
 
@@ -530,7 +530,7 @@ describe Sord::RbiGenerator do
             d: String
           ).void
         end
-        def x(a, b = 'Foo', c: 'Bar', d:); end
+        def x(a, b = 'Foo', c:, d: 'Bar'); end
       end
     RUBY
   end
@@ -899,6 +899,63 @@ describe Sord::RbiGenerator do
         # _@return_ — The example string.
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+  end
+
+  it 'reorders method parameters correctly' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        def x(a, b: [], c:, **rest, &blk); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD type given for "a", using T.untyped
+        # sord omit - no YARD type given for "c:", using T.untyped
+        # sord omit - no YARD type given for "b:", using T.untyped
+        # sord omit - no YARD type given for "**rest", using T.untyped
+        # sord omit - no YARD return type given, using T.untyped
+        sig do
+          params(
+            a: T.untyped,
+            c: T.untyped,
+            b: T.untyped,
+            rest: T.untyped,
+            blk: T.untyped
+          ).returns(T.untyped)
+        end
+        def x(a, c:, b: [], **rest, &blk); end
+      end
+    RUBY
+  end
+
+  it 'doesn\'t mess with ordered parameters' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        def x(a, b = nil, c = nil, d: nil); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD type given for "a", using T.untyped
+        # sord omit - no YARD type given for "b", using T.untyped
+        # sord omit - no YARD type given for "c", using T.untyped
+        # sord omit - no YARD type given for "d:", using T.untyped
+        # sord omit - no YARD return type given, using T.untyped
+        sig do
+          params(
+            a: T.untyped,
+            b: T.untyped,
+            c: T.untyped,
+            d: T.untyped
+          ).returns(T.untyped)
+        end
+        def x(a, b = nil, c = nil, d: nil); end
       end
     RUBY
   end
