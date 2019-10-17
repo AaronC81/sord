@@ -399,28 +399,23 @@ module Sord
     # @param [Array] pair2
     # @return Integer
     def sort_params(pair1, pair2)
-      pair_types = []
-
-      [pair1, pair2].each_with_index do |pair, i|
+      pair1_type, pair2_type = [pair1, pair2].map do |pair|
         if pair[0].start_with?('&')
-          pair_types[i] = :blk
+          :blk
         elsif pair[0].start_with?('**')
-          pair_types[i] = :doublesplat
+          :doublesplat
         elsif pair[0].start_with?('*')
-          pair_types[i] = :splat
+          :splat
         elsif !pair[0].end_with?(':') && pair[1].nil?
-          pair_types[i] = :required_ordered_param
+          :required_ordered_param
         elsif !pair[0].end_with?(':') && !pair[1].nil?
-          pair_types[i] = :optional_ordered_param
+          :optional_ordered_param
         elsif pair[0].end_with?(':') && pair[1].nil?
-          pair_types[i] = :required_kwarg
+          :required_kwarg
         elsif pair[0].end_with?(':') && !pair[1].nil?
-          pair_types[i] = :optional_kwarg
+          :optional_kwarg
         end
       end
-
-      pair1_type = pair_types[0]
-      pair2_type = pair_types[1]
 
       pair_type_order = {
         required_ordered_param: 1,
