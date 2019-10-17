@@ -831,6 +831,31 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
+  it 'handles method with multi-line parameter tag' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        #
+        # @param a [String] Lorem ipsum dolor
+        #   sit amet.
+        #
+        # @return [String]
+        def x(a); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # _@param_ `a` — Lorem ipsum dolor sit amet.
+        sig { params(a: String).returns(String) }
+        def x(a); end
+      end
+    RUBY
+  end
+
   it 'handles methods with @note, @see, and @deprecated' do
     YARD.parse_string(<<-RUBY)
       module A
