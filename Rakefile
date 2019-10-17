@@ -10,6 +10,7 @@ REPOS = {
   bundler: 'https://github.com/bundler/bundler',
   discordrb: 'https://github.com/meew0/discordrb',
   gitlab: 'https://github.com/NARKOZ/gitlab',
+  'graphql-ruby': 'https://github.com/rmosolgo/graphql-ruby',
   haml: 'https://github.com/haml/haml',
   oga: 'https://gitlab.com/yorickpeterse/oga',
   rouge: 'https://github.com/rouge-ruby/rouge',
