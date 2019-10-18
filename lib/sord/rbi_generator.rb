@@ -240,7 +240,7 @@ module Sord
               if param.text.nil?
                 docs_array << "_@param_ `#{param.name}`"
               else
-                docs_array << "_@param_ `#{param.name}` — #{param.text}"
+                docs_array << "_@param_ `#{param.name}` — #{param.text.gsub("\n", " ")}"
               end
             end
 
