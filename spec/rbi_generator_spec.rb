@@ -939,20 +939,20 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         # sord omit - no YARD type given for "a", using T.untyped
-        # sord omit - no YARD type given for "c:", using T.untyped
         # sord omit - no YARD type given for "b:", using T.untyped
+        # sord omit - no YARD type given for "c:", using T.untyped
         # sord omit - no YARD type given for "**rest", using T.untyped
         # sord omit - no YARD return type given, using T.untyped
         sig do
           params(
             a: T.untyped,
-            c: T.untyped,
             b: T.untyped,
+            c: T.untyped,
             rest: T.untyped,
             blk: T.untyped
           ).returns(T.untyped)
         end
-        def x(a, c:, b: [], **rest, &blk); end
+        def x(a, b: [], c:, **rest, &blk); end
       end
     RUBY
   end
