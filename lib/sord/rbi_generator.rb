@@ -111,7 +111,7 @@ module Sord
         end
 
         # Sort parameters
-        meth.parameters.sort! { |pair1, pair2| sort_params(pair1, pair2) }
+        meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
         # This is better than iterating over YARD's "@param" tags directly 
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
