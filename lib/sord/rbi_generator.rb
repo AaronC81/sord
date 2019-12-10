@@ -39,6 +39,7 @@ module Sord
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @keep_original_comments = options[:keep_original_comments]
+      @skip_constants = options[:skip_constants]
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
@@ -323,7 +324,7 @@ module Sord
 
       add_mixins(item)
       add_methods(item)
-      add_constants(item)
+      add_constants(item) unless @skip_constants
 
       item.children.select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
