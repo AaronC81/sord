@@ -271,6 +271,32 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
+  it 'handle multiline comment correctly' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [Integer] x
+        # @param [Array<String>] y
+        # @return [void] comment with multiple
+        #   line
+        def foo(x, *y); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # _@param_ `x`
+        # 
+        # _@param_ `y`
+        # 
+        # _@return_ — comment with multiple
+        # line
+        sig { params(x: Integer, y: T::Array[String]).void }
+        def foo(x, *y); end
+      end
+    RUBY
+  end
+
   it 'generates varargs correctly' do
     YARD.parse_string(<<-RUBY)
       module A
