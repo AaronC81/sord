@@ -300,6 +300,9 @@ module Sord
               end
             end
 
+            # fix: yard text may contains multiple line. should deal \n.
+            # else generate text will be multiple line and only first line is commented
+            docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
             m.add_comments(docs_array)
           end
         end
