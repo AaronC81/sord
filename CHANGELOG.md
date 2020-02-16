@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.0] - 2020-02-16
+### Added
+- Added the `--skip-constants` flag to avoid generating RBIs for constants.
+
+### Changed
+- Parlour 2.0.0 is now being used.
+
+### Fixed
+- Fixed a bug where blank parameters were sometimes treated like non-blank
+parameters.
+- Fixed parameter order sometimes being incorrect.
+- Fixed multiline parameter lists sometimes generating invalid RBIs.
+- Multiline comments are now generated correctly.
+- Fixed an incorrect README link.
+
 ## [0.10.0] - 2019-09-14
 ### Added
 - Comments in RBIs are now converted from YARD into Markdown format, making them
