@@ -421,25 +421,6 @@ describe Sord::RbiGenerator do
     RUBY
   end
 
-  it 'infers one missing argument name in setters' do
-    YARD.parse_string(<<-RUBY)
-      module A
-        # @param [String]
-        # @return [String]
-        attr_writer :x
-      end
-    RUBY
-
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
-      # typed: strong
-      module A
-        # sord infer - argument name in single @param inferred as "value"
-        sig { params(value: String).returns(String) }
-        def x=(value); end
-      end
-    RUBY
-  end
-
   it 'uses T.untyped for many missing argument names' do
     YARD.parse_string(<<-RUBY)
       module A
@@ -1009,5 +990,122 @@ describe Sord::RbiGenerator do
         def x(a, b = nil, c = nil, d: nil); end
       end
     RUBY
+  end
+
+  context 'attributes' do
+    it 'are generated correctly with typical tags' do
+      YARD.parse_string(<<-RUBY)
+        module A
+          # @return [Integer]
+          attr_reader :x
+
+          # @return [String]
+          attr_writer :y
+
+          # @return [Boolean]
+          attr_accessor :z
+        end
+      RUBY
+  
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        module A
+          sig { returns(Integer) }
+          attr_reader :x
+
+          sig { params(y: String).returns(String) }
+          attr_writer :y
+
+          sig { returns(T::Boolean) }
+          attr_accessor :z
+        end
+      RUBY
+    end 
+    
+    it 'can be on the class' do
+      YARD.parse_string(<<-RUBY)
+        module A
+          class << self
+            # @return [Integer]
+            attr_reader :x
+          end
+        end
+      RUBY
+  
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        module A
+          class << self
+            sig { returns(Integer) }
+            attr_reader :x
+          end
+        end
+      RUBY
+    end
+
+    it 'can share names between class and instance' do
+      YARD.parse_string(<<-RUBY)
+        module A
+          class << self
+            # @return [Integer]
+            attr_reader :x
+          end
+
+          # @return [String]
+          attr_reader :x
+        end
+      RUBY
+  
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        module A
+          class << self
+            sig { returns(Integer) }
+            attr_reader :x
+          end
+
+          sig { returns(String) }
+          attr_reader :x
+        end
+      RUBY
+    end
+
+    it 'handles void returns' do
+      YARD.parse_string(<<-RUBY)
+        module A
+          # @param [String]
+          # @return [void]
+          attr_reader :x
+        end
+      RUBY
+
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        module A
+          sig { returns(String) }
+          attr_reader :x
+        end
+      RUBY
+    end
+
+    it 'preserve comments' do
+      YARD.parse_string(<<-RUBY)
+        module A
+          # Gets the value of X.
+          # @param [String]
+          # @return [void]
+          attr_reader :x
+        end
+      RUBY
+
+      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        module A
+          # Gets the value of X.
+          sig { returns(String) }
+          attr_reader :x
+        end
+      RUBY
+    end
   end
 end
