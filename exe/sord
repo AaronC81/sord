@@ -20,7 +20,7 @@ command :gen do |c|
   c.option '--include-messages STRING', String, 'Whitelists a comma-separated string of log message types'
   c.option '--keep-original-comments', 'Retains original YARD comments rather than converting them to Markdown'
   c.option '--skip-constants', 'Excludes constants from generated RBI'
-  c.option '--use-original-initiailize-return', 'Uses the specified return type for #initialize rather than void'
+  c.option '--use-original-initialize-return', 'Uses the specified return type for #initialize rather than void'
 
   c.action do |args, options|
     options.default(
@@ -33,7 +33,7 @@ command :gen do |c|
       include_messages: nil,
       keep_original_comments: false,
       skip_constants: false,
-      use_original_initiailize_return: false,
+      use_original_initialize_return: false,
     )
 
     if args.length != 1
