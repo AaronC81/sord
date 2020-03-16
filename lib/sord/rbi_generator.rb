@@ -96,6 +96,97 @@ module Sord
       end
     end
 
+    # Adds comments to an RBI object based on a docstring.
+    # @param [YARD::CodeObjects::NamespaceObject] item
+    # @param [Parlour::RbiGenerator::RbiObject] rbi_object
+    # @return [void]
+    def add_comments(item, rbi_object)
+      if @keep_original_comments
+        rbi_object.add_comments(item.docstring.all.split("\n"))
+      else
+        parser = YARD::Docstring.parser
+        parser.parse(item.docstring.all)
+
+        docs_array = parser.text.split("\n")
+
+        # Add @param tags if there are any with names and descriptions.
+        params = parser.tags.select { |tag| tag.tag_name == 'param' && tag.is_a?(YARD::Tags::Tag) && !tag.name.nil? }
+        # Add a blank line if there's anything before the params.
+        docs_array << '' if docs_array.length.positive? && params.length.positive?
+        params.each do |param|
+          docs_array << '' if docs_array.last != '' && docs_array.length.positive?
+          # Output params in the form of:
+          # _@param_ `foo` — Lorem ipsum.
+          # _@param_ `foo`
+          if param.text.nil? || param.text == ''
+            docs_array << "_@param_ `#{param.name}`"
+          else
+            docs_array << "_@param_ `#{param.name}` — #{param.text.gsub("\n", " ")}"
+          end
+        end
+
+        # Add @return tags (there could possibly be more than one, despite this not being supported)
+        returns = parser.tags.select { |tag| tag.tag_name == 'return' && tag.is_a?(YARD::Tags::Tag) && !tag.text.nil? && tag.text.strip != '' }
+        # Add a blank line if there's anything before the returns.
+        docs_array << '' if docs_array.length.positive? && returns.length.positive?
+        returns.each do |retn|
+          docs_array << '' if docs_array.last != '' && docs_array.length.positive?
+          # Output returns in the form of:
+          # _@return_ — Lorem ipsum.
+          docs_array << "_@return_ — #{retn.text}"
+        end
+
+        # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
+        examples = parser.tags.select { |tag| tag.tag_name == 'example' && tag.is_a?(YARD::Tags::Tag) }
+        examples.each do |example|
+          # Only add a blank line if there's anything before the example.
+          docs_array << '' if docs_array.length.positive?
+          # Include the example's 'name' if there is one.
+          docs_array << example.name unless example.name.nil? || example.name == ""
+          docs_array << "```ruby"
+          docs_array.concat(example.text.split("\n"))
+          docs_array << "```"
+        end if examples.length.positive?
+
+        # Add @note and @deprecated tags.
+        notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) && tag.is_a?(YARD::Tags::Tag) }
+        # Add a blank line if there's anything before the params.
+        docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
+        notice_tags.each do |notice_tag|
+          docs_array << '' if docs_array.last != ''
+          # Output note/deprecated/see in the form of:
+          # _@note_ — Lorem ipsum.
+          # _@note_
+          if notice_tag.text.nil?
+            docs_array << "_@#{notice_tag.tag_name}_"
+          else
+            docs_array << "_@#{notice_tag.tag_name}_ — #{notice_tag.text}"
+          end
+        end
+
+        # Add @see tags.
+        see_tags = parser.tags.select { |tag| tag.tag_name == 'see' && tag.is_a?(YARD::Tags::Tag) }
+        # Add a blank line if there's anything before the params.
+        docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
+        see_tags.each do |see_tag|
+          docs_array << '' if docs_array.last != ''
+          # Output note/deprecated/see in the form of:
+          # _@see_ `B` — Lorem ipsum.
+          # _@see_ `B`
+          if see_tag.text.nil?
+            docs_array << "_@see_ `#{see_tag.name}`"
+          else
+            docs_array << "_@see_ `#{see_tag.name}` — #{see_tag.text}"
+          end
+        end
+
+        # fix: yard text may contains multiple line. should deal \n.
+        # else generate text will be multiple line and only first line is commented
+        docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
+        rbi_object.add_comments(docs_array)
+      end
+    end
+
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current RBI file.
     # @param [YARD::CodeObjects::NamespaceObject] item
@@ -110,6 +201,11 @@ module Sord
           next
         end
 
+        # If the method is an attribute, it'll be handled by add_attributes
+        if meth.is_attribute?
+          next
+        end
+      
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
         # This is better than iterating over YARD's "@param" tags directly 
@@ -221,89 +317,65 @@ module Sord
           returns: returns,
           class_method: meth.scope == :class
         ) do |m|
-          if @keep_original_comments
-            m.add_comments(meth.docstring.all.split("\n"))
+          add_comments(meth, m)
+        end
+      end
+    end
+
+    # Given a YARD NamespaceObject, add lines defining either its class
+    # and instance attributes and their signatures to the current RBI file.
+    # @param [YARD::CodeObjects::NamespaceObject] item
+    # @return [void]
+    def add_attributes(item)
+      [:class, :instance].each do |attr_loc|
+        # Grab attributes for the current location (class or instance)
+        attrs = item.attributes[attr_loc]
+        attrs.each do |name, attribute|
+          reader = attribute[:read]
+          writer = attribute[:write]
+
+          unless reader || writer
+            Logging.warn("attribute is not readable or writable somehow, skipping", attribute)
+            next
+          end
+
+          # Get all given types
+          yard_types = []
+          if reader
+            yard_types += reader.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
+              reader.tags('param').flat_map(&:types)
+          end
+          if writer
+            yard_types += writer.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
+              writer.tags('param').flat_map(&:types)
+          end
+
+          # Use T.untyped if not types specified anywhere, otherwise try to
+          # compute Sorbet type given all these types
+          if yard_types.empty?
+            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", reader || writer)
+            sorbet_type = 'T.untyped'
           else
-            parser = YARD::Docstring.parser
-            parser.parse(meth.docstring.all)
+            sorbet_type = TypeConverter.yard_to_sorbet(
+              yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+          end
 
-            docs_array = parser.text.split("\n")
+          # Generate attribute
+          if reader && writer
+            kind = :accessor
+          elsif reader
+            kind = :reader
+          elsif writer
+            kind = :writer
+          end
 
-            # Add @param tags if there are any with names and descriptions.
-            params = parser.tags.select { |tag| tag.tag_name == 'param' && tag.is_a?(YARD::Tags::Tag) && !tag.name.nil? }
-            # Add a blank line if there's anything before the params.
-            docs_array << '' if docs_array.length.positive? && params.length.positive?
-            params.each do |param|
-              docs_array << '' if docs_array.last != '' && docs_array.length.positive?
-              # Output params in the form of:
-              # _@param_ `foo` — Lorem ipsum.
-              # _@param_ `foo`
-              if param.text.nil? || param.text == ''
-                docs_array << "_@param_ `#{param.name}`"
-              else
-                docs_array << "_@param_ `#{param.name}` — #{param.text.gsub("\n", " ")}"
-              end
-            end
-
-            # Add @return tags (there could possibly be more than one, despite this not being supported)
-            returns = parser.tags.select { |tag| tag.tag_name == 'return' && tag.is_a?(YARD::Tags::Tag) && !tag.text.nil? && tag.text.strip != '' }
-            # Add a blank line if there's anything before the returns.
-            docs_array << '' if docs_array.length.positive? && returns.length.positive?
-            returns.each do |retn|
-              docs_array << '' if docs_array.last != '' && docs_array.length.positive?
-              # Output returns in the form of:
-              # _@return_ — Lorem ipsum.
-              docs_array << "_@return_ — #{retn.text}"
-            end
-
-            # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
-            examples = parser.tags.select { |tag| tag.tag_name == 'example' && tag.is_a?(YARD::Tags::Tag) }
-            examples.each do |example|
-              # Only add a blank line if there's anything before the example.
-              docs_array << '' if docs_array.length.positive?
-              # Include the example's 'name' if there is one.
-              docs_array << example.name unless example.name.nil? || example.name == ""
-              docs_array << "```ruby"
-              docs_array.concat(example.text.split("\n"))
-              docs_array << "```"
-            end if examples.length.positive?
-
-            # Add @note and @deprecated tags.
-            notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) && tag.is_a?(YARD::Tags::Tag) }
-            # Add a blank line if there's anything before the params.
-            docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
-            notice_tags.each do |notice_tag|
-              docs_array << '' if docs_array.last != ''
-              # Output note/deprecated/see in the form of:
-              # _@note_ — Lorem ipsum.
-              # _@note_
-              if notice_tag.text.nil?
-                docs_array << "_@#{notice_tag.tag_name}_"
-              else
-                docs_array << "_@#{notice_tag.tag_name}_ — #{notice_tag.text}"
-              end
-            end
-
-            # Add @see tags.
-            see_tags = parser.tags.select { |tag| tag.tag_name == 'see' && tag.is_a?(YARD::Tags::Tag) }
-            # Add a blank line if there's anything before the params.
-            docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
-            see_tags.each do |see_tag|
-              docs_array << '' if docs_array.last != ''
-              # Output note/deprecated/see in the form of:
-              # _@see_ `B` — Lorem ipsum.
-              # _@see_ `B`
-              if see_tag.text.nil?
-                docs_array << "_@see_ `#{see_tag.name}`"
-              else
-                docs_array << "_@see_ `#{see_tag.name}` — #{see_tag.text}"
-              end
-            end
-
-            # fix: yard text may contains multiple line. should deal \n.
-            # else generate text will be multiple line and only first line is commented
-            docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
-            m.add_comments(docs_array)
+          @current_object.create_attribute(
+            name.to_s,
+            kind: kind,
+            type: sorbet_type,
+            class_attribute: (attr_loc == :class)
+          ) do |m|
+            add_comments(reader || writer, m)
           end
         end
       end
@@ -327,6 +399,7 @@ module Sord
 
       add_mixins(item)
       add_methods(item)
+      add_attributes(item)
       add_constants(item) unless @skip_constants
 
       item.children.select { |x| [:class, :module].include?(x.type) }
