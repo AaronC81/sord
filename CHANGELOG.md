@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0.0] - 2020-03-16
+### Added
+- Sord now supports generating `attr_accessor`, `attr_reader` and `attr_writer`
+and will do so automatically when these are used in your code.
+  - Depending on what you're doing with Sord, this is **potentially breaking**,
+  as for example attributes which would previously generate two `foo` and `foo=`
+  methods in Sord will now just generate an `attr_accessor`.
+- `#initialize` is now always typed as returning `void`, which is
+**potentially breaking** if you directly call `#initialize` in code.
+  - The `--use-original-initialize-return` flag restores the old behaviour of
+  using whatever return type is provided, like any other method.
+
 ## [1.0.0] - 2020-02-16
 ### Added
 - Added the `--skip-constants` flag to avoid generating RBIs for constants.
