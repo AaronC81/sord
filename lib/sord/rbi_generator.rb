@@ -40,6 +40,7 @@ module Sord
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @keep_original_comments = options[:keep_original_comments]
       @skip_constants = options[:skip_constants]
+      @use_original_initialize_return = options[:use_original_initialize_return]
 
       # Hook the logger so that messages are added as comments to the RBI file
       Logging.add_hook do |type, msg, item|
@@ -287,7 +288,9 @@ module Sord
         end
 
         return_tags = meth.tags('return')
-        returns = if return_tags.length == 0
+        returns = if meth.name == :initialize && !@use_original_initialize_return
+          nil
+        elsif return_tags.length == 0
           Logging.omit("no YARD return type given, using T.untyped", meth)
           'T.untyped'
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"

@@ -1108,4 +1108,23 @@ describe Sord::RbiGenerator do
       RUBY
     end
   end
+  
+  it 'generates constructors which return void' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @param [String] a
+        # @return [A]
+        def initialize(a); end
+      end
+    RUBY
+
+    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # _@param_ `a`
+        sig { params(a: String).void }
+        def initialize(a); end
+      end
+    RUBY
+  end
 end
