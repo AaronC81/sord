@@ -41,7 +41,7 @@ module Sord
       if options[:regenerate]
         begin
           Sord::Logging.info('Running YARD...')
-          Bundler.with_clean_env do
+          Sord::ParlourPlugin.with_clean_env do
             system('bundle exec yard')
           end
         rescue Errno::ENOENT
@@ -58,6 +58,15 @@ module Sord
       Sord::RbiGenerator.new(options).run
 
       true
+    end
+
+    def self.with_clean_env &block
+      meth = if Bundler.respond_to?(:with_unbundled_env)
+               :with_unbundled_env
+             else
+               :with_clean_env
+            end
+      Bundler.send meth, &block
     end
   end
 end
