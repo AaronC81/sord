@@ -321,6 +321,7 @@ module Sord
           TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
+        rbs_block = nil
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
@@ -338,13 +339,19 @@ module Sord
                 default: default
               )
             when :rbs
-              Parlour::RbsGenerator::Parameter.new(
-                name.to_s,
-                type: type,
-                required: default.nil?
-              )
+              if name.start_with?('&')
+                rbs_block = type
+                nil
+              else
+                Parlour::RbsGenerator::Parameter.new(
+                  name.to_s,
+                  type: type,
+                  required: default.nil?
+                )
+              end
             end
           end
+          .compact
 
         case @mode
         when :rbi
@@ -359,9 +366,11 @@ module Sord
         when :rbs
           @current_object.create_method(
             meth.name.to_s,
-            [
-              Parlour::RbsGenerator::MethodSignature.new(parlour_params, returns)
-            ],
+            [Parlour::RbsGenerator::MethodSignature.new(
+              parlour_params, returns, block: rbs_block && !rbs_block.is_a?(Parlour::Types::Untyped) \
+                ? Parlour::RbsGenerator::Block.new(rbs_block, false)
+                : nil
+            )],
             class_method: meth.scope == :class
           ) do |m|
             add_comments(meth, m)
@@ -429,13 +438,12 @@ module Sord
             end
           when :rbs
             if attr_loc == :class
-              Logging.omit("RBS doesn't support class attributes, dropping", reader || writer)
+              Logging.warn("RBS doesn't support class attributes, dropping", reader || writer)
             else
               @current_object.create_attribute(
                 name.to_s,
                 kind: kind,
                 type: sorbet_type,
-                class_attribute: (attr_loc == :class)
               ) do |m|
                 add_comments(reader || writer, m)
               end
