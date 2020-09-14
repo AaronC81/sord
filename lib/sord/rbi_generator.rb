@@ -230,18 +230,19 @@ module Sord
               yieldreturn&.first&.downcase == 'void'
 
             # Create strings
-            params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
-            end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            params = yieldparams.map do |param|
+              Parlour::Types::Proc::Parameter.new(
+                param.name.gsub('*', ''),
+                TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              )
+            end
+            returns = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
-              'T.untyped'
-            elsif yieldreturn.nil?
-              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.void"
+              Parlour::Types::Untyped.new
             else
-              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
+              Parlour::Types::Proc.new(params, yieldreturn.nil? ? nil : returns)
             end
           elsif meth.path.end_with? '='
             # Look for the matching getter method
@@ -256,15 +257,15 @@ module Sord
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
                 next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else  
-                Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-                next 'T.untyped'
+                Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+                next Parlour::Types::Untyped.new
               end
             end
 
             return_types = getter.tags('return').flat_map(&:types)
             unless return_types.any?
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-              next 'T.untyped'
+              Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+              next Parlour::Types::Untyped.new
             end
             inferred_type = TypeConverter.yard_to_sorbet(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
@@ -281,8 +282,8 @@ module Sord
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
               TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-              'T.untyped'
+              Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+              Parlour::Types::Untyped.new
             end
           end
         end
@@ -291,8 +292,8 @@ module Sord
         returns = if meth.name == :initialize && !@use_original_initialize_return
           nil
         elsif return_tags.length == 0
-          Logging.omit("no YARD return type given, using T.untyped", meth)
-          'T.untyped'
+          Logging.omit("no YARD return type given, using untyped", meth)
+          Parlour::Types::Untyped.new
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           nil
         else
@@ -305,8 +306,8 @@ module Sord
             # If the default is "nil" but the type is not nilable, then it 
             # should become nilable
             # (T.untyped can include nil, so don't alter that)
-            type = "T.nilable(#{type})" \
-              if default == 'nil' && !type.start_with?('T.nilable') && type != 'T.untyped'
+            type = Parlour::Types::Nilable.new(type) \
+              if default == 'nil' && !type.is_a?(Parlour::Types::Nilable) && !type.is_a?(Parlour::Types::Untyped)
             Parlour::RbiGenerator::Parameter.new(
               name.to_s,
               type: type,
@@ -353,11 +354,11 @@ module Sord
               writer.tags('param').flat_map(&:types)
           end
 
-          # Use T.untyped if not types specified anywhere, otherwise try to
+          # Use untyped if not types specified anywhere, otherwise try to
           # compute Sorbet type given all these types
           if yard_types.empty?
-            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", reader || writer)
-            sorbet_type = 'T.untyped'
+            Logging.omit("no YARD type given for #{name.inspect}, using untyped", reader || writer)
+            sorbet_type = Parlour::Types::Untyped.new
           else
             sorbet_type = TypeConverter.yard_to_sorbet(
               yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
@@ -453,7 +454,7 @@ module Sord
       unless warnings.empty?
         Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
         if @replace_errors_with_untyped
-          Logging.warn("The types which caused them have been replaced with T.untyped.")
+          Logging.warn("The types which caused them have been replaced with untyped.")
         else
           Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
         end

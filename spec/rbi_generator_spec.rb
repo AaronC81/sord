@@ -117,15 +117,15 @@ describe Sord::RbiGenerator do
       # typed: strong
       module A
         class B
-          # sord omit - no YARD return type given, using T.untyped
+          # sord omit - no YARD return type given, using untyped
           sig { returns(T.untyped) }
           def foo; end
         end
 
         module C
           class D
-            # sord omit - no YARD type given for "x", using T.untyped
-            # sord omit - no YARD return type given, using T.untyped
+            # sord omit - no YARD type given for "x", using untyped
+            # sord omit - no YARD return type given, using untyped
             sig { params(x: T.untyped).returns(T.untyped) }
             def bar(x); end
           end
@@ -162,7 +162,7 @@ describe Sord::RbiGenerator do
         include B
         extend C
 
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD return type given, using untyped
         sig { returns(T.untyped) }
         def x; end
       end
@@ -371,7 +371,7 @@ describe Sord::RbiGenerator do
         def x; end
 
         # sord infer - inferred type of parameter "value" as Integer using getter's return type
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD return type given, using untyped
         sig { params(value: Integer).returns(T.untyped) }
         def x=(value); end
       end
@@ -390,12 +390,12 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD return type given, using untyped
         sig { returns(T.untyped) }
         def x; end
 
-        # sord omit - no YARD type given for "value", using T.untyped
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD type given for "value", using untyped
+        # sord omit - no YARD return type given, using untyped
         sig { params(value: T.untyped).returns(T.untyped) }
         def x=(value); end
       end
@@ -435,8 +435,8 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        # sord omit - no YARD type given for "a", using T.untyped
-        # sord omit - no YARD type given for "c", using T.untyped
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "c", using untyped
         # _@param_ `b`
         sig { params(a: T.untyped, b: Integer, c: T.untyped).void }
         def x(a, b, c); end
@@ -491,7 +491,7 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
-        # sord omit - no YARD type given for "b:", using T.untyped
+        # sord omit - no YARD type given for "b:", using untyped
         # _@param_ `a`
         sig { params(a: T.nilable(String), b: T.untyped).void }
         def x(a: nil, b: nil); end
@@ -945,11 +945,11 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        # sord omit - no YARD type given for "a", using T.untyped
-        # sord omit - no YARD type given for "b:", using T.untyped
-        # sord omit - no YARD type given for "c:", using T.untyped
-        # sord omit - no YARD type given for "**rest", using T.untyped
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b:", using untyped
+        # sord omit - no YARD type given for "c:", using untyped
+        # sord omit - no YARD type given for "**rest", using untyped
+        # sord omit - no YARD return type given, using untyped
         sig do
           params(
             a: T.untyped,
@@ -974,11 +974,11 @@ describe Sord::RbiGenerator do
     expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
-        # sord omit - no YARD type given for "a", using T.untyped
-        # sord omit - no YARD type given for "b", using T.untyped
-        # sord omit - no YARD type given for "c", using T.untyped
-        # sord omit - no YARD type given for "d:", using T.untyped
-        # sord omit - no YARD return type given, using T.untyped
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b", using untyped
+        # sord omit - no YARD type given for "c", using untyped
+        # sord omit - no YARD type given for "d:", using untyped
+        # sord omit - no YARD return type given, using untyped
         sig do
           params(
             a: T.untyped,
