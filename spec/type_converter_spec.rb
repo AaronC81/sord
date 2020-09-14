@@ -250,7 +250,7 @@ describe Sord::TypeConverter do
         end
 
         it 'SORD_ERROR for a hash with too few parameters' do
-          expect(subject.yard_to_sorbet('Hash<Array>')).to eq Types::Raw.new('SORD_ERROR_TArrayTuntyped')
+          expect(subject.yard_to_sorbet('Hash<Array>')).to eq Types::Raw.new('SORD_ERROR_Arrayuntyped')
         end
       end
     end

@@ -172,7 +172,7 @@ module Sord
             if parameters.length == 2
               Parlour::Types::Hash.new(*parameters)
             else
-              handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
+              handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
             end
           else
             Parlour::Types.const_get(generic_type).new(*parameters)
@@ -200,7 +200,7 @@ module Sord
         if parameters.length == 2
           Parlour::Types::Hash.new(*parameters)
         else
-          handle_sord_error(parameters.join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
+          handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
         end
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
@@ -221,13 +221,14 @@ module Sord
 
     # Handles SORD_ERRORs.
     #
-    # @param [String] name
+    # @param [String, Parlour::Types::Type] name
     # @param [String] log_warning
     # @param [YARD::CodeObjects::Base] item
     # @param [Boolean] replace_errors_with_untyped
     # @return [Parlour::Types::Type]
     def self.handle_sord_error(name, log_warning, item, replace_errors_with_untyped)
       Logging.warn(log_warning, item)
+      str = name.is_a?(Parlour::Types::Type) ? name.describe : name
       return replace_errors_with_untyped \
         ? Parlour::Types::Untyped.new
         : Parlour::Types::Raw.new("SORD_ERROR_#{name.gsub(/[^0-9A-Za-z_]/i, '')}")

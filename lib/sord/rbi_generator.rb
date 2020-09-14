@@ -270,7 +270,7 @@ module Sord
             inferred_type = TypeConverter.yard_to_sorbet(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
-            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
             inferred_type
           else
             # Is this the only argument, and was a @param specified without an
