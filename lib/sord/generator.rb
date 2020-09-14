@@ -346,14 +346,27 @@ module Sord
             end
           end
 
-        @current_object.create_method(
-          meth.name.to_s, 
-          parameters: parlour_params,
-          returns: returns,
-          class_method: meth.scope == :class
-        ) do |m|
-          add_comments(meth, m)
-        end
+        case @mode
+        when :rbi
+          @current_object.create_method(
+            meth.name.to_s, 
+            parameters: parlour_params,
+            returns: returns,
+            class_method: meth.scope == :class
+          ) do |m|
+            add_comments(meth, m)
+          end
+        when :rbs
+          @current_object.create_method(
+            meth.name.to_s,
+            [
+              Parlour::RbsGenerator::MethodSignature.new(parlour_params, returns)
+            ],
+            class_method: meth.scope == :class
+          ) do |m|
+            add_comments(meth, m)
+          end
+        end  
       end
     end
 
