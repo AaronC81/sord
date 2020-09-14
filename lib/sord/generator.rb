@@ -6,8 +6,11 @@ require 'parlour'
 require 'rainbow'
 
 module Sord
-  # Converts the current working directory's YARD registry into an RBI file.
-  class RbiGenerator    
+  # Converts the current working directory's YARD registry into an type
+  # signature file.
+  class Generator    
+    VALID_MODES = [:rbi, :rbs]
+
     # @return [Integer] The number of objects this generator has processed so 
     #   far.
     def object_count
@@ -19,17 +22,28 @@ module Sord
     #   [message, item, line].
     attr_reader :warnings
 
-    # Create a new RBI generator.
+    # Create a new generator.
     # @param [Hash] options
+    # @option options [Symbol] mode
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
     # @option options [Boolean] comments
-    # @option options [Parlour::RbiGenerator] generator
-    # @option options [Parlour::RbiGenerator::Namespace] root
+    # @option options [Parlour::Generator] generator
+    # @option options [Parlour::TypedObject] root
     # @return [void]
     def initialize(options)
-      @parlour = options[:parlour] || Parlour::RbiGenerator.new
+      @mode = options[:mode].to_sym rescue options[:mode]
+      raise "invalid mode #{@mode}, expected one of: #{VALID_MODES.join(', ')}" \
+        unless VALID_MODES.include?(@mode)
+
+      @parlour = options[:parlour] || \
+        case @mode
+        when :rbi
+          Parlour::RbiGenerator.new
+        when :rbs
+          Parlour::RbsGenerator.new
+        end
       @current_object = options[:root] || @parlour.root
 
       @namespace_count = 0
@@ -42,7 +56,7 @@ module Sord
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
 
-      # Hook the logger so that messages are added as comments to the RBI file
+      # Hook the logger so that messages are added as comments
       Logging.add_hook do |type, msg, item|
         @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
       end if options[:sord_comments]
@@ -91,19 +105,26 @@ module Sord
         constant_name = constant.to_s.split('::').last
         
         # Add the constant to the current object being generated.
-        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
-          c.add_comments(constant.docstring.all.split("\n"))
+        case @mode
+        when :rbi
+          @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
+            c.add_comments(constant.docstring.all.split("\n"))
+          end
+        when :rbs
+          @current_object.create_constant(constant_name, type: Parlour::Types::Untyped.new) do |c|
+            c.add_comments(constant.docstring.all.split("\n"))
+          end
         end
       end
     end
 
-    # Adds comments to an RBI object based on a docstring.
+    # Adds comments to an object based on a docstring.
     # @param [YARD::CodeObjects::NamespaceObject] item
-    # @param [Parlour::RbiGenerator::RbiObject] rbi_object
+    # @param [Parlour::TypedObject] typed_object
     # @return [void]
-    def add_comments(item, rbi_object)
+    def add_comments(item, typed_object)
       if @keep_original_comments
-        rbi_object.add_comments(item.docstring.all.split("\n"))
+        typed_object.add_comments(item.docstring.all.split("\n"))
       else
         parser = YARD::Docstring.parser
         parser.parse(item.docstring.all)
@@ -184,12 +205,12 @@ module Sord
         # fix: yard text may contains multiple line. should deal \n.
         # else generate text will be multiple line and only first line is commented
         docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
-        rbi_object.add_comments(docs_array)
+        typed_object.add_comments(docs_array)
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its methods and their
-    # signatures to the current RBI file.
+    # signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_methods(item)
@@ -197,7 +218,7 @@ module Sord
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
-        # separate method. Sorbet will handle it automatically.
+        # separate method.
         if meth.is_alias?
           next
         end
@@ -308,11 +329,21 @@ module Sord
             # (T.untyped can include nil, so don't alter that)
             type = Parlour::Types::Nilable.new(type) \
               if default == 'nil' && !type.is_a?(Parlour::Types::Nilable) && !type.is_a?(Parlour::Types::Untyped)
-            Parlour::RbiGenerator::Parameter.new(
-              name.to_s,
-              type: type,
-              default: default
-            )
+
+            case @mode
+            when :rbi
+              Parlour::RbiGenerator::Parameter.new(
+                name.to_s,
+                type: type,
+                default: default
+              )
+            when :rbs
+              Parlour::RbsGenerator::Parameter.new(
+                name.to_s,
+                type: type,
+                required: default.nil?
+              )
+            end
           end
 
         @current_object.create_method(
@@ -327,7 +358,7 @@ module Sord
     end
 
     # Given a YARD NamespaceObject, add lines defining either its class
-    # and instance attributes and their signatures to the current RBI file.
+    # and instance attributes and their signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_attributes(item)
@@ -373,20 +404,36 @@ module Sord
             kind = :writer
           end
 
-          @current_object.create_attribute(
-            name.to_s,
-            kind: kind,
-            type: sorbet_type,
-            class_attribute: (attr_loc == :class)
-          ) do |m|
-            add_comments(reader || writer, m)
+          case @mode
+          when :rbi
+            @current_object.create_attribute(
+              name.to_s,
+              kind: kind,
+              type: sorbet_type,
+              class_attribute: (attr_loc == :class)
+            ) do |m|
+              add_comments(reader || writer, m)
+            end
+          when :rbs
+            if attr_loc == :class
+              Logging.omit("RBS doesn't support class attributes, dropping", reader || writer)
+            else
+              @current_object.create_attribute(
+                name.to_s,
+                kind: kind,
+                type: sorbet_type,
+                class_attribute: (attr_loc == :class)
+              ) do |m|
+                add_comments(reader || writer, m)
+              end
+            end
           end
         end
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its mixins, methods
-    # and children to the RBI file.
+    # and children to the file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_namespace(item)
@@ -412,7 +459,7 @@ module Sord
       @current_object = parent
     end
 
-    # Populates the RBI generator with the contents of the YARD registry. You 
+    # Populates the generator with the contents of the YARD registry. You 
     # must load the YARD registry first!
     # @return [void]
     def populate
@@ -422,16 +469,16 @@ module Sord
         .each { |child| add_namespace(child) }
       end
 
-    # Populates the RBI generator with the contents of the YARD registry, then
-    # uses the loaded Parlour::RbiGenerator to generate the RBI file. You must
+    # Populates the generator with the contents of the YARD registry, then
+    # uses the loaded Parlour::Generator to generate the file. You must
     # load the YARD registry first!
     # @return [void]
     def generate
       populate
-      @parlour.rbi
+      @parlour.send(@mode)
     end
 
-    # Loads the YARD registry, populates the RBI file, and prints any relevant
+    # Loads the YARD registry, populates the file, and prints any relevant
     # final logs.
     # @return [void]
     def run

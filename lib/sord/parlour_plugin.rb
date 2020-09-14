@@ -52,10 +52,11 @@ module Sord
         end
       end
 
+      options[:mode] = :rbi
       options[:parlour] = @parlour
       options[:root] = root
 
-      Sord::RbiGenerator.new(options).run
+      Sord::Generator.new(options).run
 
       true
     end

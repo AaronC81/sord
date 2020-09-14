@@ -1,7 +1,7 @@
 # typed: ignore
 require 'yard'
 
-describe Sord::RbiGenerator do
+describe Sord::Generator do
   before do
     YARD::Registry.clear
     Sord::Logging.silent = true
@@ -10,7 +10,8 @@ describe Sord::RbiGenerator do
 
   subject do
     # Create an unnamed class to emulate everything required in "options"
-    Sord::RbiGenerator.new(
+    Sord::Generator.new(
+      mode: :rbi,
       sord_comments: true,
       break_params: 4,
       replace_errors_with_untyped: false,
