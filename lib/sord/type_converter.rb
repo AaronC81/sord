@@ -5,7 +5,7 @@ require 'sord/resolver'
 require 'parlour'
 
 module Sord
-  # Contains methods to convert YARD types to Sorbet types.
+  # Contains methods to convert YARD types to Parlour types.
   module TypeConverter
     # A regular expression which matches Ruby namespaces and identifiers. 
     # "Foo", "Foo::Bar", and "::Foo::Bar" are all matches, whereas "Foo.Bar"

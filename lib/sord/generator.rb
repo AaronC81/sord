@@ -81,7 +81,7 @@ module Sord
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
-    # and includes) to the current RBI file. Returns the number of mixins.
+    # and includes) to the current file. Returns the number of mixins.
     # @param [YARD::CodeObjects::Base] item
     # @return [Integer]
     def add_mixins(item)
@@ -408,12 +408,12 @@ module Sord
           end
 
           # Use untyped if not types specified anywhere, otherwise try to
-          # compute Sorbet type given all these types
+          # compute Parlour type given all these types
           if yard_types.empty?
             Logging.omit("no YARD type given for #{name.inspect}, using untyped", reader || writer)
-            sorbet_type = Parlour::Types::Untyped.new
+            parlour_type = Parlour::Types::Untyped.new
           else
-            sorbet_type = TypeConverter.yard_to_parlour(
+            parlour_type = TypeConverter.yard_to_parlour(
               yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           end
 
@@ -431,7 +431,7 @@ module Sord
             @current_object.create_attribute(
               name.to_s,
               kind: kind,
-              type: sorbet_type,
+              type: parlour_type,
               class_attribute: (attr_loc == :class)
             ) do |m|
               add_comments(reader || writer, m)
@@ -443,7 +443,7 @@ module Sord
               @current_object.create_attribute(
                 name.to_s,
                 kind: kind,
-                type: sorbet_type,
+                type: parlour_type,
               ) do |m|
                 add_comments(reader || writer, m)
               end
@@ -506,7 +506,7 @@ module Sord
       # Get YARD ready
       YARD::Registry.load!
 
-      # Populate the RBI
+      # Populate the type information file
       populate
 
       if object_count.zero?
@@ -520,7 +520,7 @@ module Sord
       Logging.hooks.clear
 
       unless warnings.empty?
-        Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
+        Logging.warn("There were #{warnings.length} important warnings in the output file, listed below.")
         if @replace_errors_with_untyped
           Logging.warn("The types which caused them have been replaced with untyped.")
         else
