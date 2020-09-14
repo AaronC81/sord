@@ -8,16 +8,20 @@ describe Sord::Generator do
     YARD::Logger.instance.level = Logger::ERROR
   end
 
-  subject do
-    # Create an unnamed class to emulate everything required in "options"
-    Sord::Generator.new(
-      mode: :rbi,
-      sord_comments: true,
-      break_params: 4,
-      replace_errors_with_untyped: false,
-      replace_unresolved_with_untyped: false,
-      keep_original_comments: false
-    )
+  COMMON_OPTIONS = {
+    sord_comments: true,
+    break_params: 4,
+    replace_errors_with_untyped: false,
+    replace_unresolved_with_untyped: false,
+    keep_original_comments: false
+  }
+
+  let (:rbi_gen) do
+    Sord::Generator.new(mode: :rbi, **COMMON_OPTIONS)
+  end
+
+  let (:rbs_gen) do
+    Sord::Generator.new(mode: :rbs, **COMMON_OPTIONS)
   end
 
   def fix_heredoc(x)
@@ -32,7 +36,8 @@ describe Sord::Generator do
   end
 
   it 'handles blank registries' do
-    expect(subject.generate.strip).to eq "# typed: strong"
+    expect(rbi_gen.generate.strip).to eq "# typed: strong"
+    expect(rbs_gen.generate.strip).to eq ""
   end
 
   it 'handles blank module structures' do
@@ -45,8 +50,20 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
+      module A
+        module B
+        end
+
+        module C
+          module D
+          end
+        end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       module A
         module B
         end
@@ -78,7 +95,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         class B
@@ -97,7 +114,25 @@ describe Sord::Generator do
         module E
         end
       end
-      RUBY
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        class B
+          def foo: () -> Integer
+        end
+
+        module C
+          class D
+            # _@param_ `x`
+            def bar: (String x) -> void
+          end
+        end
+
+        module E
+        end
+      end
+    RUBY
   end
   
   it 'auto-generates T.untyped signatures when unspecified and warns' do
@@ -114,7 +149,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         class B
@@ -132,7 +167,24 @@ describe Sord::Generator do
           end
         end
       end
-      RUBY
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        class B
+          # sord omit - no YARD return type given, using untyped
+          def foo: () -> untyped
+        end
+
+        module C
+          class D
+            # sord omit - no YARD type given for "x", using untyped
+            # sord omit - no YARD return type given, using untyped
+            def bar: (untyped x) -> untyped
+          end
+        end
+      end
+    RUBY
   end
 
   it 'generates inheritance, inclusion and extension' do
@@ -148,7 +200,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
       end
@@ -168,6 +220,25 @@ describe Sord::Generator do
         def x; end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+      end
+
+      class B
+      end
+
+      class C
+      end
+
+      class D < A
+        include B
+        extend C
+
+        # sord omit - no YARD return type given, using untyped
+        def x: () -> untyped
+      end
+    RUBY
   end
 
   it 'generates includes in the same order as they were in the original file' do
@@ -182,8 +253,24 @@ describe Sord::Generator do
       end
     EOF
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-EOF)
       # typed: strong
+      class A
+      end
+
+      class B
+      end
+
+      class C
+      end
+
+      class D < A
+        include C
+        include B
+      end
+    EOF
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-EOF)
       class A
       end
 
@@ -213,8 +300,24 @@ describe Sord::Generator do
       end
     EOF
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-EOF)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-EOF)
       # typed: strong
+      class A
+      end
+
+      class B
+      end
+
+      class C
+      end
+
+      class D < A
+        extend C
+        extend B
+      end
+    EOF
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-EOF)
       class A
       end
 
@@ -243,12 +346,19 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # _@param_ `x`
         sig { params(x: String, blk: T.proc.params(a: Integer, b: Float).returns(T::Boolean)).returns(T::Boolean) }
         def foo(x, &blk); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `x`
+        def foo: (String x) ?{ (Integer a, Float b) -> bool } -> bool
       end
     RUBY
   end
@@ -263,11 +373,17 @@ describe Sord::Generator do
       end
     RUBY
   
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig { params(blk: T.proc.params(foo: Symbol).void).void }
         def self.foo(&blk); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        def self.foo: () ?{ (Symbol foo) -> void } -> void
       end
     RUBY
   end
@@ -283,7 +399,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # _@param_ `x`
@@ -294,6 +410,18 @@ describe Sord::Generator do
         # line
         sig { params(x: Integer, y: T::Array[String]).void }
         def foo(x, *y); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `x`
+        # 
+        # _@param_ `y`
+        # 
+        # _@return_ — comment with multiple
+        # line
+        def foo: (Integer x, *Array[String] y) -> void
       end
     RUBY
   end
@@ -308,7 +436,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # _@param_ `x`
@@ -316,6 +444,15 @@ describe Sord::Generator do
         # _@param_ `y`
         sig { params(x: Integer, y: T::Array[String]).void }
         def foo(x, *y); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `x`
+        # 
+        # _@param_ `y`
+        def foo: (Integer x, *Array[String] y) -> void
       end
     RUBY
   end
@@ -332,7 +469,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # _@param_ `a`
@@ -353,6 +490,24 @@ describe Sord::Generator do
         def foo(a, b, c, d); end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        # 
+        # _@param_ `c`
+        # 
+        # _@param_ `d`
+        def foo: (
+                   Integer a,
+                   String b,
+                   Float c,
+                   Object d
+                 ) -> void
+      end
+    RUBY
   end
 
   it 'infers setter types' do
@@ -365,7 +520,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         sig { returns(Integer) }
@@ -375,6 +530,16 @@ describe Sord::Generator do
         # sord omit - no YARD return type given, using untyped
         sig { params(value: Integer).returns(T.untyped) }
         def x=(value); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        def x: () -> Integer
+
+        # sord infer - inferred type of parameter "value" as Integer using getter's return type
+        # sord omit - no YARD return type given, using untyped
+        def x=: (Integer value) -> untyped
       end
     RUBY
   end
@@ -388,7 +553,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # sord omit - no YARD return type given, using untyped
@@ -399,6 +564,17 @@ describe Sord::Generator do
         # sord omit - no YARD return type given, using untyped
         sig { params(value: T.untyped).returns(T.untyped) }
         def x=(value); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD return type given, using untyped
+        def x: () -> untyped
+
+        # sord omit - no YARD type given for "value", using untyped
+        # sord omit - no YARD return type given, using untyped
+        def x=: (untyped value) -> untyped
       end
     RUBY
   end
@@ -412,12 +588,19 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # sord infer - argument name in single @param inferred as "a"
         sig { params(a: String).void }
         def x(a); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord infer - argument name in single @param inferred as "a"
+        def x: (String a) -> void
       end
     RUBY
   end
@@ -433,7 +616,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # sord omit - no YARD type given for "a", using untyped
@@ -441,6 +624,15 @@ describe Sord::Generator do
         # _@param_ `b`
         sig { params(a: T.untyped, b: Integer, c: T.untyped).void }
         def x(a, b, c); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "c", using untyped
+        # _@param_ `b`
+        def x: (untyped a, Integer b, untyped c) -> void
       end
     RUBY
   end
@@ -458,7 +650,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         sig { void }
@@ -468,6 +660,16 @@ describe Sord::Generator do
       class B < A
         sig { void }
         def y; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        def x: () -> void
+      end
+
+      class B < A
+        def y: () -> void
       end
     RUBY
   end
@@ -489,7 +691,7 @@ describe Sord::Generator do
       end
     RUBY
   
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         # sord omit - no YARD type given for "b:", using untyped
@@ -506,6 +708,20 @@ describe Sord::Generator do
         def z(a = nil); end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        # sord omit - no YARD type given for "b:", using untyped
+        # _@param_ `a`
+        def x: (?a: String?, ?b: untyped) -> void
+
+        # _@param_ `a`
+        def y: (?String? a) -> void
+
+        # _@param_ `a`
+        def z: (?String? a) -> void
+      end
+    RUBY
   end
 
   it 'correctly parses methods with all kinds of parameters' do
@@ -520,7 +736,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         # _@param_ `a`
@@ -541,6 +757,24 @@ describe Sord::Generator do
         def x(a, b = 'Foo', c:, d: 'Bar'); end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        # 
+        # _@param_ `c`
+        # 
+        # _@param_ `d`
+        def x: (
+                 String a,
+                 ?String b,
+                 c: String,
+                 ?d: String
+               ) -> void
+      end
+    RUBY
   end
 
   it 'handles untyped generics' do
@@ -557,7 +791,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         # _@param_ `array`
@@ -584,6 +818,30 @@ describe Sord::Generator do
         def x(array, hash, range, set, enumerator, enumerable); end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        # _@param_ `array`
+        # 
+        # _@param_ `hash`
+        # 
+        # _@param_ `range`
+        # 
+        # _@param_ `set`
+        # 
+        # _@param_ `enumerator`
+        # 
+        # _@param_ `enumerable`
+        def x: (
+                 Array[untyped] array,
+                 Hash[untyped, untyped] hash,
+                 Range[untyped] range,
+                 Set[untyped] set,
+                 Enumerator[untyped] enumerator,
+                 Enumerable[untyped] enumerable
+               ) -> void
+      end
+    RUBY
   end
 
   it 'returns fully qualified superclasses' do
@@ -600,7 +858,7 @@ describe Sord::Generator do
       end
     RUBY
   
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class Alphabet
       end
@@ -613,6 +871,18 @@ describe Sord::Generator do
         def x; end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class Alphabet
+      end
+      
+      class Letters < Alphabet
+      end
+      
+      class A < Alphabet::Letters
+        def x: () -> void
+      end
+    RUBY
   end
 
   it 'handles constants' do
@@ -622,10 +892,16 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        EXAMPLE_CONSTANT: untyped
       end
     RUBY
   end
@@ -641,10 +917,20 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+      end
+
+      class B
+        include A
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        EXAMPLE_CONSTANT: untyped
       end
 
       class B
@@ -662,11 +948,19 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         class B
           EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+        end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        class B
+          EXAMPLE_CONSTANT: untyped
         end
       end
     RUBY
@@ -686,7 +980,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -696,6 +990,17 @@ describe Sord::Generator do
         # euismod nisi.
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        # eiusmod tempor incididunt ut labore et dolore magna aliqua. Diam
+        # quis enim lobortis scelerisque fermentum dui faucibus in. Id diam
+        # vel quam elementum pulvinar etiam non. Egestas erat imperdiet sed
+        # euismod nisi.
+        def x: () -> String
       end
     RUBY
   end
@@ -716,7 +1021,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # This method returns a string.
@@ -730,6 +1035,21 @@ describe Sord::Generator do
         # ```
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # This method returns a string.
+        # 
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        # 
+        # ```ruby
+        # A.x #=> bar
+        # ```
+        def x: () -> String
       end
     RUBY
   end
@@ -747,7 +1067,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # This method returns a string.
@@ -758,6 +1078,18 @@ describe Sord::Generator do
         # ```
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # This method returns a string.
+        # 
+        # This is a named example.
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        def x: () -> String
       end
     RUBY
   end
@@ -775,7 +1107,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # ```ruby
@@ -785,6 +1117,17 @@ describe Sord::Generator do
         # ```
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # ```ruby
+        # # This example has multiple lines
+        # A.x
+        # #=> foo
+        # ```
+        def x: () -> String
       end
     RUBY
   end
@@ -800,7 +1143,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # ```ruby
@@ -808,6 +1151,15 @@ describe Sord::Generator do
         # ```
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # ```ruby
+        # A.x #=> foo
+        # ```
+        def x: () -> String
       end
     RUBY
   end
@@ -825,7 +1177,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # Lorem ipsum dolor.
@@ -835,6 +1187,17 @@ describe Sord::Generator do
         # _@param_ `b` — Lorem ipsum
         sig { params(a: String, b: String).returns(String) }
         def x(a, b); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # _@param_ `a` — Lorem ipsum
+        # 
+        # _@param_ `b` — Lorem ipsum
+        def x: (String a, String b) -> String
       end
     RUBY
   end
@@ -852,7 +1215,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # Lorem ipsum dolor.
@@ -860,6 +1223,15 @@ describe Sord::Generator do
         # _@param_ `a` — Lorem ipsum dolor sit amet.
         sig { params(a: String).returns(String) }
         def x(a); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # _@param_ `a` — Lorem ipsum dolor sit amet.
+        def x: (String a) -> String
       end
     RUBY
   end
@@ -890,7 +1262,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # Lorem ipsum dolor.
@@ -912,6 +1284,25 @@ describe Sord::Generator do
         def z; end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # Lorem ipsum dolor.
+        # 
+        # _@deprecated_ — You shouldn't use this method.
+        def x: () -> void
+
+        # Lorem ipsum dolor.
+        # 
+        # _@note_ — This is a note.
+        def y: () -> void
+
+        # Lorem ipsum dolor.
+        # 
+        # _@see_ `B` — Another letter.
+        def z: () -> void
+      end
+    RUBY
   end
 
   it 'handles methods with @return descriptions' do
@@ -924,7 +1315,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # Gets the example string.
@@ -932,6 +1323,15 @@ describe Sord::Generator do
         # _@return_ — The example string.
         sig { returns(String) }
         def x; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # Gets the example string.
+        # 
+        # _@return_ — The example string.
+        def x: () -> String
       end
     RUBY
   end
@@ -943,7 +1343,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # sord omit - no YARD type given for "a", using untyped
@@ -963,6 +1363,22 @@ describe Sord::Generator do
         def x(a, b: [], c:, **rest, &blk); end
       end
     RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b:", using untyped
+        # sord omit - no YARD type given for "c:", using untyped
+        # sord omit - no YARD type given for "**rest", using untyped
+        # sord omit - no YARD return type given, using untyped
+        def x: (
+                 untyped a,
+                 ?b: untyped,
+                 c: untyped,
+                 **untyped rest
+               ) -> untyped
+      end
+    RUBY
   end
 
   it 'doesn\'t mess with ordered parameters' do
@@ -972,7 +1388,7 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
         # sord omit - no YARD type given for "a", using untyped
@@ -989,6 +1405,22 @@ describe Sord::Generator do
           ).returns(T.untyped)
         end
         def x(a, b = nil, c = nil, d: nil); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b", using untyped
+        # sord omit - no YARD type given for "c", using untyped
+        # sord omit - no YARD type given for "d:", using untyped
+        # sord omit - no YARD return type given, using untyped
+        def x: (
+                 untyped a,
+                 ?untyped b,
+                 ?untyped c,
+                 ?d: untyped
+               ) -> untyped
       end
     RUBY
   end
@@ -1008,7 +1440,7 @@ describe Sord::Generator do
         end
       RUBY
   
-      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
           sig { returns(Integer) }
@@ -1019,6 +1451,16 @@ describe Sord::Generator do
 
           sig { returns(T::Boolean) }
           attr_accessor :z
+        end
+      RUBY
+
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        module A
+          attr_reader x: Integer
+
+          attr_writer y: String
+
+          attr_accessor z: bool
         end
       RUBY
     end 
@@ -1033,7 +1475,7 @@ describe Sord::Generator do
         end
       RUBY
   
-      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
           class << self
@@ -1042,6 +1484,13 @@ describe Sord::Generator do
           end
         end
       RUBY
+
+      expect {
+        expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+          module A
+          end
+        RUBY
+      }.to log :warn
     end
 
     it 'can share names between class and instance' do
@@ -1057,7 +1506,7 @@ describe Sord::Generator do
         end
       RUBY
   
-      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
           class << self
@@ -1069,6 +1518,15 @@ describe Sord::Generator do
           attr_reader :x
         end
       RUBY
+
+      expect {
+        expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+          module A
+            # sord warn - RBS doesn't support class attributes, dropping
+            attr_reader x: String
+          end
+        RUBY
+      }.to log :warn 
     end
 
     it 'handles void returns' do
@@ -1080,11 +1538,17 @@ describe Sord::Generator do
         end
       RUBY
 
-      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
           sig { returns(String) }
           attr_reader :x
+        end
+      RUBY
+
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        module A
+          attr_reader x: String
         end
       RUBY
     end
@@ -1099,12 +1563,19 @@ describe Sord::Generator do
         end
       RUBY
 
-      expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
           # Gets the value of X.
           sig { returns(String) }
           attr_reader :x
+        end
+      RUBY
+
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        module A
+          # Gets the value of X.
+          attr_reader x: String
         end
       RUBY
     end
@@ -1119,12 +1590,19 @@ describe Sord::Generator do
       end
     RUBY
 
-    expect(subject.generate.strip).to eq fix_heredoc(<<-RUBY)
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
         # _@param_ `a`
         sig { params(a: String).void }
         def initialize(a); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        # _@param_ `a`
+        def initialize: (String a) -> void
       end
     RUBY
   end
