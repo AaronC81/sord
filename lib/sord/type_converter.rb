@@ -108,8 +108,7 @@ module Sord
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         Parlour::Types::Boolean.new
       when 'self'
-        # 'T.self_type'
-        raise 'unimplemented' # TODO
+        Parlour::Types::Self.new
       when Array
         # If there's only one element, unwrap it, otherwise allow for a
         # selection of any of the types

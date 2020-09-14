@@ -94,7 +94,7 @@ describe Sord::TypeConverter do
           end
         end
 
-        expect(subject.yard_to_sorbet('self', stub_method)).to eq 'T.self_type'
+        expect(subject.yard_to_sorbet('self', stub_method)).to eq Types::Self.new
       end
 
       context 'with type parameters' do
