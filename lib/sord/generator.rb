@@ -242,7 +242,7 @@ module Sord
           name = name_and_default.first
 
           if tag
-            TypeConverter.yard_to_sorbet(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            TypeConverter.yard_to_parlour(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
             yieldparams = meth.tags('yieldparam')
@@ -254,10 +254,10 @@ module Sord
             params = yieldparams.map do |param|
               Parlour::Types::Proc::Parameter.new(
                 param.name.gsub('*', ''),
-                TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                TypeConverter.yard_to_parlour(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               )
             end
-            returns = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            returns = TypeConverter.yard_to_parlour(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -276,7 +276,7 @@ module Sord
                 && meth.tag('param').types
   
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-                next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                next TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else  
                 Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
                 next Parlour::Types::Untyped.new
@@ -288,7 +288,7 @@ module Sord
               Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
               next Parlour::Types::Untyped.new
             end
-            inferred_type = TypeConverter.yard_to_sorbet(
+            inferred_type = TypeConverter.yard_to_parlour(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
@@ -301,7 +301,7 @@ module Sord
               && meth.tag('param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-              TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
               Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
               Parlour::Types::Untyped.new
@@ -318,7 +318,7 @@ module Sord
         elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
           nil
         else
-          TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+          TypeConverter.yard_to_parlour(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
         rbs_block = nil
@@ -413,7 +413,7 @@ module Sord
             Logging.omit("no YARD type given for #{name.inspect}, using untyped", reader || writer)
             sorbet_type = Parlour::Types::Untyped.new
           else
-            sorbet_type = TypeConverter.yard_to_sorbet(
+            sorbet_type = TypeConverter.yard_to_parlour(
               yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           end
 

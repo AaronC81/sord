@@ -101,7 +101,7 @@ module Sord
     # @param [Boolean] replace_unresolved_with_untyped If true, T.untyped is used
     #   when Sord is unable to resolve a constant.
     # @return [Parlour::Types::Type]
-    def self.yard_to_sorbet(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
+    def self.yard_to_parlour(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
       case yard
       when nil # Type not specified
         Parlour::Types::Untyped.new
@@ -114,7 +114,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           .uniq(&:hash)
         result = types.length == 1 \
           ? types.first
@@ -163,7 +163,7 @@ module Sord
 
         if SUPPORTED_GENERIC_TYPES.include?(generic_type)
           parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+            .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
           if SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
             Parlour::Types.const_get(generic_type).new(Parlour::Types::Union.new(parameters))
           elsif generic_type == 'Class' && parameters.length == 1
@@ -190,12 +190,12 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         Parlour::Types::Tuple.new(parameters)
       when SHORTHAND_HASH_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         # Return a warning about an invalid hash when it has more or less than two elements.
         if parameters.length == 2
           Parlour::Types::Hash.new(*parameters)
@@ -205,7 +205,7 @@ module Sord
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_sorbet(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
         parameters.one? \
           ? Parlour::Types::Array.new(parameters.first)
           : Parlour::Types::Array.new(Parlour::Types::Union.new(parameters))
