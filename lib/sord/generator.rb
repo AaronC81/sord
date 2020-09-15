@@ -315,7 +315,7 @@ module Sord
         elsif return_tags.length == 0
           Logging.omit("no YARD return type given, using untyped", meth)
           Parlour::Types::Untyped.new
-        elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
+        elsif return_tags.length == 1 && %w{void nil}.include?(return_tags&.first&.types&.first&.downcase)
           nil
         else
           TypeConverter.yard_to_parlour(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)

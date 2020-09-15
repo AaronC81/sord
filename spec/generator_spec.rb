@@ -1606,4 +1606,27 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'handles nil returns as if they were void' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @return [nil]
+        def foo; end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig { void }
+        def foo; end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        def foo: () -> void
+      end
+    RUBY
+  end
 end
