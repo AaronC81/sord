@@ -99,10 +99,17 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_constants(item)
-      item.constants.each do |constant|
+      inserted_constant_names = Set.new
+
+      item.constants(included: false).each do |constant|      
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
+        if inserted_constant_names.include?(constant_name) && @mode == :rbs
+          Logging.warn("RBS doesn't support duplicate constants, but '#{constant_name}' was duplicated - dropping future occurences", constant)
+          next
+        end
+        inserted_constant_names << constant_name
         
         # Add the constant to the current object being generated.
         case @mode
