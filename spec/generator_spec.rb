@@ -1629,4 +1629,27 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'handles nil attributes' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @return [nil]
+        attr_accessor :x
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        sig { returns(T.untyped) }
+        attr_accessor :x
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        attr_accessor x: untyped
+      end
+    RUBY
+  end
 end

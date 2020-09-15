@@ -419,6 +419,9 @@ module Sord
           if yard_types.empty?
             Logging.omit("no YARD type given for #{name.inspect}, using untyped", reader || writer)
             parlour_type = Parlour::Types::Untyped.new
+          elsif yard_types.all? { |x| x == 'nil' }
+            # Nil attributes are extremely unusual, so just use untyped
+            parlour_type = Parlour::Types::Untyped.new
           else
             parlour_type = TypeConverter.yard_to_parlour(
               yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
