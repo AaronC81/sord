@@ -1,7 +1,11 @@
-output_file: rbi/sord.rbi
+parser: false
+
+output_file:
+  rbi: rbi/sord.rbi
 
 requires:
   - sord
 
 plugins:
-  Sord::ParlourPlugin: {}
+  Sord::ParlourPlugin:
+    rbi: yes
