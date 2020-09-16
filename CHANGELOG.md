@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.0.0.beta.1] - 2020-09-16
+### Added
+- Sord now uses the Parlour 5 beta's RBS generation to generate RBS files!
+- Added `--rbi` and `--rbs` to select an output format to use (if neither given,
+  tries to infer from file extension).
+
+### Changed
+- `RbiGenerator` has been renamed to `Generator`.
+- `TypeConverter#yard_to_sorbet` is now `TypeConverter#yard_to_parlour`, and
+  returns `Parlour::Types::Type` instances rather than strings.
+
+### Fixed
+- `#return [nil]` no longer produces a union of zero types, instead becoming
+  `void` for method returns or `untyped` for attributes.
+
 ## [2.0.0] - 2020-03-16
 ### Added
 - Sord now supports generating `attr_accessor`, `attr_reader` and `attr_writer`
