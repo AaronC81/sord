@@ -7,7 +7,7 @@ require 'parlour'
 module Sord
   # Contains methods to convert YARD types to Parlour types.
   module TypeConverter
-    # A regular expression which matches Ruby namespaces and identifiers. 
+    # A regular expression which matches Ruby namespaces and identifiers.
     # "Foo", "Foo::Bar", and "::Foo::Bar" are all matches, whereas "Foo.Bar"
     # or "Foo#bar" are not.
     SIMPLE_TYPE_REGEX =
@@ -20,26 +20,25 @@ module Sord
     # "Hash{String => Symbol}", etc.
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
-    
+
     # Match duck types which require the object implement one or more methods,
     # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
     DUCK_TYPE_REGEX =
       /^\#[a-zA-Z_][\w]*(?:[a-zA-Z_][\w=]*)*(?:( ?\& ?\#)*[a-zA-Z_][\w=]*)*$/
-    
+
     # A regular expression which matches ordered lists in the format of
     # either "Array(String, Symbol)" or "(String, Symbol)".
     ORDERED_LIST_REGEX = /^(?:Array|)\((.*)\s*\)$/
 
-    # A regular expression which matches the shorthand Hash syntax, 
+    # A regular expression which matches the shorthand Hash syntax,
     # "{String => Symbol}".
     SHORTHAND_HASH_SYNTAX = /^{\s*(.*)\s*}$/
 
-    # A regular expression which matches the shorthand Array syntax, 
+    # A regular expression which matches the shorthand Array syntax,
     # "<String>".
     SHORTHAND_ARRAY_SYNTAX = /^<\s*(.*)\s*>$/
 
-    # An array of built-in types supported by Parlour.
-    SUPPORTED_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range Hash Class}
+    # Built in parlour single arg generics
     SINGLE_ARG_GENERIC_TYPES = %w{Array Set Enumerable Enumerator Range}
 
     # Given a string of YARD type parameters (without angle brackets), splits
@@ -51,7 +50,7 @@ module Sord
       buffer = ""
       current_bracketing_level = 0
       character_pointer = 0
-      
+
       while character_pointer < params.length
         should_buffer = true
 
@@ -161,29 +160,30 @@ module Sord
         generic_type = $1
         type_parameters = $2
 
-        if SUPPORTED_GENERIC_TYPES.include?(generic_type)
-          parameters = split_type_parameters(type_parameters)
-            .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
-          if SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
-            Parlour::Types.const_get(generic_type).new(Parlour::Types::Union.new(parameters))
-          elsif generic_type == 'Class' && parameters.length == 1
-            Parlour::Types::Class.new(parameters.first)
-          elsif generic_type == 'Hash'
-            if parameters.length == 2
-              Parlour::Types::Hash.new(*parameters)
-            else
-              handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
-            end
+        parameters = split_type_parameters(type_parameters)
+          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+        if SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
+          Parlour::Types.const_get(generic_type).new(Parlour::Types::Union.new(parameters))
+        elsif generic_type == 'Class' && parameters.length == 1
+          Parlour::Types::Class.new(parameters.first)
+        elsif generic_type == 'Hash'
+          if parameters.length == 2
+            Parlour::Types::Hash.new(*parameters)
           else
-            Parlour::Types.const_get(generic_type).new(*parameters)
+            handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
           end
         else
-          return handle_sord_error(
-            generic_type,
-            "unsupported generic type #{generic_type.inspect} in #{yard.inspect}",
-            item,
-            replace_errors_with_untyped
-          )
+          if Parlour::Types.const_defined?(generic_type)
+            # This generic is built in to parlour, but sord doesn't
+            # explicitly know about it.
+            Parlour::Types.const_get(generic_type).new(*parameters)
+          else
+            # This is a user defined generic
+            Parlour::Types::Generic.new(
+              yard_to_parlour(generic_type),
+              parameters
+            )
+          end
         end
       # Converts ordered lists like Array(Symbol, String) or (Symbol, String)
       # into tuples.

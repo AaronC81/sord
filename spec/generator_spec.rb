@@ -421,7 +421,7 @@ describe Sord::Generator do
         # 
         # _@return_ — comment with multiple
         # line
-        def foo: (Integer x, *Array[String] y) -> void
+        def foo: (Integer x, *::Array[String] y) -> void
       end
     RUBY
   end
@@ -452,7 +452,7 @@ describe Sord::Generator do
         # _@param_ `x`
         # 
         # _@param_ `y`
-        def foo: (Integer x, *Array[String] y) -> void
+        def foo: (Integer x, *::Array[String] y) -> void
       end
     RUBY
   end
@@ -833,12 +833,12 @@ describe Sord::Generator do
         # 
         # _@param_ `enumerable`
         def x: (
-                 Array[untyped] array,
-                 Hash[untyped, untyped] hash,
-                 Range[untyped] range,
-                 Set[untyped] set,
-                 Enumerator[untyped] enumerator,
-                 Enumerable[untyped] enumerable
+                 ::Array[untyped] array,
+                 ::Hash[untyped, untyped] hash,
+                 ::Range[untyped] range,
+                 ::Set[untyped] set,
+                 ::Enumerator[untyped] enumerator,
+                 ::Enumerable[untyped] enumerable
                ) -> void
       end
     RUBY
