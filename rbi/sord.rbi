@@ -1,6 +1,6 @@
 # typed: strong
 module Sord
-  VERSION = T.let('3.0.0.beta.1', T.untyped)
+  VERSION = T.let('3.0.0.beta.2', T.untyped)
 
   # Handles writing logs to stdout and any other classes which request them.
   module Logging
@@ -318,7 +318,6 @@ module Sord
     ORDERED_LIST_REGEX = T.let(/^(?:Array|)\((.*)\s*\)$/, T.untyped)
     SHORTHAND_HASH_SYNTAX = T.let(/^{\s*(.*)\s*}$/, T.untyped)
     SHORTHAND_ARRAY_SYNTAX = T.let(/^<\s*(.*)\s*>$/, T.untyped)
-    SUPPORTED_GENERIC_TYPES = T.let(%w{Array Set Enumerable Enumerator Range Hash Class}, T.untyped)
     SINGLE_ARG_GENERIC_TYPES = T.let(%w{Array Set Enumerable Enumerator Range}, T.untyped)
 
     # Given a string of YARD type parameters (without angle brackets), splits
