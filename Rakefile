@@ -24,9 +24,18 @@ namespace :examples do
   require 'rainbow'
 
   desc "Clone git repositories and run Sord on them as examples"
-  task :seed, [:clean] do |t, args|
+  task :seed, [:mode, :clean] do |t, args|
     if File.directory?('sord_examples')
       puts Rainbow('sord_examples directory already exists, please delete the directory or run a reseed!').red
+      exit
+    end
+
+    if args[:mode] == 'rbi'
+      mode_arg = '--rbi'
+    elsif args[:mode] == 'rbs'
+      mode_arg = '--rbs'
+    else
+      puts Rainbow('please specify \'rbi\' or \'rbs\'!').red
       exit
     end
 
@@ -46,11 +55,11 @@ namespace :examples do
         # Generate sri
         puts "Generating rbi for #{name}..."
         if args[:clean]
-          system("bundle exec sord ../#{name}.rbi --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
         else
-          system("bundle exec sord ../#{name}.rbi")
+          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg}")
         end
-        puts "#{name}.rbi generated!"
+        puts "#{name}.#{args[:mode]} generated!"
         FileUtils.cd '..'
       end
     end
@@ -59,11 +68,20 @@ namespace :examples do
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
-  task :reseed, [:clean] do |t, args|
+  task :reseed, [:mode, :clean] do |t, args|
     if Dir.exist?('sord_examples')
       FileUtils.cd 'sord_examples'
     else
       raise Rainbow("The sord_examples directory does not exist. Have you run the seed task?").red.bold
+    end
+
+    if args[:mode] == 'rbi'
+      mode_arg = '--rbi'
+    elsif args[:mode] == 'rbs'
+      mode_arg = '--rbs'
+    else
+      puts Rainbow('please specify \'rbi\' or \'rbs\'!').red
+      exit
     end
 
     REPOS.keys.each do |name|
@@ -71,9 +89,9 @@ namespace :examples do
       puts "Regenerating rbi file for #{name}..."
       Bundler.with_clean_env do
         if args[:clean]
-          system("bundle exec sord ../#{name}.rbi --no-regenerate --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-regenerate --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
         else
-          system("bundle exec sord ../#{name}.rbi --no-regenerate")
+          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-regenerate")
         end
       end
       FileUtils.cd '..'

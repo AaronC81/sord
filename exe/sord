@@ -10,8 +10,10 @@ program :description, 'Generate Sorbet RBIs from YARD documentation'
 default_command :gen
 command :gen do |c|
   c.syntax = 'sord gen <output-file> [options]'
-  c.description = 'Generates an RBI file from this directory\'s YARD docs'
-  c.option '--[no-]sord-comments', 'Controls informational/warning comments in the RBI file'
+  c.description = 'Generates a type signature file from this directory\'s YARD docs'
+  c.option '--rbi', 'Use Sorbet\'s RBI format'
+  c.option '--rbs', 'Use Steep/Ruby 3\'s RBS format'
+  c.option '--[no-]sord-comments', 'Controls informational/warning comments in the file'
   c.option '--[no-]regenerate', 'Controls whether YARD is executed before Sord runs'
   c.option '--break-params INTEGER', Integer, 'Break params onto their own lines if there are this many'
   c.option '--replace-errors-with-untyped', 'Uses T.untyped rather than SORD_ERROR_ constants'
@@ -19,11 +21,13 @@ command :gen do |c|
   c.option '--exclude-messages STRING', String, 'Blacklists a comma-separated string of log message types'
   c.option '--include-messages STRING', String, 'Whitelists a comma-separated string of log message types'
   c.option '--keep-original-comments', 'Retains original YARD comments rather than converting them to Markdown'
-  c.option '--skip-constants', 'Excludes constants from generated RBI'
+  c.option '--skip-constants', 'Excludes constants from generated file'
   c.option '--use-original-initialize-return', 'Uses the specified return type for #initialize rather than void'
 
   c.action do |args, options|
     options.default(
+      rbi: false,
+      rbs: false,
       sord_comments: true,
       regenerate: true,
       break_params: 4,
@@ -40,15 +44,47 @@ command :gen do |c|
       Sord::Logging.error('Must specify filename')
       exit 1
     end
-
+    
     plugin_options = options.__hash__
     plugin_options[:exclude_options] = plugin_options[:exclude_options]&.split(',')
     plugin_options[:include_options] = plugin_options[:include_options]&.split(',')
 
+    if !(plugin_options[:rbi] || plugin_options[:rbs])
+      if args.first
+        if args.first.end_with?('.rbi')
+          Sord::Logging.infer('Assuming from filename you wish to generate in RBI format')
+          plugin_options[:rbi] = true
+        elsif args.first.end_with?('.rbs')
+          Sord::Logging.infer('Assuming from filename you wish to generate in RBS format')
+          plugin_options[:rbs] = true
+        else
+          Sord::Logging.error('An output format could not be inferred from your filename; please specify --rbi or --rbs')
+          exit 1
+        end
+      else
+        Sord::Logging.error('No output format given; please specify --rbi or --rbs')
+        exit 1
+      end
+    end
+
+    if (plugin_options[:rbi] && plugin_options[:rbs])
+      Sord::Logging.error('You cannot specify both --rbi and --rbs; please use only one')
+      exit 1
+    end
+
     plugin = Sord::ParlourPlugin.new(plugin_options)
-    plugin.parlour = Parlour::RbiGenerator.new(break_params: plugin_options[:break_params])
+
+    if plugin_options[:rbi]
+      klass = Parlour::RbiGenerator
+      generator_method = :rbi
+    elsif plugin_options[:rbs]
+      klass = Parlour::RbsGenerator
+      generator_method = :rbs
+    end
+
+    plugin.parlour = klass.new(break_params: plugin_options[:break_params])
     plugin.generate(plugin.parlour.root)
     
-    File.write(args.first, plugin.parlour.rbi)
+    File.write(args.first, plugin.parlour.send(generator_method))
   end
 end

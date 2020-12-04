@@ -37,6 +37,16 @@ module Sord
         end
         Sord::Logging.enabled_types = Sord::Logging::AVAILABLE_TYPES - blacklist
       end
+
+      if !(options[:rbi] || options[:rbs])
+        Sord::Logging.error('No output format given; please specify --rbi or --rbs')
+        exit 1
+      end
+  
+      if (options[:rbi] && options[:rbs])
+        Sord::Logging.error('You cannot specify both --rbi and --rbs; please use only one')
+        exit 1
+      end
   
       if options[:regenerate]
         begin
@@ -52,10 +62,12 @@ module Sord
         end
       end
 
+      options[:mode] = \
+        if options[:rbi] then :rbi elsif options[:rbs] then :rbs end 
       options[:parlour] = @parlour
       options[:root] = root
 
-      Sord::RbiGenerator.new(options).run
+      Sord::Generator.new(options).run
 
       true
     end

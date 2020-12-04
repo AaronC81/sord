@@ -6,8 +6,11 @@ require 'parlour'
 require 'rainbow'
 
 module Sord
-  # Converts the current working directory's YARD registry into an RBI file.
-  class RbiGenerator    
+  # Converts the current working directory's YARD registry into an type
+  # signature file.
+  class Generator    
+    VALID_MODES = [:rbi, :rbs]
+
     # @return [Integer] The number of objects this generator has processed so 
     #   far.
     def object_count
@@ -19,17 +22,28 @@ module Sord
     #   [message, item, line].
     attr_reader :warnings
 
-    # Create a new RBI generator.
+    # Create a new generator.
     # @param [Hash] options
+    # @option options [Symbol] mode
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
     # @option options [Boolean] comments
-    # @option options [Parlour::RbiGenerator] generator
-    # @option options [Parlour::RbiGenerator::Namespace] root
+    # @option options [Parlour::Generator] generator
+    # @option options [Parlour::TypedObject] root
     # @return [void]
     def initialize(options)
-      @parlour = options[:parlour] || Parlour::RbiGenerator.new
+      @mode = options[:mode].to_sym rescue options[:mode]
+      raise "invalid mode #{@mode}, expected one of: #{VALID_MODES.join(', ')}" \
+        unless VALID_MODES.include?(@mode)
+
+      @parlour = options[:parlour] || \
+        case @mode
+        when :rbi
+          Parlour::RbiGenerator.new
+        when :rbs
+          Parlour::RbsGenerator.new
+        end
       @current_object = options[:root] || @parlour.root
 
       @namespace_count = 0
@@ -42,7 +56,7 @@ module Sord
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
 
-      # Hook the logger so that messages are added as comments to the RBI file
+      # Hook the logger so that messages are added as comments
       Logging.add_hook do |type, msg, item|
         @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
       end if options[:sord_comments]
@@ -67,7 +81,7 @@ module Sord
     end
 
     # Given a YARD CodeObject, add lines defining its mixins (that is, extends
-    # and includes) to the current RBI file. Returns the number of mixins.
+    # and includes) to the current file. Returns the number of mixins.
     # @param [YARD::CodeObjects::Base] item
     # @return [Integer]
     def add_mixins(item)
@@ -85,25 +99,39 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_constants(item)
-      item.constants.each do |constant|
+      inserted_constant_names = Set.new
+
+      item.constants(included: false).each do |constant|      
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
+        if inserted_constant_names.include?(constant_name) && @mode == :rbs
+          Logging.warn("RBS doesn't support duplicate constants, but '#{constant_name}' was duplicated - dropping future occurences", constant)
+          next
+        end
+        inserted_constant_names << constant_name
         
         # Add the constant to the current object being generated.
-        @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
-          c.add_comments(constant.docstring.all.split("\n"))
+        case @mode
+        when :rbi
+          @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
+            c.add_comments(constant.docstring.all.split("\n"))
+          end
+        when :rbs
+          @current_object.create_constant(constant_name, type: Parlour::Types::Untyped.new) do |c|
+            c.add_comments(constant.docstring.all.split("\n"))
+          end
         end
       end
     end
 
-    # Adds comments to an RBI object based on a docstring.
+    # Adds comments to an object based on a docstring.
     # @param [YARD::CodeObjects::NamespaceObject] item
-    # @param [Parlour::RbiGenerator::RbiObject] rbi_object
+    # @param [Parlour::TypedObject] typed_object
     # @return [void]
-    def add_comments(item, rbi_object)
+    def add_comments(item, typed_object)
       if @keep_original_comments
-        rbi_object.add_comments(item.docstring.all.split("\n"))
+        typed_object.add_comments(item.docstring.all.split("\n"))
       else
         parser = YARD::Docstring.parser
         parser.parse(item.docstring.all)
@@ -184,12 +212,12 @@ module Sord
         # fix: yard text may contains multiple line. should deal \n.
         # else generate text will be multiple line and only first line is commented
         docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
-        rbi_object.add_comments(docs_array)
+        typed_object.add_comments(docs_array)
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its methods and their
-    # signatures to the current RBI file.
+    # signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_methods(item)
@@ -197,7 +225,7 @@ module Sord
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
-        # separate method. Sorbet will handle it automatically.
+        # separate method.
         if meth.is_alias?
           next
         end
@@ -221,7 +249,7 @@ module Sord
           name = name_and_default.first
 
           if tag
-            TypeConverter.yard_to_sorbet(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            TypeConverter.yard_to_parlour(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
             yieldparams = meth.tags('yieldparam')
@@ -230,18 +258,19 @@ module Sord
               yieldreturn&.first&.downcase == 'void'
 
             # Create strings
-            params_string = yieldparams.map do |param|
-              "#{param.name.gsub('*', '')}: #{TypeConverter.yard_to_sorbet(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)}" unless param.name.nil?
-            end.join(', ')
-            return_string = TypeConverter.yard_to_sorbet(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            params = yieldparams.map do |param|
+              Parlour::Types::Proc::Parameter.new(
+                param.name.gsub('*', ''),
+                TypeConverter.yard_to_parlour(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              )
+            end
+            returns = TypeConverter.yard_to_parlour(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
-              'T.untyped'
-            elsif yieldreturn.nil?
-              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.void"
+              Parlour::Types::Untyped.new
             else
-              "T.proc#{params_string.empty? ? '' : ".params(#{params_string})"}.returns(#{return_string})"
+              Parlour::Types::Proc.new(params, yieldreturn.nil? ? nil : returns)
             end
           elsif meth.path.end_with? '='
             # Look for the matching getter method
@@ -254,22 +283,22 @@ module Sord
                 && meth.tag('param').types
   
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-                next TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                next TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else  
-                Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-                next 'T.untyped'
+                Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+                next Parlour::Types::Untyped.new
               end
             end
 
             return_types = getter.tags('return').flat_map(&:types)
             unless return_types.any?
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-              next 'T.untyped'
+              Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+              next Parlour::Types::Untyped.new
             end
-            inferred_type = TypeConverter.yard_to_sorbet(
+            inferred_type = TypeConverter.yard_to_parlour(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             
-            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type} using getter's return type", meth)
+            Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
             inferred_type
           else
             # Is this the only argument, and was a @param specified without an
@@ -279,10 +308,10 @@ module Sord
               && meth.tag('param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-              TypeConverter.yard_to_sorbet(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
-              Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", meth)
-              'T.untyped'
+              Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
+              Parlour::Types::Untyped.new
             end
           end
         end
@@ -291,42 +320,74 @@ module Sord
         returns = if meth.name == :initialize && !@use_original_initialize_return
           nil
         elsif return_tags.length == 0
-          Logging.omit("no YARD return type given, using T.untyped", meth)
-          'T.untyped'
-        elsif return_tags.length == 1 && return_tags&.first&.types&.first&.downcase == "void"
+          Logging.omit("no YARD return type given, using untyped", meth)
+          Parlour::Types::Untyped.new
+        elsif return_tags.length == 1 && %w{void nil}.include?(return_tags&.first&.types&.first&.downcase)
           nil
         else
-          TypeConverter.yard_to_sorbet(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+          TypeConverter.yard_to_parlour(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
+        rbs_block = nil
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
             # If the default is "nil" but the type is not nilable, then it 
             # should become nilable
             # (T.untyped can include nil, so don't alter that)
-            type = "T.nilable(#{type})" \
-              if default == 'nil' && !type.start_with?('T.nilable') && type != 'T.untyped'
-            Parlour::RbiGenerator::Parameter.new(
-              name.to_s,
-              type: type,
-              default: default
-            )
-          end
+            type = Parlour::Types::Nilable.new(type) \
+              if default == 'nil' && !type.is_a?(Parlour::Types::Nilable) && !type.is_a?(Parlour::Types::Untyped)
 
-        @current_object.create_method(
-          meth.name.to_s, 
-          parameters: parlour_params,
-          returns: returns,
-          class_method: meth.scope == :class
-        ) do |m|
-          add_comments(meth, m)
-        end
+            case @mode
+            when :rbi
+              Parlour::RbiGenerator::Parameter.new(
+                name.to_s,
+                type: type,
+                default: default
+              )
+            when :rbs
+              if name.start_with?('&')
+                rbs_block = type
+                nil
+              else
+                Parlour::RbsGenerator::Parameter.new(
+                  name.to_s,
+                  type: type,
+                  required: default.nil?
+                )
+              end
+            end
+          end
+          .compact
+
+        case @mode
+        when :rbi
+          @current_object.create_method(
+            meth.name.to_s, 
+            parameters: parlour_params,
+            returns: returns,
+            class_method: meth.scope == :class
+          ) do |m|
+            add_comments(meth, m)
+          end
+        when :rbs
+          @current_object.create_method(
+            meth.name.to_s,
+            [Parlour::RbsGenerator::MethodSignature.new(
+              parlour_params, returns, block: rbs_block && !rbs_block.is_a?(Parlour::Types::Untyped) \
+                ? Parlour::RbsGenerator::Block.new(rbs_block, false)
+                : nil
+            )],
+            class_method: meth.scope == :class
+          ) do |m|
+            add_comments(meth, m)
+          end
+        end  
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining either its class
-    # and instance attributes and their signatures to the current RBI file.
+    # and instance attributes and their signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_attributes(item)
@@ -353,13 +414,16 @@ module Sord
               writer.tags('param').flat_map(&:types)
           end
 
-          # Use T.untyped if not types specified anywhere, otherwise try to
-          # compute Sorbet type given all these types
+          # Use untyped if not types specified anywhere, otherwise try to
+          # compute Parlour type given all these types
           if yard_types.empty?
-            Logging.omit("no YARD type given for #{name.inspect}, using T.untyped", reader || writer)
-            sorbet_type = 'T.untyped'
+            Logging.omit("no YARD type given for #{name.inspect}, using untyped", reader || writer)
+            parlour_type = Parlour::Types::Untyped.new
+          elsif yard_types.all? { |x| x == 'nil' }
+            # Nil attributes are extremely unusual, so just use untyped
+            parlour_type = Parlour::Types::Untyped.new
           else
-            sorbet_type = TypeConverter.yard_to_sorbet(
+            parlour_type = TypeConverter.yard_to_parlour(
               yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           end
 
@@ -372,20 +436,35 @@ module Sord
             kind = :writer
           end
 
-          @current_object.create_attribute(
-            name.to_s,
-            kind: kind,
-            type: sorbet_type,
-            class_attribute: (attr_loc == :class)
-          ) do |m|
-            add_comments(reader || writer, m)
+          case @mode
+          when :rbi
+            @current_object.create_attribute(
+              name.to_s,
+              kind: kind,
+              type: parlour_type,
+              class_attribute: (attr_loc == :class)
+            ) do |m|
+              add_comments(reader || writer, m)
+            end
+          when :rbs
+            if attr_loc == :class
+              Logging.warn("RBS doesn't support class attributes, dropping", reader || writer)
+            else
+              @current_object.create_attribute(
+                name.to_s,
+                kind: kind,
+                type: parlour_type,
+              ) do |m|
+                add_comments(reader || writer, m)
+              end
+            end
           end
         end
       end
     end
 
     # Given a YARD NamespaceObject, add lines defining its mixins, methods
-    # and children to the RBI file.
+    # and children to the file.
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_namespace(item)
@@ -411,7 +490,7 @@ module Sord
       @current_object = parent
     end
 
-    # Populates the RBI generator with the contents of the YARD registry. You 
+    # Populates the generator with the contents of the YARD registry. You 
     # must load the YARD registry first!
     # @return [void]
     def populate
@@ -421,23 +500,23 @@ module Sord
         .each { |child| add_namespace(child) }
       end
 
-    # Populates the RBI generator with the contents of the YARD registry, then
-    # uses the loaded Parlour::RbiGenerator to generate the RBI file. You must
+    # Populates the generator with the contents of the YARD registry, then
+    # uses the loaded Parlour::Generator to generate the file. You must
     # load the YARD registry first!
     # @return [void]
     def generate
       populate
-      @parlour.rbi
+      @parlour.send(@mode)
     end
 
-    # Loads the YARD registry, populates the RBI file, and prints any relevant
+    # Loads the YARD registry, populates the file, and prints any relevant
     # final logs.
     # @return [void]
     def run
       # Get YARD ready
       YARD::Registry.load!
 
-      # Populate the RBI
+      # Populate the type information file
       populate
 
       if object_count.zero?
@@ -451,9 +530,9 @@ module Sord
       Logging.hooks.clear
 
       unless warnings.empty?
-        Logging.warn("There were #{warnings.length} important warnings in the RBI file, listed below.")
+        Logging.warn("There were #{warnings.length} important warnings in the output file, listed below.")
         if @replace_errors_with_untyped
-          Logging.warn("The types which caused them have been replaced with T.untyped.")
+          Logging.warn("The types which caused them have been replaced with untyped.")
         else
           Logging.warn("The types which caused them have been replaced with SORD_ERROR_ constants.")
         end
