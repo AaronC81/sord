@@ -3,12 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [3.0.0.beta.2] - 2020-10-05
-### Added
-- Sord is no longer limited to a known set of generics, and will instead
-  generate `Parlour::Types::Generic` types for user-defined generics.
-
-## [3.0.0.beta.1] - 2020-09-16
+## [3.0.0] - 2020-12-26
 ### Added
 - Sord now uses the Parlour 5 beta's RBS generation to generate RBS files!
 - Added `--rbi` and `--rbs` to select an output format to use (if neither given,
@@ -22,6 +17,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - `#return [nil]` no longer produces a union of zero types, instead becoming
   `void` for method returns or `untyped` for attributes.
+
+
+<details>
+  <summary>3.0.0 pre-releases</summary>
+
+  ## [3.0.0.beta.2] - 2020-10-05
+  ### Added
+  - Sord is no longer limited to a known set of generics, and will instead
+    generate `Parlour::Types::Generic` types for user-defined generics.
+
+  ## [3.0.0.beta.1] - 2020-09-16
+  ### Added
+  - Sord now uses the Parlour 5 beta's RBS generation to generate RBS files!
+  - Added `--rbi` and `--rbs` to select an output format to use (if neither given,
+    tries to infer from file extension).
+
+  ### Changed
+  - `RbiGenerator` has been renamed to `Generator`.
+  - `TypeConverter#yard_to_sorbet` is now `TypeConverter#yard_to_parlour`, and
+    returns `Parlour::Types::Type` instances rather than strings.
+
+  ### Fixed
+  - `#return [nil]` no longer produces a union of zero types, instead becoming
+    `void` for method returns or `untyped` for attributes.
+
+</details>
 
 ## [2.0.0] - 2020-03-16
 ### Added
