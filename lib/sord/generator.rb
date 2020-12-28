@@ -88,8 +88,17 @@ module Sord
       item.instance_mixins.reverse_each do |i|
         @current_object.create_include(i.path.to_s)
       end
-      item.class_mixins.reverse_each do |e|
-        @current_object.create_extend(e.path.to_s)
+
+      # YARD 0.9.26 makes extends appear in the same order as code
+      # (includes are still reversed)
+      if Gem::Version.new(YARD::VERSION) >= Gem::Version.new("0.9.26")
+        item.class_mixins.each do |e|
+          @current_object.create_extend(e.path.to_s)
+        end
+      else
+        item.class_mixins.reverse_each do |e|
+          @current_object.create_extend(e.path.to_s)
+        end
       end
 
       item.instance_mixins.length + item.class_mixins.length
