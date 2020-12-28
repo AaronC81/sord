@@ -39,8 +39,12 @@ module Sord
       # This prints some deprecation warnings, so suppress them
       prev_stderr = $stderr
       $stderr = StringIO.new
+      
+      major = RUBY_VERSION.split('.').first.to_i
+      sorted_set_removed = major >= 3 
 
       Object.constants
+        .reject { |x| sorted_set_removed && x == :SortedSet }
         .select { |x| Object.const_get(x).is_a?(Class) }
         .map(&:to_s)
     ensure
