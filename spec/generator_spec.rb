@@ -1652,4 +1652,48 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'works around the YARD "duplicated character after negative argument" bug' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        def x(a, b, c = -1, d = -2); end
+        def y(a, b, c = -Something.complex(2, 3), d = -Something::ELSE); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b", using untyped
+        # sord omit - no YARD type given for "c", using untyped
+        # sord omit - no YARD type given for "d", using untyped
+        # sord omit - no YARD return type given, using untyped
+        sig do
+          params(
+            a: T.untyped,
+            b: T.untyped,
+            c: T.untyped,
+            d: T.untyped
+          ).returns(T.untyped)
+        end
+        def x(a, b, c = -1, d = -2); end
+
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD type given for "b", using untyped
+        # sord omit - no YARD type given for "c", using untyped
+        # sord omit - no YARD type given for "d", using untyped
+        # sord omit - no YARD return type given, using untyped
+        sig do
+          params(
+            a: T.untyped,
+            b: T.untyped,
+            c: T.untyped,
+            d: T.untyped
+          ).returns(T.untyped)
+        end
+        def y(a, b, c = -Something.complex(2, 3), d = -Something::ELSE); end
+      end
+    RUBY
+  end
 end

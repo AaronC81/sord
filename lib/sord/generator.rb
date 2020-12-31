@@ -250,7 +250,7 @@ module Sord
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
-          [[name, default], meth.tags('param')
+          [[name, fix_default_if_unary_minus(default)], meth.tags('param')
             .find { |p| p.name&.gsub('*', '')&.gsub(':', '') == name.gsub('*', '').gsub(':', '') }]
         end.to_h
 
@@ -596,6 +596,21 @@ module Sord
       }
 
       return pair_type_order[pair1_type] <=> pair_type_order[pair2_type]
+    end
+
+    # Removes the last character of a default parameter value if it begins with
+    # '-', working around a bug in YARD. (See lsegal/yard #894)
+    #
+    # @param [String] default
+    # @return [String]
+    def fix_default_if_unary_minus(default)
+      if default.nil?
+        nil
+      elsif default[0] == '-'
+        default[0..-2]
+      else
+        default
+      end
     end
   end
 end
