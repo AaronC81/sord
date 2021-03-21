@@ -127,7 +127,19 @@ module Sord
             c.add_comments(constant.docstring.all.split("\n"))
           end
         when :rbs
-          @current_object.create_constant(constant_name, type: Parlour::Types::Untyped.new) do |c|
+          return_tags = constant.tags('return')
+          returns = if return_tags.empty?
+            Logging.omit("no YARD return type given, using untyped", constant.to_s)
+            Parlour::Types::Untyped.new
+          else
+            TypeConverter.yard_to_parlour(
+              return_tags.map(&:types).flatten,
+              constant,
+              @replace_errors_with_untyped,
+              @replace_unresolved_with_untyped
+            )
+          end
+          @current_object.create_constant(constant_name, type: returns) do |c|
             c.add_comments(constant.docstring.all.split("\n"))
           end
         end
