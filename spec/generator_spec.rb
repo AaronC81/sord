@@ -888,20 +888,24 @@ describe Sord::Generator do
   it 'handles constants' do
     YARD.parse_string(<<-RUBY)
       class A
-        EXAMPLE_CONSTANT = 'Foo'
+        EXAMPLE_UNTYPED_CONSTANT = 'Foo'
+        # @return [String]
+        EXAMPLE_TYPED_CONSTANT = 'Bar'
       end
     RUBY
 
     expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
-        EXAMPLE_CONSTANT = T.let('Foo', T.untyped)
+        EXAMPLE_UNTYPED_CONSTANT = T.let('Foo', T.untyped)
+        EXAMPLE_TYPED_CONSTANT = T.let('Bar', T.untyped)
       end
     RUBY
 
     expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       class A
-        EXAMPLE_CONSTANT: untyped
+        EXAMPLE_UNTYPED_CONSTANT: untyped
+        EXAMPLE_TYPED_CONSTANT: String
       end
     RUBY
   end
