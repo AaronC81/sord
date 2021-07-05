@@ -12,6 +12,8 @@ type signatures you need!
 Sord is the perfect way to jump-start the adoption of types in your project,
 whether you plan to use Sorbet's RBI format or Ruby 3/Steep's RBS format.
 
+**Try Sord online at: [sord.aaronc.cc](https://sord.aaronc.cc)**
+
 Sord has the following features:
   - Automatically generates signatures for modules, classes and methods
   - Support for multiple parameter or return types (`T.any`/`|`)
