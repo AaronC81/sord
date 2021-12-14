@@ -1700,4 +1700,49 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'handles namespacing from root' do
+    YARD.parse_string(<<-RUBY)
+      class X
+      end
+
+      class Y
+        class X
+        end
+      end
+
+      class Z
+        # @return [Y::X]
+        def y_x; end
+
+        # @return [::X]
+        def x; end
+
+        # @return [X]
+        def ambiguous_x; end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class X
+      end
+
+      class Y
+        class X
+        end
+      end
+
+      class Z
+        sig { returns(Y::X) }
+        def y_x; end
+
+        sig { returns(::X) }
+        def x; end
+
+        sig { returns(X) }
+        def ambiguous_x; end
+      end
+    RUBY
+  end
 end
