@@ -73,11 +73,12 @@ module Sord
     def self.generic(kind, header, msg, item)
       return unless enabled_types.include?(kind)
 
-      if item
-        puts "#{header} (#{Rainbow(item.path).bold}) #{msg}" unless silent?
+      message = if item
+        "#{header} (#{Rainbow(item.path).bold}) #{msg}"
       else
-        puts "#{header} #{msg}" unless silent?
+        "#{header} #{msg}"
       end
+      puts message unless silent?
 
       invoke_hooks(kind, msg, item)
     end

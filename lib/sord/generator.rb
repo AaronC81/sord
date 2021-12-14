@@ -129,7 +129,7 @@ module Sord
         when :rbs
           return_tags = constant.tags('return')
           returns = if return_tags.empty?
-            Logging.omit("no YARD return type given, using untyped", constant.to_s)
+            Logging.omit("no YARD return type given, using untyped", constant)
             Parlour::Types::Untyped.new
           else
             TypeConverter.yard_to_parlour(
