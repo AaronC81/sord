@@ -1475,6 +1475,12 @@ describe Sord::Generator do
           class << self
             # @return [Integer]
             attr_reader :x
+            
+            # @return [String]
+            attr_writer :y
+            
+            # @return [Float]
+            attr_accessor :z
           end
         end
       RUBY
@@ -1485,16 +1491,27 @@ describe Sord::Generator do
           class << self
             sig { returns(Integer) }
             attr_reader :x
+
+            sig { params(y: String).returns(String) }
+            attr_writer :y
+
+            sig { returns(Float) }
+            attr_accessor :z
           end
         end
       RUBY
 
-      expect {
-        expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
-          module A
-          end
-        RUBY
-      }.to log :warn
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        module A
+          def self.x: () -> Integer
+
+          def self.y=: (String value) -> String
+
+          def self.z: () -> Float
+
+          def self.z=: (Float value) -> Float
+        end
+      RUBY
     end
 
     it 'can share names between class and instance' do
@@ -1523,14 +1540,13 @@ describe Sord::Generator do
         end
       RUBY
 
-      expect {
-        expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
-          module A
-            # sord warn - RBS doesn't support class attributes, dropping
-            attr_reader x: String
-          end
-        RUBY
-      }.to log :warn 
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        module A
+          def self.x: () -> Integer
+
+          attr_reader x: String
+        end
+      RUBY
     end
 
     it 'handles void returns' do

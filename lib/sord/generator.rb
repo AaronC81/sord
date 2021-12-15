@@ -469,7 +469,31 @@ module Sord
             end
           when :rbs
             if attr_loc == :class
-              Logging.warn("RBS doesn't support class attributes, dropping", reader || writer)
+              # RBS doesn't support class attr_accessors so create individual methods
+
+              if reader
+                @current_object.create_method(
+                  name.to_s,
+                  [Parlour::RbsGenerator::MethodSignature.new([], parlour_type)],
+                  class_method: true
+                ) do |m|
+                  add_comments(reader, m)
+                end
+              end
+
+              if writer
+                @current_object.create_method(
+                  "#{name}=",
+                  [Parlour::RbsGenerator::MethodSignature.new([Parlour::RbsGenerator::Parameter.new(
+                    "value",
+                    type: parlour_type,
+                    required: true
+                  )], parlour_type)],
+                  class_method: true
+                ) do |m|
+                  add_comments(writer, m)
+                end
+              end
             else
               @current_object.create_attribute(
                 name.to_s,
