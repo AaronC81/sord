@@ -1704,7 +1704,9 @@ describe Sord::Generator do
   it 'works with inline block as param' do
     YARD.parse_string(<<-RUBY)
       class A
-        def x(a: ->() {}); end
+        def x(a: -> () {}); end
+        def y(a: ->() {}); end
+        def z(a: -> {}); end
       end
     RUBY
 
@@ -1714,7 +1716,17 @@ describe Sord::Generator do
         # sord omit - no YARD type given for "a:", using untyped
         # sord omit - no YARD return type given, using untyped
         sig { params(a: T.untyped).returns(T.untyped) }
-        def x(a: ->() {}); end
+        def x(a: -> () {}); end
+
+        # sord omit - no YARD type given for "a:", using untyped
+        # sord omit - no YARD return type given, using untyped
+        sig { params(a: T.untyped).returns(T.untyped) }
+        def y(a: ->() {}); end
+
+        # sord omit - no YARD type given for "a:", using untyped
+        # sord omit - no YARD return type given, using untyped
+        sig { params(a: T.untyped).returns(T.untyped) }
+        def z(a: -> {}); end
       end
     RUBY
   end
