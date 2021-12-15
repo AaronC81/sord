@@ -24,6 +24,10 @@ module Sord
     # @return [Array<String>]
     def self.paths_for(name)
       prepare
+
+      # If the name starts with ::, then we've been given an explicit path from root - just use that
+      return [name] if name.start_with?('::')
+
       (@@names_to_paths[name.split('::').last] || [])
         .select { |x| x.end_with?(name) }
     end

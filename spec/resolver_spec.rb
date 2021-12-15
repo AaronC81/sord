@@ -141,4 +141,23 @@ describe Sord::Resolver do
     subject.prepare
     expect(subject.resolvable?('A', at('A::B::A::D'))).to be true
   end
+
+  it 'can resolve from the root namespace' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        class B
+        end
+      end
+
+      class B
+      end
+    RUBY
+
+    subject.prepare
+
+    expect(subject.path_for('A::B')).to eq 'A::B'
+    expect(subject.path_for('::B')).to eq '::B'
+
+    expect(subject.path_for('B')).to be nil # Ambiguous
+  end
 end
