@@ -23,6 +23,7 @@ command :gen do |c|
   c.option '--keep-original-comments', 'Retains original YARD comments rather than converting them to Markdown'
   c.option '--skip-constants', 'Excludes constants from generated file'
   c.option '--use-original-initialize-return', 'Uses the specified return type for #initialize rather than void'
+  c.option '--exclude-untyped', 'Exclude methods and attributes with untyped return values'
 
   c.action do |args, options|
     options.default(
@@ -38,6 +39,7 @@ command :gen do |c|
       keep_original_comments: false,
       skip_constants: false,
       use_original_initialize_return: false,
+      exclude_untyped: false,
     )
 
     if args.length != 1
