@@ -2,29 +2,39 @@
 require 'yard'
 require 'sord/type_converter'
 require 'sord/logging'
+require 'sord/rbi_generator'
+require 'sord/rbs_generator'
+require 'sord/commentator'
 require 'parlour'
 require 'rainbow'
 
 module Sord
   # Converts the current working directory's YARD registry into an type
   # signature file.
-  class Generator    
+  class Generator
+    # @return [Sord::BaseGenerator]
+    attr_accessor :generator
     VALID_MODES = [:rbi, :rbs]
 
-    # @return [Integer] The number of objects this generator has processed so 
+    # @return [Integer] The number of objects this generator has processed so
     #   far.
     def object_count
       @namespace_count + @method_count
     end
 
-    # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The 
+    # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The
     #   errors encountered by by the generator. Each element is of the form
     #   [message, item, line].
     attr_reader :warnings
 
+    GENERATORS = {
+      rbi: Sord::RbiGenerator,
+      rbs: Sord::RbsGenerator,
+    }
+
     # Create a new generator.
     # @param [Hash] options
-    # @option options [Symbol] mode
+    # @option options [Symbol] mode: rbi, rbs
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
@@ -37,14 +47,13 @@ module Sord
       raise "invalid mode #{@mode}, expected one of: #{VALID_MODES.join(', ')}" \
         unless VALID_MODES.include?(@mode)
 
-      @parlour = options[:parlour] || \
-        case @mode
-        when :rbi
-          Parlour::RbiGenerator.new
-        when :rbs
-          Parlour::RbsGenerator.new
-        end
-      @current_object = options[:root] || @parlour.root
+      @generator = GENERATORS[@mode].new(
+        root: options[:root],
+        parlour: options[:parlour],
+        options: options,
+      )
+      @parlour = @generator.parlour
+      generator.root = @generator.root
 
       @namespace_count = 0
       @method_count = 0
@@ -52,13 +61,12 @@ module Sord
 
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
-      @keep_original_comments = options[:keep_original_comments]
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
 
       # Hook the logger so that messages are added as comments
       Logging.add_hook do |type, msg, item|
-        @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
+        generator.root.add_comment_to_next_child("sord #{type} - #{msg}")
       end if options[:sord_comments]
 
       # Hook the logger so that warnings are collected
@@ -86,18 +94,18 @@ module Sord
     # @return [Integer]
     def add_mixins(item)
       item.instance_mixins.reverse_each do |i|
-        @current_object.create_include(i.path.to_s)
+        generator.root.create_include(i.path.to_s)
       end
 
       # YARD 0.9.26 makes extends appear in the same order as code
       # (includes are still reversed)
       if Gem::Version.new(YARD::VERSION) >= Gem::Version.new("0.9.26")
         item.class_mixins.each do |e|
-          @current_object.create_extend(e.path.to_s)
+          generator.root.create_extend(e.path.to_s)
         end
       else
         item.class_mixins.reverse_each do |e|
-          @current_object.create_extend(e.path.to_s)
+          generator.root.create_extend(e.path.to_s)
         end
       end
 
@@ -110,39 +118,19 @@ module Sord
     def add_constants(item)
       inserted_constant_names = Set.new
 
-      item.constants(included: false).each do |constant|      
+      item.constants(included: false).each do |constant|
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
-        if inserted_constant_names.include?(constant_name) && @mode == :rbs
-          Logging.warn("RBS doesn't support duplicate constants, but '#{constant_name}' was duplicated - dropping future occurences", constant)
+        unless generator.check_constant_valid?(constant_name: constant_name, constant_names: inserted_constant_names)
           next
         end
         inserted_constant_names << constant_name
-        
-        # Add the constant to the current object being generated.
-        case @mode
-        when :rbi
-          @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
-            c.add_comments(constant.docstring.all.split("\n"))
-          end
-        when :rbs
-          return_tags = constant.tags('return')
-          returns = if return_tags.empty?
-            Logging.omit("no YARD return type given, using untyped", constant)
-            Parlour::Types::Untyped.new
-          else
-            TypeConverter.yard_to_parlour(
-              return_tags.map(&:types).flatten,
-              constant,
-              @replace_errors_with_untyped,
-              @replace_unresolved_with_untyped
-            )
-          end
-          @current_object.create_constant(constant_name, type: returns) do |c|
-            c.add_comments(constant.docstring.all.split("\n"))
-          end
-        end
+
+        generator.add_constants(
+          constant_name: constant_name,
+          constant: constant
+        ) { |c| c.add_comments(constant.docstring.all.split("\n")) }
       end
     end
 
@@ -151,90 +139,11 @@ module Sord
     # @param [Parlour::TypedObject] typed_object
     # @return [void]
     def add_comments(item, typed_object)
-      if @keep_original_comments
-        typed_object.add_comments(item.docstring.all.split("\n"))
-      else
-        parser = YARD::Docstring.parser
-        parser.parse(item.docstring.all)
-
-        docs_array = parser.text.split("\n")
-
-        # Add @param tags if there are any with names and descriptions.
-        params = parser.tags.select { |tag| tag.tag_name == 'param' && tag.is_a?(YARD::Tags::Tag) && !tag.name.nil? }
-        # Add a blank line if there's anything before the params.
-        docs_array << '' if docs_array.length.positive? && params.length.positive?
-        params.each do |param|
-          docs_array << '' if docs_array.last != '' && docs_array.length.positive?
-          # Output params in the form of:
-          # _@param_ `foo` — Lorem ipsum.
-          # _@param_ `foo`
-          if param.text.nil? || param.text == ''
-            docs_array << "_@param_ `#{param.name}`"
-          else
-            docs_array << "_@param_ `#{param.name}` — #{param.text.gsub("\n", " ")}"
-          end
-        end
-
-        # Add @return tags (there could possibly be more than one, despite this not being supported)
-        returns = parser.tags.select { |tag| tag.tag_name == 'return' && tag.is_a?(YARD::Tags::Tag) && !tag.text.nil? && tag.text.strip != '' }
-        # Add a blank line if there's anything before the returns.
-        docs_array << '' if docs_array.length.positive? && returns.length.positive?
-        returns.each do |retn|
-          docs_array << '' if docs_array.last != '' && docs_array.length.positive?
-          # Output returns in the form of:
-          # _@return_ — Lorem ipsum.
-          docs_array << "_@return_ — #{retn.text}"
-        end
-
-        # Iterate through the @example tags for a given YARD doc and output them in Markdown codeblocks.
-        examples = parser.tags.select { |tag| tag.tag_name == 'example' && tag.is_a?(YARD::Tags::Tag) }
-        examples.each do |example|
-          # Only add a blank line if there's anything before the example.
-          docs_array << '' if docs_array.length.positive?
-          # Include the example's 'name' if there is one.
-          docs_array << example.name unless example.name.nil? || example.name == ""
-          docs_array << "```ruby"
-          docs_array.concat(example.text.split("\n"))
-          docs_array << "```"
-        end if examples.length.positive?
-
-        # Add @note and @deprecated tags.
-        notice_tags = parser.tags.select { |tag| ['note', 'deprecated'].include?(tag.tag_name) && tag.is_a?(YARD::Tags::Tag) }
-        # Add a blank line if there's anything before the params.
-        docs_array << '' if docs_array.last != '' && docs_array.length.positive? && notice_tags.length.positive?
-        notice_tags.each do |notice_tag|
-          docs_array << '' if docs_array.last != ''
-          # Output note/deprecated/see in the form of:
-          # _@note_ — Lorem ipsum.
-          # _@note_
-          if notice_tag.text.nil?
-            docs_array << "_@#{notice_tag.tag_name}_"
-          else
-            docs_array << "_@#{notice_tag.tag_name}_ — #{notice_tag.text}"
-          end
-        end
-
-        # Add @see tags.
-        see_tags = parser.tags.select { |tag| tag.tag_name == 'see' && tag.is_a?(YARD::Tags::Tag) }
-        # Add a blank line if there's anything before the params.
-        docs_array << '' if docs_array.last != '' && docs_array.length.positive? && see_tags.length.positive?
-        see_tags.each do |see_tag|
-          docs_array << '' if docs_array.last != ''
-          # Output note/deprecated/see in the form of:
-          # _@see_ `B` — Lorem ipsum.
-          # _@see_ `B`
-          if see_tag.text.nil?
-            docs_array << "_@see_ `#{see_tag.name}`"
-          else
-            docs_array << "_@see_ `#{see_tag.name}` — #{see_tag.text}"
-          end
-        end
-
-        # fix: yard text may contains multiple line. should deal \n.
-        # else generate text will be multiple line and only first line is commented
-        docs_array = docs_array.flat_map {|line| line.empty? ? [""] : line.split("\n")}
-        typed_object.add_comments(docs_array)
-      end
+      Sord::Commentator.add(
+        item: item,
+        typed_object: typed_object,
+        keep_original_comments: @keep_original_comments
+      )
     end
 
     # Given a YARD NamespaceObject, add lines defining its methods and their
@@ -255,10 +164,10 @@ module Sord
         if meth.is_attribute?
           next
         end
-      
+
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
-        # This is better than iterating over YARD's "@param" tags directly 
+        # This is better than iterating over YARD's "@param" tags directly
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
@@ -302,10 +211,10 @@ module Sord
               if parameter_names_and_defaults_to_tags.length == 1 \
                 && meth.tags('param').length == 1 \
                 && meth.tag('param').types
-  
+
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
                 next TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
-              else  
+              else
                 Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
                 next Parlour::Types::Untyped.new
               end
@@ -318,7 +227,7 @@ module Sord
             end
             inferred_type = TypeConverter.yard_to_parlour(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
-            
+
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
             inferred_type
           else
@@ -349,61 +258,28 @@ module Sord
           TypeConverter.yard_to_parlour(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
-        rbs_block = nil
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
-            # If the default is "nil" but the type is not nilable, then it 
+            # If the default is "nil" but the type is not nilable, then it
             # should become nilable
             # (T.untyped can include nil, so don't alter that)
             type = Parlour::Types::Nilable.new(type) \
               if default == 'nil' && !type.is_a?(Parlour::Types::Nilable) && !type.is_a?(Parlour::Types::Untyped)
 
-            case @mode
-            when :rbi
-              Parlour::RbiGenerator::Parameter.new(
-                name.to_s,
-                type: type,
-                default: default
-              )
-            when :rbs
-              if name.start_with?('&')
-                rbs_block = type
-                nil
-              else
-                Parlour::RbsGenerator::Parameter.new(
-                  name.to_s,
-                  type: type,
-                  required: default.nil?
-                )
-              end
-            end
+            generator.add_parameter(
+              name: name.to_s,
+              type: type,
+              default: default
+            )
           end
           .compact
 
-        case @mode
-        when :rbi
-          @current_object.create_method(
-            meth.name.to_s, 
-            parameters: parlour_params,
-            returns: returns,
-            class_method: meth.scope == :class
-          ) do |m|
-            add_comments(meth, m)
-          end
-        when :rbs
-          @current_object.create_method(
-            meth.name.to_s,
-            [Parlour::RbsGenerator::MethodSignature.new(
-              parlour_params, returns, block: rbs_block && !rbs_block.is_a?(Parlour::Types::Untyped) \
-                ? Parlour::RbsGenerator::Block.new(rbs_block, false)
-                : nil
-            )],
-            class_method: meth.scope == :class
-          ) do |m|
-            add_comments(meth, m)
-          end
-        end  
+        generator.add_method(
+          meth: meth,
+          parlour_params: parlour_params,
+          returns: returns
+        ) { |m| add_comments(meth, m) }
       end
     end
 
@@ -453,33 +329,17 @@ module Sord
             kind = :accessor
           elsif reader
             kind = :reader
-          elsif writer
+          else
             kind = :writer
           end
 
-          case @mode
-          when :rbi
-            @current_object.create_attribute(
-              name.to_s,
-              kind: kind,
-              type: parlour_type,
-              class_attribute: (attr_loc == :class)
-            ) do |m|
-              add_comments(reader || writer, m)
-            end
-          when :rbs
-            if attr_loc == :class
-              Logging.warn("RBS doesn't support class attributes, dropping", reader || writer)
-            else
-              @current_object.create_attribute(
-                name.to_s,
-                kind: kind,
-                type: parlour_type,
-              ) do |m|
-                add_comments(reader || writer, m)
-              end
-            end
-          end
+          generator.add_attribute(
+            name: name.to_s,
+            kind: kind,
+            type: parlour_type,
+            attr_loc: attr_loc,
+            reader_or_writer: reader || writer
+          ) { |a| add_comments(reader || writer, a) }
         end
       end
     end
@@ -494,11 +354,11 @@ module Sord
       superclass = nil
       superclass = item.superclass.path.to_s if item.type == :class && item.superclass.to_s != "Object"
 
-      parent = @current_object
-      @current_object = item.type == :class \
+      parent = generator.root
+      generator.root = item.type == :class \
         ? parent.create_class(item.name.to_s, superclass: superclass)
         : parent.create_module(item.name.to_s)
-      @current_object.add_comments(item.docstring.all.split("\n"))
+      generator.root.add_comments(item.docstring.all.split("\n"))
 
       add_mixins(item)
       add_methods(item)
@@ -508,10 +368,10 @@ module Sord
       item.children.select { |x| [:class, :module].include?(x.type) }
         .each { |child| add_namespace(child) }
 
-      @current_object = parent
+      generator.root = parent
     end
 
-    # Populates the generator with the contents of the YARD registry. You 
+    # Populates the generator with the contents of the YARD registry. You
     # must load the YARD registry first!
     # @return [void]
     def populate
