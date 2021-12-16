@@ -51,7 +51,10 @@ module Sord
       self.generator = GENERATORS[@mode].new(
         root: options[:root],
         parlour: options[:parlour],
-        options: options,
+        options: options.slice(
+          :replace_errors_with_untyped,
+          :replace_unresolved_with_untyped,
+        ),
       )
       @parlour = generator.parlour
 
