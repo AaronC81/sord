@@ -14,6 +14,7 @@ module Sord
   class Generator
     # @return [Sord::BaseGenerator]
     attr_accessor :generator
+
     VALID_MODES = [:rbi, :rbs]
 
     # @return [Integer] The number of objects this generator has processed so
@@ -47,13 +48,12 @@ module Sord
       raise "invalid mode #{@mode}, expected one of: #{VALID_MODES.join(', ')}" \
         unless VALID_MODES.include?(@mode)
 
-      @generator = GENERATORS[@mode].new(
+      self.generator = GENERATORS[@mode].new(
         root: options[:root],
         parlour: options[:parlour],
         options: options,
       )
-      @parlour = @generator.parlour
-      generator.root = @generator.root
+      @parlour = generator.parlour
 
       @namespace_count = 0
       @method_count = 0
@@ -61,6 +61,7 @@ module Sord
 
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
+      @keep_original_comments = options[:keep_original_comments]
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
 
