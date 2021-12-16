@@ -618,7 +618,7 @@ module Sord
     def fix_default_if_unary_minus(default)
       if default.nil?
         nil
-      elsif default[0] == '-' && !default.include?('->')
+      elsif default[0] == '-' && !default.start_with?('->')
         default[0..-2]
       else
         default
