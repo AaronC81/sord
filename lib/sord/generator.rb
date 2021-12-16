@@ -614,11 +614,11 @@ module Sord
     # '-', working around a bug in YARD. (See lsegal/yard #894)
     #
     # @param [String] default
-    # @return [String]
+    # @return [String, nil]
     def fix_default_if_unary_minus(default)
       if default.nil?
         nil
-      elsif default[0] == '-'
+      elsif default[0] == '-' && !default.start_with?('->')
         default[0..-2]
       else
         default
