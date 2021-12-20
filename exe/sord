@@ -44,10 +44,10 @@ command :gen do |c|
       Sord::Logging.error('Must specify filename')
       exit 1
     end
-    
+
     plugin_options = options.__hash__
-    plugin_options[:exclude_options] = plugin_options[:exclude_options]&.split(',')
-    plugin_options[:include_options] = plugin_options[:include_options]&.split(',')
+    plugin_options[:exclude_messages] = plugin_options[:exclude_messages]&.split(',')
+    plugin_options[:include_messages] = plugin_options[:include_messages]&.split(',')
 
     if !(plugin_options[:rbi] || plugin_options[:rbs])
       if args.first
