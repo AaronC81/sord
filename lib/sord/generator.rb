@@ -266,6 +266,12 @@ module Sord
             .find { |p| p.name&.gsub('*', '')&.gsub(':', '') == name.gsub('*', '').gsub(':', '') }]
         end.to_h
 
+        # Add block param if there is no named param but YARD tags are present
+        if !parameter_names_and_defaults_to_tags.any? { |((name, _), _)| name.start_with? '&' } \
+            && (meth.tags('yieldparam').any? || meth.tag('yieldreturn'))
+          parameter_names_and_defaults_to_tags[['&blk']] = nil
+        end
+
         parameter_types = parameter_names_and_defaults_to_tags.map do |name_and_default, tag|
           name = name_and_default.first
 

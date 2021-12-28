@@ -363,6 +363,37 @@ describe Sord::Generator do
     RUBY
   end
 
+  it 'generates unnamed blocks correctly' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param [String] x
+        # @return [Boolean]
+        # @yieldparam [Integer] a
+        # @yieldparam [Float] b
+        # @yieldreturn [Boolean] c
+        def foo(x)
+          yield(1, 2.0, true)
+        end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # _@param_ `x`
+        sig { params(x: String, blk: T.proc.params(a: Integer, b: Float).returns(T::Boolean)).returns(T::Boolean) }
+        def foo(x, &blk); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `x`
+        def foo: (String x) ?{ (Integer a, Float b) -> bool } -> bool
+      end
+    RUBY
+  end
+
   it 'handles void yieldreturn' do
     YARD.parse_string(<<-RUBY)
       module A
