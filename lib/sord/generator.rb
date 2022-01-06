@@ -383,7 +383,7 @@ module Sord
           .compact
 
         if @exclude_untyped && parlour_params.all? { |p| p.type.is_a?(Parlour::Types::Untyped) } && returns.is_a?(Parlour::Types::Untyped)
-          Logging.omit("Excluding untyped", meth)
+          Logging.omit("excluding untyped", meth)
           next
         end
 
@@ -464,7 +464,7 @@ module Sord
           end
 
           if @exclude_untyped && parlour_type.is_a?(Parlour::Types::Untyped)
-            Logging.omit("Excluding untyped attribute", reader || writer)
+            Logging.omit("excluding untyped attribute", reader || writer)
             next
           end
 
