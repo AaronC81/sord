@@ -16,12 +16,12 @@ describe Sord::Generator do
     keep_original_comments: false
   }
 
-  let (:rbi_gen) do
-    Sord::Generator.new(mode: :rbi, **COMMON_OPTIONS)
+  def rbi_gen(**extra_options)
+    Sord::Generator.new(mode: :rbi, **COMMON_OPTIONS.merge(extra_options))
   end
 
-  let (:rbs_gen) do
-    Sord::Generator.new(mode: :rbs, **COMMON_OPTIONS)
+  def rbs_gen(**extra_options)
+    Sord::Generator.new(mode: :rbs, **COMMON_OPTIONS.merge(extra_options))
   end
 
   def fix_heredoc(x)
