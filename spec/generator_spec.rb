@@ -187,6 +187,64 @@ describe Sord::Generator do
     RUBY
   end
 
+  it 'excludes untyped methods when using @exclude_untyped' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        class B
+          def foo; end
+
+          # @return [Boolean]
+          def foo?; end
+        end
+        module C
+          class D
+            def bar(x); end
+
+            attr_accessor :baz
+          end
+        end
+      end
+    RUBY
+
+    expect(rbi_gen(exclude_untyped: true).generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        class B
+          # sord omit - excluding untyped
+
+          sig { returns(T::Boolean) }
+          def foo?; end
+        end
+
+        module C
+          class D
+            # sord omit - excluding untyped
+
+            # sord omit - excluding untyped attribute
+          end
+        end
+      end
+    RUBY
+
+    expect(rbs_gen(exclude_untyped: true).generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        class B
+          # sord omit - excluding untyped
+
+          def foo?: () -> bool
+        end
+
+        module C
+          class D
+            # sord omit - excluding untyped
+      
+            # sord omit - excluding untyped attribute
+          end
+        end
+      end
+    RUBY
+  end
+
   it 'generates inheritance, inclusion and extension' do
     YARD.parse_string(<<-RUBY)
       class A; end
@@ -240,7 +298,7 @@ describe Sord::Generator do
       end
     RUBY
   end
-
+  
   it 'generates includes in the same order as they were in the original file' do
     YARD.parse_string(<<-EOF)
       class A; end
