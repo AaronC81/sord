@@ -58,8 +58,16 @@ module Sord
       @exclude_untyped = options[:exclude_untyped]
 
       # Hook the logger so that messages are added as comments
-      Logging.add_hook do |type, msg, item|
-        @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
+      Logging.add_hook do |type, msg, item, **opts|
+        # Hack: the "exclude untyped" log message needs to print somewhere, but
+        # if there's no future object for that comment to associate with, it'll
+        # never be printed!
+        # Instead, add an arbitrary containing the comment 
+        if opts[:immediate]
+          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}") 
+        else
+          @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
+        end
       end if options[:sord_comments]
 
       # Hook the logger so that warnings are collected
@@ -383,7 +391,7 @@ module Sord
           .compact
 
         if @exclude_untyped && parlour_params.all? { |p| p.type.is_a?(Parlour::Types::Untyped) } && returns.is_a?(Parlour::Types::Untyped)
-          Logging.omit("excluding untyped", meth)
+          Logging.omit("excluding untyped", meth, immediate: true)
           next
         end
 
@@ -464,7 +472,7 @@ module Sord
           end
 
           if @exclude_untyped && parlour_type.is_a?(Parlour::Types::Untyped)
-            Logging.omit("excluding untyped attribute", reader || writer)
+            Logging.omit("excluding untyped attribute", reader || writer, immediate: true)
             next
           end
 
