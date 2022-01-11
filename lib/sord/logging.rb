@@ -70,7 +70,7 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.generic(kind, header, msg, item)
+    def self.generic(kind, header, msg, item, **opts)
       return unless enabled_types.include?(kind)
 
       message = if item
@@ -80,7 +80,7 @@ module Sord
       end
       puts message unless silent?
 
-      invoke_hooks(kind, msg, item)
+      invoke_hooks(kind, msg, item, **opts)
     end
 
     # Print a warning message. This should be used for things which require the
@@ -90,8 +90,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.warn(msg, item = nil)
-      generic(:warn, Rainbow('[WARN ]').yellow, msg, item)
+    def self.warn(msg, item = nil, **opts)
+      generic(:warn, Rainbow('[WARN ]').yellow, msg, item, **opts)
     end
 
     # Print an info message. This should be used for generic informational
@@ -101,8 +101,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.info(msg, item = nil)
-      generic(:info, '[INFO ]', msg, item)
+    def self.info(msg, item = nil, **opts)
+      generic(:info, '[INFO ]', msg, item, **opts)
     end
 
     # Print a duck-typing message. This should be used when the YARD 
@@ -113,8 +113,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.duck(msg, item = nil)
-      generic(:duck, Rainbow('[DUCK ]').cyan, msg, item)
+    def self.duck(msg, item = nil, **opts)
+      generic(:duck, Rainbow('[DUCK ]').cyan, msg, item, **opts)
     end
 
     # Print an error message. This should be used for things which require the
@@ -124,8 +124,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.error(msg, item = nil)
-      generic(:error, Rainbow('[ERROR]').red, msg, item)
+    def self.error(msg, item = nil, **opts)
+      generic(:error, Rainbow('[ERROR]').red, msg, item, **opts)
     end
 
     # Print an infer message. This should be used when the user should be told
@@ -136,8 +136,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.infer(msg, item = nil)
-      generic(:infer, Rainbow('[INFER]').blue, msg, item)
+    def self.infer(msg, item = nil, **opts)
+      generic(:infer, Rainbow('[INFER]').blue, msg, item, **opts)
     end
 
     # Print an omit message. This should be used as a special type of warning
@@ -148,8 +148,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.omit(msg, item = nil)
-      generic(:omit, Rainbow('[OMIT ]').magenta, msg, item)
+    def self.omit(msg, item = nil, **opts)
+      generic(:omit, Rainbow('[OMIT ]').magenta, msg, item, **opts)
     end
 
     # Print a done message. This should be used when a process completes
@@ -159,8 +159,8 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.done(msg, item = nil)
-      generic(:done, Rainbow('[DONE ]').green, msg, item)
+    def self.done(msg, item = nil, **opts)
+      generic(:done, Rainbow('[DONE ]').green, msg, item, **opts)
     end
 
     # Invokes all registered hooks on the logger.
@@ -170,9 +170,9 @@ module Sord
     #  is associated with, if any. This is shown before the log message if it is
     #  specified.
     # @return [void]
-    def self.invoke_hooks(kind, msg, item)
+    def self.invoke_hooks(kind, msg, item, **opts)
       @@hooks.each do |hook|
-        hook.(kind, msg, item) rescue nil
+        hook.(kind, msg, item, **opts)
       end
     end
 

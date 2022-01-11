@@ -8,16 +8,16 @@ require 'rainbow'
 module Sord
   # Converts the current working directory's YARD registry into an type
   # signature file.
-  class Generator    
+  class Generator
     VALID_MODES = [:rbi, :rbs]
 
-    # @return [Integer] The number of objects this generator has processed so 
+    # @return [Integer] The number of objects this generator has processed so
     #   far.
     def object_count
       @namespace_count + @method_count
     end
 
-    # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The 
+    # @return [Array<Array(String, YARD::CodeObjects::Base, Integer)>] The
     #   errors encountered by by the generator. Each element is of the form
     #   [message, item, line].
     attr_reader :warnings
@@ -55,10 +55,19 @@ module Sord
       @keep_original_comments = options[:keep_original_comments]
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
+      @exclude_untyped = options[:exclude_untyped]
 
       # Hook the logger so that messages are added as comments
-      Logging.add_hook do |type, msg, item|
-        @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
+      Logging.add_hook do |type, msg, item, **opts|
+        # Hack: the "exclude untyped" log message needs to print somewhere, but
+        # if there's no future object for that comment to associate with, it'll
+        # never be printed!
+        # Instead, add an arbitrary containing the comment 
+        if opts[:immediate]
+          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}") 
+        else
+          @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
+        end
       end if options[:sord_comments]
 
       # Hook the logger so that warnings are collected
@@ -110,7 +119,7 @@ module Sord
     def add_constants(item)
       inserted_constant_names = Set.new
 
-      item.constants(included: false).each do |constant|      
+      item.constants(included: false).each do |constant|
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
@@ -119,7 +128,7 @@ module Sord
           next
         end
         inserted_constant_names << constant_name
-        
+
         # Add the constant to the current object being generated.
         case @mode
         when :rbi
@@ -255,10 +264,10 @@ module Sord
         if meth.is_attribute?
           next
         end
-      
+
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
-        # This is better than iterating over YARD's "@param" tags directly 
+        # This is better than iterating over YARD's "@param" tags directly
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
@@ -308,10 +317,10 @@ module Sord
               if parameter_names_and_defaults_to_tags.length == 1 \
                 && meth.tags('param').length == 1 \
                 && meth.tag('param').types
-  
+
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
                 next TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
-              else  
+              else
                 Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
                 next Parlour::Types::Untyped.new
               end
@@ -324,7 +333,7 @@ module Sord
             end
             inferred_type = TypeConverter.yard_to_parlour(
               return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
-            
+
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
             inferred_type
           else
@@ -359,7 +368,7 @@ module Sord
         parlour_params = parameter_names_and_defaults_to_tags
           .zip(parameter_types)
           .map do |((name, default), _), type|
-            # If the default is "nil" but the type is not nilable, then it 
+            # If the default is "nil" but the type is not nilable, then it
             # should become nilable
             # (T.untyped can include nil, so don't alter that)
             type = Parlour::Types::Nilable.new(type) \
@@ -387,10 +396,15 @@ module Sord
           end
           .compact
 
+        if @exclude_untyped && parlour_params.all? { |p| p.type.is_a?(Parlour::Types::Untyped) } && returns.is_a?(Parlour::Types::Untyped)
+          Logging.omit("excluding untyped", meth, immediate: true)
+          next
+        end
+
         case @mode
         when :rbi
           @current_object.create_method(
-            meth.name.to_s, 
+            meth.name.to_s,
             parameters: parlour_params,
             returns: returns,
             class_method: meth.scope == :class
@@ -409,7 +423,7 @@ module Sord
           ) do |m|
             add_comments(meth, m)
           end
-        end  
+        end
       end
     end
 
@@ -461,6 +475,11 @@ module Sord
             kind = :reader
           elsif writer
             kind = :writer
+          end
+
+          if @exclude_untyped && parlour_type.is_a?(Parlour::Types::Untyped)
+            Logging.omit("excluding untyped attribute", reader || writer, immediate: true)
+            next
           end
 
           case @mode
@@ -541,7 +560,7 @@ module Sord
       @current_object = parent
     end
 
-    # Populates the generator with the contents of the YARD registry. You 
+    # Populates the generator with the contents of the YARD registry. You
     # must load the YARD registry first!
     # @return [void]
     def populate

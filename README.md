@@ -83,6 +83,8 @@ Sord also takes some flags to alter the generated file:
     take a comma-separated list of logging kinds, for example `omit,infer`.
     When using `--include-messages`, the `done` kind is included by default.
     (You cannot specify both `--include-messages` and `--exclude-messages`.)
+  - `--exclude-untyped`: Exclude methods and attributes with untyped return
+    values.
 
 ## Example
 
