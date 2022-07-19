@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [4.0.0] - 2022-07-19
+### Added
+- Constants are now assigned types when generating RBS, using `@return`.
+- Class-level `attr_accessor`s are converted to methods when generating RBS.
+- Added the `--exclude-untyped` flag, which skips generating type signatures for methods with
+  `untyped` return values.
+
+### Changed
+- If YARD tags are present for a block, but there is no block param (such as when using `yield`),
+  the type signature now includes the documented block. This could be a **breaking change** leading
+  to type errors in existing code where such methods are called.
+
+### Fixed
+- Added workaround for YARD syntax error when a default parameter value begins with a unary minus
+- Name resolutions from the root (e.g. `::X`) now behave correctly; previously they may have
+  selected a class named `X` nested within another namespace. This may be a **breaking change** if
+  any part of your generated type signatures was relying on the old, buggy behaviour.
+
 ## [3.0.1] - 2020-12-28
 ### Fixed
 - Fixed `SortedSet` crash on Ruby 3
