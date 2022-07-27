@@ -134,7 +134,7 @@ describe Sord::Generator do
       end
     RUBY
   end
-  
+
   it 'auto-generates T.untyped signatures when unspecified and warns' do
     YARD.parse_string(<<-RUBY)
       module A
@@ -182,6 +182,52 @@ describe Sord::Generator do
             # sord omit - no YARD return type given, using untyped
             def bar: (untyped x) -> untyped
           end
+        end
+      end
+    RUBY
+  end
+
+  it 'hides private objects when using @hide_private' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        class B
+          # @return [String]
+          def foo; end
+
+          # @!visibility private
+          CONST_NAME = "something"
+
+          # @!visibility private
+          attr_accessor :some_attr
+
+          # @!visibility private
+          def foo?; end
+        end
+        # @!visibility private
+        module C
+          class D
+            def bar(x); end
+
+            attr_accessor :baz
+          end
+        end
+      end
+    RUBY
+
+    expect(rbi_gen(hide_private: true).generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        class B
+          sig { returns(String) }
+          def foo; end
+        end
+      end
+    RUBY
+
+    expect(rbs_gen(hide_private: true).generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        class B
+          def foo: () -> String
         end
       end
     RUBY
@@ -298,7 +344,7 @@ describe Sord::Generator do
       end
     RUBY
   end
-  
+
   it 'generates includes in the same order as they were in the original file' do
     YARD.parse_string(<<-EOF)
       class A; end
@@ -461,7 +507,7 @@ describe Sord::Generator do
         def self.foo(&blk); end
       end
     RUBY
-  
+
     expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       module A
@@ -779,7 +825,7 @@ describe Sord::Generator do
         def z(a = nil); end
       end
     RUBY
-  
+
     expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class A
@@ -946,7 +992,7 @@ describe Sord::Generator do
         def x; end
       end
     RUBY
-  
+
     expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       # typed: strong
       class Alphabet
@@ -1532,7 +1578,7 @@ describe Sord::Generator do
           attr_accessor :z
         end
       RUBY
-  
+
       expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
@@ -1556,8 +1602,8 @@ describe Sord::Generator do
           attr_accessor z: bool
         end
       RUBY
-    end 
-    
+    end
+
     it 'can be on the class' do
       YARD.parse_string(<<-RUBY)
         module A
@@ -1573,7 +1619,7 @@ describe Sord::Generator do
           end
         end
       RUBY
-  
+
       expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
@@ -1615,7 +1661,7 @@ describe Sord::Generator do
           attr_reader :x
         end
       RUBY
-  
+
       expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
         # typed: strong
         module A
@@ -1689,7 +1735,7 @@ describe Sord::Generator do
       RUBY
     end
   end
-  
+
   it 'generates constructors which return void' do
     YARD.parse_string(<<-RUBY)
       class A

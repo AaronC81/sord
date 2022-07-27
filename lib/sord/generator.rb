@@ -122,6 +122,7 @@ module Sord
       inserted_constant_names = Set.new
 
       item.constants(included: false).each do |constant|
+        next if @hide_private && constant.visibility == :private
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
@@ -254,6 +255,7 @@ module Sord
     # @return [void]
     def add_methods(item)
       item.meths(inherited: false).each do |meth|
+        next if @hide_private && meth.visibility == :private
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
@@ -449,10 +451,12 @@ module Sord
           # Get all given types
           yard_types = []
           if reader
+            next if @hide_private && reader.visibility == :private
             yard_types += reader.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
               reader.tags('param').flat_map(&:types)
           end
           if writer
+            next if @hide_private && writer.visibility == :private
             yard_types += writer.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
               writer.tags('param').flat_map(&:types)
           end
