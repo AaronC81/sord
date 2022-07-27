@@ -28,6 +28,7 @@ module Sord
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
+    # @option options [Boolean] hide_private
     # @option options [Boolean] comments
     # @option options [Parlour::Generator] generator
     # @option options [Parlour::TypedObject] root
@@ -53,6 +54,7 @@ module Sord
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @keep_original_comments = options[:keep_original_comments]
+      @hide_private = options[:hide_private]
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
       @exclude_untyped = options[:exclude_untyped]
@@ -62,9 +64,9 @@ module Sord
         # Hack: the "exclude untyped" log message needs to print somewhere, but
         # if there's no future object for that comment to associate with, it'll
         # never be printed!
-        # Instead, add an arbitrary containing the comment 
+        # Instead, add an arbitrary containing the comment
         if opts[:immediate]
-          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}") 
+          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}")
         else
           @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
         end
@@ -538,6 +540,7 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_namespace(item)
+      return if @hide_private && item.visibility == :private
       count_namespace
 
       superclass = nil

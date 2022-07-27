@@ -22,6 +22,7 @@ command :gen do |c|
   c.option '--include-messages STRING', String, 'Whitelists a comma-separated string of log message types'
   c.option '--keep-original-comments', 'Retains original YARD comments rather than converting them to Markdown'
   c.option '--skip-constants', 'Excludes constants from generated file'
+  c.option '--hide-private', 'Exclude any object marked with @!visibility private'
   c.option '--use-original-initialize-return', 'Uses the specified return type for #initialize rather than void'
   c.option '--exclude-untyped', 'Exclude methods and attributes with untyped return values'
 
@@ -34,6 +35,7 @@ command :gen do |c|
       break_params: 4,
       replace_errors_with_untyped: false,
       replace_unresolved_with_untyped: false,
+      hide_private: false,
       exclude_messages: nil,
       include_messages: nil,
       keep_original_comments: false,
@@ -86,7 +88,7 @@ command :gen do |c|
 
     plugin.parlour = klass.new(break_params: plugin_options[:break_params])
     plugin.generate(plugin.parlour.root)
-    
+
     File.write(args.first, plugin.parlour.send(generator_method))
   end
 end
