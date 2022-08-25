@@ -160,23 +160,28 @@ module Sord
         generic_type = $1
         type_parameters = $2
 
+        # If we don't do this, `const_defined?` will resolve "::Array" as the actual Ruby `Array`
+        # type, not `Parlour::Types::Array`!
+        relative_generic_type = generic_type.start_with?('::') \
+          ? generic_type[2..] : generic_type
+
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
-        if SINGLE_ARG_GENERIC_TYPES.include?(generic_type) && parameters.length > 1
-          Parlour::Types.const_get(generic_type).new(Parlour::Types::Union.new(parameters))
-        elsif generic_type == 'Class' && parameters.length == 1
+        if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
+          Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
+        elsif relative_generic_type == 'Class' && parameters.length == 1
           Parlour::Types::Class.new(parameters.first)
-        elsif generic_type == 'Hash'
+        elsif relative_generic_type == 'Hash'
           if parameters.length == 2
             Parlour::Types::Hash.new(*parameters)
           else
             handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
           end
         else
-          if Parlour::Types.const_defined?(generic_type)
+          if Parlour::Types.const_defined?(relative_generic_type)
             # This generic is built in to parlour, but sord doesn't
             # explicitly know about it.
-            Parlour::Types.const_get(generic_type).new(*parameters)
+            Parlour::Types.const_get(relative_generic_type).new(*parameters)
           else
             # This is a user defined generic
             Parlour::Types::Generic.new(

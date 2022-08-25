@@ -216,6 +216,10 @@ describe Sord::TypeConverter do
           )
         end
       end
+
+      it 'does not resolve stdlib objects instead of types when using the root namespace' do
+        expect(subject.yard_to_parlour('::Array<String>')).to eq Types::Array.new('String')
+      end
     end
 
     context 'when given an untyped generic' do
