@@ -163,7 +163,7 @@ module Sord
         # If we don't do this, `const_defined?` will resolve "::Array" as the actual Ruby `Array`
         # type, not `Parlour::Types::Array`!
         relative_generic_type = generic_type.start_with?('::') \
-          ? generic_type[2..] : generic_type
+          ? generic_type[2..-1] : generic_type
 
         parameters = split_type_parameters(type_parameters)
           .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
