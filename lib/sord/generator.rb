@@ -28,6 +28,7 @@ module Sord
     # @option options [Integer] break_params
     # @option options [Boolean] replace_errors_with_untyped
     # @option options [Boolean] replace_unresolved_with_untyped
+    # @option options [Boolean] hide_private
     # @option options [Boolean] comments
     # @option options [Parlour::Generator] generator
     # @option options [Parlour::TypedObject] root
@@ -53,6 +54,7 @@ module Sord
       @replace_errors_with_untyped = options[:replace_errors_with_untyped]
       @replace_unresolved_with_untyped = options[:replace_unresolved_with_untyped]
       @keep_original_comments = options[:keep_original_comments]
+      @hide_private = options[:hide_private]
       @skip_constants = options[:skip_constants]
       @use_original_initialize_return = options[:use_original_initialize_return]
       @exclude_untyped = options[:exclude_untyped]
@@ -62,9 +64,9 @@ module Sord
         # Hack: the "exclude untyped" log message needs to print somewhere, but
         # if there's no future object for that comment to associate with, it'll
         # never be printed!
-        # Instead, add an arbitrary containing the comment 
+        # Instead, add an arbitrary containing the comment
         if opts[:immediate]
-          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}") 
+          @current_object.create_arbitrary(code: "# sord #{type} - #{msg}")
         else
           @current_object.add_comment_to_next_child("sord #{type} - #{msg}")
         end
@@ -120,6 +122,7 @@ module Sord
       inserted_constant_names = Set.new
 
       item.constants(included: false).each do |constant|
+        next if @hide_private && constant.visibility == :private
         # Take a constant (like "A::B::CONSTANT"), split it on each '::', and
         # set the constant name to the last string in the array.
         constant_name = constant.to_s.split('::').last
@@ -252,6 +255,7 @@ module Sord
     # @return [void]
     def add_methods(item)
       item.meths(inherited: false).each do |meth|
+        next if @hide_private && meth.visibility == :private
         count_method
 
         # If the method is an alias, skip it so we don't define it as a
@@ -447,10 +451,12 @@ module Sord
           # Get all given types
           yard_types = []
           if reader
+            next if @hide_private && reader.visibility == :private
             yard_types += reader.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
               reader.tags('param').flat_map(&:types)
           end
           if writer
+            next if @hide_private && writer.visibility == :private
             yard_types += writer.tags('return').flat_map(&:types).compact.reject { |x| x.downcase == 'void' } +
               writer.tags('param').flat_map(&:types)
           end
@@ -538,6 +544,7 @@ module Sord
     # @param [YARD::CodeObjects::NamespaceObject] item
     # @return [void]
     def add_namespace(item)
+      return if @hide_private && item.visibility == :private
       count_namespace
 
       superclass = nil
