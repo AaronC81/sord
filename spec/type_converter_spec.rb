@@ -82,6 +82,9 @@ describe Sord::TypeConverter do
         expect(subject.yard_to_parlour('#foo & #foo_bar & #baz')).to eq Types::Untyped.new
         expect(subject.yard_to_parlour('#foo&#bar')).to eq Types::Untyped.new
         expect(subject.yard_to_parlour('#foo & #setter=')).to eq Types::Untyped.new
+        expect(subject.yard_to_parlour('#foo!')).to eq Types::Untyped.new
+        expect(subject.yard_to_parlour('#===')).to eq Types::Untyped.new
+        expect(subject.yard_to_parlour('#=== & #[]= & #!~')).to eq Types::Untyped.new
       end
 
       it 'does not convert invalid duck types' do
