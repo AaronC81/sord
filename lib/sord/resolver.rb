@@ -23,15 +23,16 @@ module Sord
     def self.load_gem_objects(hash)
       gem_paths = Bundler.load.specs.map(&:full_gem_path)
       gem_paths.each do |path|
-        Dir["#{path}/rbi/**/*.rbi"].each do |sigfile|
-          tree = Parlour::TypeLoader.load_file(sigfile)
-          add_rbi_objects_to_paths(tree.children, hash)
+        if File.exists?("#{path}/rbi")
+          Dir["#{path}/rbi/**/*.rbi"].each do |sigfile|
+            tree = Parlour::TypeLoader.load_file(sigfile)
+            add_rbi_objects_to_paths(tree.children, hash)
+          end
+        elsif File.exists?("#{path}/sig")
+          all_decls = []
+          RBS::EnvironmentLoader.new(core_root: Pathname.new("#{path}/sig")).load(env: all_decls)
+          add_rbs_objects_to_paths(all_decls, hash)
         end
-      end
-      gem_paths.each do |path|
-        all_decls = []
-        RBS::EnvironmentLoader.new(core_root: Pathname.new("#{path}/sig")).load(env: all_decls)
-        add_rbs_objects_to_paths(all_decls, hash)
       end
     end
 
