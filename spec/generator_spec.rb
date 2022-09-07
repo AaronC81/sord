@@ -772,6 +772,71 @@ describe Sord::Generator do
     RUBY
   end
 
+  it 'merges tags from overridden methods' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @param a [String]
+        def x(a); end
+
+        def y(a); end
+      end
+
+      class B < A
+        # @return [Boolean]
+        def x(a); end
+
+        # @param a [String]
+        def y(a); end        
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `a`
+        sig { params(a: String).returns(T.untyped) }
+        def x(a); end
+      
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD return type given, using untyped
+        sig { params(a: T.untyped).returns(T.untyped) }
+        def y(a); end
+      end
+
+      class B < A
+        sig { params(a: String).returns(T::Boolean) }
+        def x(a); end
+      
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `a`
+        sig { params(a: String).returns(T.untyped) }
+        def y(a); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `a`
+        def x: (String a) -> untyped
+      
+        # sord omit - no YARD type given for "a", using untyped
+        # sord omit - no YARD return type given, using untyped
+        def y: (untyped a) -> untyped
+      end
+
+      class B < A
+        def x: (String a) -> bool
+      
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `a`
+        def y: (String a) -> untyped
+      end
+    RUBY
+
+  end
+
   it 'does not include inherited methods in its output' do
     YARD.parse_string(<<-RUBY)
       class A
