@@ -1,6 +1,7 @@
 # typed: false
 require 'stringio'
 require 'rbs'
+require 'rbs/cli'
 
 module Sord
   module Resolver
@@ -14,13 +15,17 @@ module Sord
       # Construct a hash of class names to full paths
       @names_to_paths = YARD::Registry.all(:class)
         .group_by(&:name)
-        .map { |k, v| [k.to_s, v.map(&:path)] }
+        .map { |k, v| [k.to_s, v.map(&:path).to_set] }
         .to_h
-        .merge(builtin_classes.map { |x| [x, [x]] }.to_h) { |_k, a, b| a | b }
-        .merge(gem_objects) { |_k, a, b| a | b }
+        .merge(builtin_classes.map { |x| [x, Set.new([x])] }.to_h) { |_k, a, b| a.union(b) }
+        .merge(gem_objects) { |_k, a, b| a.union(b) }
     end
 
     def self.load_gem_objects(hash)
+      all_decls = []
+      RBS::CLI::LibraryOptions.new.loader.load(env: all_decls)
+      add_rbs_objects_to_paths(all_decls, hash)
+
       gem_paths = Bundler.load.specs.map(&:full_gem_path)
       gem_paths.each do |path|
         if File.exists?("#{path}/rbi")
@@ -28,10 +33,6 @@ module Sord
             tree = Parlour::TypeLoader.load_file(sigfile)
             add_rbi_objects_to_paths(tree.children, hash)
           end
-        elsif File.exists?("#{path}/sig")
-          all_decls = []
-          RBS::EnvironmentLoader.new(core_root: Pathname.new("#{path}/sig")).load(env: all_decls)
-          add_rbs_objects_to_paths(all_decls, hash)
         end
       end
     end
@@ -46,7 +47,7 @@ module Sord
         next unless klasses.include?(decl.class)
         name = decl.name.to_s
         new_path = path + [name]
-        names_to_paths[name] ||= []
+        names_to_paths[name] ||= Set.new
         names_to_paths[name] << new_path.join('::')
         add_rbs_objects_to_paths(decl.members, names_to_paths, new_path) if decl.respond_to?(:members)
       end
@@ -61,7 +62,7 @@ module Sord
       nodes.each do |node|
         next unless klasses.include?(node.class)
         new_path = path + [node.name]
-        names_to_paths[node.name] ||= []
+        names_to_paths[node.name] ||= Set.new
         names_to_paths[node.name] << new_path.join('::')
         add_rbi_objects_to_paths(node.children, names_to_paths, new_path) if node.respond_to?(:children)
       end
