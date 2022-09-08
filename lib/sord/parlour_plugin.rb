@@ -1,5 +1,6 @@
 # typed: true
 require 'parlour'
+require 'yard/tags/library'
 
 module Sord
   class ParlourPlugin < Parlour::Plugin
@@ -42,17 +43,21 @@ module Sord
         Sord::Logging.error('No output format given; please specify --rbi or --rbs')
         exit 1
       end
-  
+
       if (options[:rbi] && options[:rbs])
         Sord::Logging.error('You cannot specify both --rbi and --rbs; please use only one')
         exit 1
       end
-  
+
       if options[:regenerate]
         begin
           Sord::Logging.info('Running YARD...')
           Sord::ParlourPlugin.with_clean_env do
-            system('bundle exec yard')
+            tag_param = ''
+            options[:tags]&.each do |tag|
+              tag_param += "--tag #{tag} "
+            end
+            system("bundle exec yard #{tag_param}")
           end
         rescue Errno::ENOENT
           Sord::Logging.error('The YARD tool could not be found on your PATH.')
@@ -63,13 +68,24 @@ module Sord
       end
 
       options[:mode] = \
-        if options[:rbi] then :rbi elsif options[:rbs] then :rbs end 
+        if options[:rbi] then :rbi elsif options[:rbs] then :rbs end
       options[:parlour] = @parlour
       options[:root] = root
+
+      add_custom_tags
 
       Sord::Generator.new(options).run
 
       true
+    end
+
+    def add_custom_tags
+      return if options[:tags].empty?
+
+      options[:tags].each do |tag|
+        name, description = tag.split(':')
+        YARD::Tags::Library.define_tag(description, name)
+      end
     end
 
     def self.with_clean_env &block
