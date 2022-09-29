@@ -23,7 +23,11 @@ module Sord
 
     def self.load_gem_objects(hash)
       all_decls = []
-      RBS::CLI::LibraryOptions.new.loader.load(env: all_decls)
+      begin
+        RBS::CLI::LibraryOptions.new.loader.load(env: all_decls)
+      rescue RBS::Collection::Config::CollectionNotAvailable
+        Sord::Logging.warn("Could not load RBS collection - run rbs collection install for dependencies")
+      end
       add_rbs_objects_to_paths(all_decls, hash)
 
       gem_paths = Bundler.load.specs.map(&:full_gem_path)
