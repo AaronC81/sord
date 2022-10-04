@@ -57,7 +57,7 @@ module Sord
             options[:tags]&.each do |tag|
               tag_param += "--tag #{tag} "
             end
-            system("bundle exec yard #{tag_param}")
+            system("bundle exec yard #{tag_param} --no-output")
           end
         rescue Errno::ENOENT
           Sord::Logging.error('The YARD tool could not be found on your PATH.')
