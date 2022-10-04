@@ -249,6 +249,26 @@ module Sord
       end
     end
 
+    # @param method [YARD::CodeObjects::MethodObject]
+    # @param tag_name [String]
+    # @return [Array<YARD::Tags::Tag>]
+    def method_tags(method, tag_name)
+      tags = method.tags(tag_name)
+      return tags if tags.any? || method.overridden_method.nil?
+
+      method.overridden_method.tags(tag_name)
+    end
+
+    # @param method [YARD::CodeObjects::MethodObject]
+    # @param tag_name [String]
+    # @return [YARD::Tags::Tag, nil]
+    def method_tag(method, tag_name)
+      tag = method.tag(tag_name)
+      return tag if tag || method.overridden_method.nil?
+
+      method.overridden_method.tag(tag_name)
+    end
+
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
@@ -271,17 +291,18 @@ module Sord
 
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
+
         # This is better than iterating over YARD's "@param" tags directly
         # because it includes parameters without documentation
         # (The gsubs allow for better splat-argument compatibility)
         parameter_names_and_defaults_to_tags = meth.parameters.map do |name, default|
-          [[name, fix_default_if_unary_minus(default)], meth.tags('param')
+          [[name, fix_default_if_unary_minus(default)], method_tags(meth, 'param')
             .find { |p| p.name&.gsub('*', '')&.gsub(':', '') == name.gsub('*', '').gsub(':', '') }]
         end.to_h
 
         # Add block param if there is no named param but YARD tags are present
         if !parameter_names_and_defaults_to_tags.any? { |((name, _), _)| name.start_with? '&' } \
-            && (meth.tags('yieldparam').any? || meth.tag('yieldreturn'))
+            && (method_tags(meth, 'yieldparam').any? || method_tag(meth, 'yieldreturn'))
           parameter_names_and_defaults_to_tags[['&blk']] = nil
         end
 
@@ -292,8 +313,8 @@ module Sord
             TypeConverter.yard_to_parlour(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
-            yieldparams = meth.tags('yieldparam')
-            yieldreturn = meth.tag('yieldreturn')&.types
+            yieldparams = method_tags(meth, 'yieldparam')
+            yieldreturn = method_tag(meth, 'yieldreturn')&.types
             yieldreturn = nil if yieldreturn&.length == 1 &&
               yieldreturn&.first&.downcase == 'void'
 
@@ -319,18 +340,18 @@ module Sord
 
             unless getter
               if parameter_names_and_defaults_to_tags.length == 1 \
-                && meth.tags('param').length == 1 \
-                && meth.tag('param').types
+                && method_tags(meth, 'param').length == 1 \
+                && method_tag(meth, 'param').types
 
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-                next TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                next TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               else
                 Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
                 next Parlour::Types::Untyped.new
               end
             end
 
-            return_types = getter.tags('return').flat_map(&:types)
+            return_types = method_tags(getter, 'return').flat_map(&:types)
             unless return_types.any?
               Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
               next Parlour::Types::Untyped.new
@@ -344,11 +365,11 @@ module Sord
             # Is this the only argument, and was a @param specified without an
             # argument name? If so, infer it
             if parameter_names_and_defaults_to_tags.length == 1 \
-              && meth.tags('param').length == 1 \
-              && meth.tag('param').types
+              && method_tags(meth, 'param').length == 1 \
+              && method_tag(meth, 'param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-              TypeConverter.yard_to_parlour(meth.tag('param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
             else
               Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
               Parlour::Types::Untyped.new
@@ -356,7 +377,7 @@ module Sord
           end
         end
 
-        return_tags = meth.tags('return')
+        return_tags = method_tags(meth, 'return')
         returns = if meth.name == :initialize && !@use_original_initialize_return
           nil
         elsif return_tags.length == 0
@@ -365,7 +386,7 @@ module Sord
         elsif return_tags.length == 1 && %w{void nil}.include?(return_tags&.first&.types&.first&.downcase)
           nil
         else
-          TypeConverter.yard_to_parlour(meth.tag('return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+          TypeConverter.yard_to_parlour(method_tag(meth, 'return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
         end
 
         rbs_block = nil
