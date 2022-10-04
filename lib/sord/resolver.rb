@@ -1,23 +1,80 @@
 # typed: false
 require 'stringio'
+require 'rbs'
+require 'rbs/cli'
 
 module Sord
   module Resolver
     # @return [void]
     def self.prepare
+      return @names_to_paths if @names_to_paths
+
+      gem_objects = {}
+      load_gem_objects(gem_objects)
+
       # Construct a hash of class names to full paths
-      @@names_to_paths ||= YARD::Registry.all(:class)
+      @names_to_paths = YARD::Registry.all(:class)
         .group_by(&:name)
-        .map { |k, v| [k.to_s, v.map(&:path)] }
+        .map { |k, v| [k.to_s, v.map(&:path).to_set] }
         .to_h
-        .merge(builtin_classes.map { |x| [x, [x]] }.to_h) do |k, a, b|
-          a | b
+        .merge(builtin_classes.map { |x| [x, Set.new([x])] }.to_h) { |_k, a, b| a.union(b) }
+        .merge(gem_objects) { |_k, a, b| a.union(b) }
+    end
+
+    def self.load_gem_objects(hash)
+      all_decls = []
+      begin
+        RBS::CLI::LibraryOptions.new.loader.load(env: all_decls)
+      rescue RBS::Collection::Config::CollectionNotAvailable
+        Sord::Logging.warn("Could not load RBS collection - run rbs collection install for dependencies")
+      end
+      add_rbs_objects_to_paths(all_decls, hash)
+
+      gem_paths = Bundler.load.specs.map(&:full_gem_path)
+      gem_paths.each do |path|
+        if File.exists?("#{path}/rbi")
+          Dir["#{path}/rbi/**/*.rbi"].each do |sigfile|
+            tree = Parlour::TypeLoader.load_file(sigfile)
+            add_rbi_objects_to_paths(tree.children, hash)
+          end
         end
+      end
+    end
+
+    def self.add_rbs_objects_to_paths(all_decls, names_to_paths, path=[])
+      klasses = [
+        RBS::AST::Declarations::Module,
+        RBS::AST::Declarations::Class,
+        RBS::AST::Declarations::Constant
+      ]
+      all_decls.each do |decl|
+        next unless klasses.include?(decl.class)
+        name = decl.name.to_s
+        new_path = path + [name]
+        names_to_paths[name] ||= Set.new
+        names_to_paths[name] << new_path.join('::')
+        add_rbs_objects_to_paths(decl.members, names_to_paths, new_path) if decl.respond_to?(:members)
+      end
+    end
+
+    def self.add_rbi_objects_to_paths(nodes, names_to_paths, path=[])
+      klasses = [
+        Parlour::RbiGenerator::Constant,
+        Parlour::RbiGenerator::ModuleNamespace,
+        Parlour::RbiGenerator::ClassNamespace
+      ]
+      nodes.each do |node|
+        next unless klasses.include?(node.class)
+        new_path = path + [node.name]
+        names_to_paths[node.name] ||= Set.new
+        names_to_paths[node.name] << new_path.join('::')
+        add_rbi_objects_to_paths(node.children, names_to_paths, new_path) if node.respond_to?(:children)
+      end
     end
 
     # @return [void]
     def self.clear
-      @@names_to_paths = nil
+      @names_to_paths = nil
     end
 
     # @param [String] name
@@ -28,7 +85,7 @@ module Sord
       # If the name starts with ::, then we've been given an explicit path from root - just use that
       return [name] if name.start_with?('::')
 
-      (@@names_to_paths[name.split('::').last] || [])
+      (@names_to_paths[name.split('::').last] || [])
         .select { |x| x.end_with?(name) }
     end
 
@@ -43,9 +100,9 @@ module Sord
       # This prints some deprecation warnings, so suppress them
       prev_stderr = $stderr
       $stderr = StringIO.new
-      
+
       major = RUBY_VERSION.split('.').first.to_i
-      sorted_set_removed = major >= 3 
+      sorted_set_removed = major >= 3
 
       Object.constants
         .reject { |x| sorted_set_removed && x == :SortedSet }

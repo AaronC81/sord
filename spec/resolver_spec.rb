@@ -160,4 +160,9 @@ describe Sord::Resolver do
 
     expect(subject.path_for('B')).to be nil # Ambiguous
   end
+
+  it 'resolves included gem rbi files' do
+    subject.prepare
+    expect(subject.path_for('Parlour::TypeLoader')).to eq 'Parlour::TypeLoader'
+  end
 end
