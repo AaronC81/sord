@@ -21,10 +21,15 @@ module Sord
     GENERIC_TYPE_REGEX =
       /(#{SIMPLE_TYPE_REGEX})\s*[<{]\s*(.*)\s*[>}]/
 
+    # Matches valid method names.
+    # From: https://stackoverflow.com/a/4379197/2626000
+    METHOD_NAME_REGEX =
+      /(?:[a-z_]\w*[?!=]?|\[\]=?|<<|>>|\*\*|[!~+\*\/%&^|-]|[<>]=?|<=>|={2,3}|![=~]|=~)/i 
+
     # Match duck types which require the object implement one or more methods,
     # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
     DUCK_TYPE_REGEX =
-      /^\#[a-zA-Z_][\w]*(?:[a-zA-Z_][\w=]*)*(?:( ?\& ?\#)*[a-zA-Z_][\w=]*)*$/
+      /^\##{METHOD_NAME_REGEX}(?:\s*\&\s*\##{METHOD_NAME_REGEX})*$/
 
     # A regular expression which matches ordered lists in the format of
     # either "Array(String, Symbol)" or "(String, Symbol)".
