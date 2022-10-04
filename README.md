@@ -85,6 +85,8 @@ Sord also takes some flags to alter the generated file:
     (You cannot specify both `--include-messages` and `--exclude-messages`.)
   - `--exclude-untyped`: Exclude methods and attributes with untyped return
     values.
+  - `--tags TAGS`: Provide a list of comma-separated tags as understood by the
+    `yard` command. E.g. `--tags 'mytag:My Description,mytag2:My New Description'
 
 ## Example
 

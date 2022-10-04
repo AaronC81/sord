@@ -25,6 +25,7 @@ command :gen do |c|
   c.option '--hide-private', 'Exclude any object marked with @!visibility private'
   c.option '--use-original-initialize-return', 'Uses the specified return type for #initialize rather than void'
   c.option '--exclude-untyped', 'Exclude methods and attributes with untyped return values'
+  c.option '--tags TAGS', Array, 'Tag parameters for the YARD command'
 
   c.action do |args, options|
     options.default(
@@ -42,6 +43,7 @@ command :gen do |c|
       skip_constants: false,
       use_original_initialize_return: false,
       exclude_untyped: false,
+      tags: [],
     )
 
     if args.length != 1
