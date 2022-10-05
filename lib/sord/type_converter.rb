@@ -270,9 +270,10 @@ module Sord
     # Taken from: https://github.com/ruby/rbs/blob/master/core/builtin.rbs
     # When the latest commit was: 6c847d1
     #
-    # Interfaces which use generic arguments have been left out, since (as I understand it)
-    # there's no standard way that these are being written in YARD.
+    # Interfaces which use generic arguments have those arguments as `untyped`, since I'm not aware
+    # of any standard way that these are specified.
     DUCK_TYPES_TO_RBS_TYPE_NAMES = {
+      # Concrete
       "#to_i" => "_ToI",
       "#to_int" => "_ToInt",
       "#to_r" => "_ToR",
@@ -286,6 +287,11 @@ module Sord
       "#rewind" => "_Rewindable",
       "#to_io" => "_ToIO",
       "#exception" => "_Exception",
+
+      # Generic - these will be put in a `Types::Raw`, so writing RBS syntax is a little devious,
+      # but by their nature we know they'll only be used in an RBS file, so it's probably fine
+      "#to_hash" => "_ToHash[untyped, untyped]",
+      "#each" => "_Each[untyped]",
     }
 
     # Given a YARD duck type string, attempts to convert it to one of a list of pre-defined RBS

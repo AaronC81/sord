@@ -335,6 +335,7 @@ describe Sord::TypeConverter do
         expect(subject.yard_to_parlour('#to_s', nil, config)).to eq Types::Raw.new('_ToS')
         expect(subject.yard_to_parlour('#to_i', nil, config)).to eq Types::Raw.new('_ToI')
         expect(subject.yard_to_parlour('#write', nil, config)).to eq Types::Raw.new('_Writer')
+        expect(subject.yard_to_parlour('#to_hash', nil, config)).to eq Types::Raw.new('_ToHash[untyped, untyped]')
 
         # Doesn't convert unknown types
         expect(subject.yard_to_parlour('#foobar', nil, config)).to eq Types::Untyped.new
