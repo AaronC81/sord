@@ -320,5 +320,28 @@ describe Sord::TypeConverter do
         expect(yard_to_parlour_default('Hash<Array>')).to eq Types::Raw.new('SORD_ERROR_Arrayuntyped')
       end
     end
+
+    context 'when using RBS' do
+      let :config do
+        Sord::TypeConverter::Configuration.new(
+          output_language: :rbs,
+          replace_errors_with_untyped: false,
+          replace_unresolved_with_untyped: false,  
+        )
+      end
+
+      it 'replaces known duck types with built-in interfaces' do
+        # Converts known types
+        expect(subject.yard_to_parlour('#to_s', nil, config)).to eq Types::Raw.new('_ToS')
+        expect(subject.yard_to_parlour('#to_i', nil, config)).to eq Types::Raw.new('_ToI')
+        expect(subject.yard_to_parlour('#write', nil, config)).to eq Types::Raw.new('_Writer')
+
+        # Doesn't convert unknown types
+        expect(subject.yard_to_parlour('#foobar', nil, config)).to eq Types::Untyped.new
+
+        # Doesn't affect RBI, where these interfaces don't exist
+        expect(yard_to_parlour_default('#to_s')).to eq Types::Untyped.new
+      end
+    end
   end
 end

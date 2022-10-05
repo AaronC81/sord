@@ -177,8 +177,13 @@ module Sord
           Parlour::Types::Raw.new(yard)
         end
       when DUCK_TYPE_REGEX
-        Logging.duck("#{yard} looks like a duck type, replacing with untyped", item)
-        Parlour::Types::Untyped.new
+        if config.output_language == :rbs && (type = duck_type_to_rbs_type(yard))
+          Logging.duck("#{yard} looks like a duck type with an equivalent RBS interface, replacing with #{type.generate_rbs}", item)
+          type
+        else
+          Logging.duck("#{yard} looks like a duck type, replacing with untyped", item)
+          Parlour::Types::Untyped.new
+        end
       when /^#{GENERIC_TYPE_REGEX}$/
         generic_type = $1
         type_parameters = $2
