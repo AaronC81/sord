@@ -243,5 +243,44 @@ module Sord
         ? Parlour::Types::Untyped.new
         : Parlour::Types::Raw.new("SORD_ERROR_#{name.gsub(/[^0-9A-Za-z_]/i, '')}")
     end
+
+    # Taken from: https://github.com/ruby/rbs/blob/master/core/builtin.rbs
+    # When the latest commit was: 6c847d1
+    #
+    # Interfaces which use generic arguments have been left out, since (as I understand it)
+    # there's no standard way that these are being written in YARD.
+    DUCK_TYPES_TO_RBS_TYPE_NAMES = {
+      "#to_i" => "_ToI",
+      "#to_int" => "_ToInt",
+      "#to_r" => "_ToR",
+      "#to_s" => "_ToS",
+      "#to_str" => "_ToStr",
+      "#to_proc" => "_ToProc",
+      "#to_path" => "_ToPath",
+      "#read" => "_Reader",
+      "#readpartial" => "_ReaderPartial",
+      "#write" => "_Writer",
+      "#rewind" => "_Rewindable",
+      "#to_io" => "_ToIO",
+      "#exception" => "_Exception",
+    }
+
+    # Given a YARD duck type string, attempts to convert it to one of a list of pre-defined RBS
+    # built-in interfaces.
+    #
+    # For example, the common duck type `#to_s` has a built-in RBS equivalent `_ToS`.
+    #
+    # If no such interface exists, returns `nil`.
+    #
+    # @param [String] type
+    # @return [Parlour::Types::Type, nil]
+    def self.duck_type_to_rbs_type(type)
+      type_name = DUCK_TYPES_TO_RBS_TYPE_NAMES[type]
+      if !type_name.nil?
+        Parlour::Types::Raw.new(type_name)
+      else
+        nil
+      end
+    end
   end
 end
