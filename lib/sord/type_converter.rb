@@ -95,17 +95,35 @@ module Sord
       result
     end
 
+    # Configuration for how the type converter should work in particular cases.
+    class Configuration
+      def initialize(replace_errors_with_untyped:, replace_unresolved_with_untyped:, output_language:)
+        @output_language = output_language
+        @replace_errors_with_untyped = replace_errors_with_untyped
+        @replace_unresolved_with_untyped = replace_unresolved_with_untyped
+      end
+
+      # The language which the generated types will be converted to - one of
+      # `:rbi` or `:rbs`.
+      attr_accessor :output_language
+
+      # @return [Boolean] If true, T.untyped is used instead of SORD_ERROR_
+      #   constants for unknown types.
+      attr_accessor :replace_errors_with_untyped
+
+      # @param [Boolean] replace_unresolved_with_untyped If true, T.untyped is
+      #   used when Sord is unable to resolve a constant.
+      attr_accessor :replace_unresolved_with_untyped
+    end
+
     # Converts a YARD type into a Parlour type.
     # @param [Boolean, Array, String] yard The YARD type.
     # @param [YARD::CodeObjects::Base] item The CodeObject which the YARD type
     #   is associated with. This is used for logging and can be nil, but this
     #   will lead to less informative log messages.
-    # @param [Boolean] replace_errors_with_untyped If true, T.untyped is used
-    #   instead of SORD_ERROR_ constants for unknown types.
-    # @param [Boolean] replace_unresolved_with_untyped If true, T.untyped is used
-    #   when Sord is unable to resolve a constant.
+    # @param [Configuration] config The generation configuration.
     # @return [Parlour::Types::Type]
-    def self.yard_to_parlour(yard, item = nil, replace_errors_with_untyped = false, replace_unresolved_with_untyped = false)
+    def self.yard_to_parlour(yard, item, config)
       case yard
       when nil # Type not specified
         Parlour::Types::Untyped.new
@@ -118,7 +136,7 @@ module Sord
         # selection of any of the types
         types = yard
           .reject { |x| x == 'nil' }
-          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, config) }
           .uniq(&:hash)
         result = types.length == 1 \
           ? types.first
@@ -147,7 +165,7 @@ module Sord
               unless yard == new_path
             Parlour::Types::Raw.new(new_path)
           else
-            if replace_unresolved_with_untyped
+            if config.replace_unresolved_with_untyped
               Logging.warn("#{yard} wasn't able to be resolved to a constant in this project, replaced with untyped", item)
               Parlour::Types::Untyped.new
             else
@@ -171,7 +189,7 @@ module Sord
           ? generic_type[2..-1] : generic_type
 
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, config) }
         if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
           Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
         elsif relative_generic_type == 'Class' && parameters.length == 1
@@ -180,7 +198,7 @@ module Sord
           if parameters.length == 2
             Parlour::Types::Hash.new(*parameters)
           else
-            handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
+            handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, config.replace_errors_with_untyped)
           end
         else
           if Parlour::Types.const_defined?(relative_generic_type)
@@ -190,7 +208,7 @@ module Sord
           else
             # This is a user defined generic
             Parlour::Types::Generic.new(
-              yard_to_parlour(generic_type),
+              yard_to_parlour(generic_type, nil, config),
               parameters
             )
           end
@@ -200,22 +218,22 @@ module Sord
       when ORDERED_LIST_REGEX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, config) }
         Parlour::Types::Tuple.new(parameters)
       when SHORTHAND_HASH_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, config) }
         # Return a warning about an invalid hash when it has more or less than two elements.
         if parameters.length == 2
           Parlour::Types::Hash.new(*parameters)
         else
-          handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, replace_errors_with_untyped)
+          handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, config.replace_errors_with_untyped)
         end
       when SHORTHAND_ARRAY_SYNTAX
         type_parameters = $1
         parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_parlour(x, item, replace_errors_with_untyped, replace_unresolved_with_untyped) }
+          .map { |x| yard_to_parlour(x, item, config) }
         parameters.one? \
           ? Parlour::Types::Array.new(parameters.first)
           : Parlour::Types::Array.new(Parlour::Types::Union.new(parameters))
@@ -225,7 +243,7 @@ module Sord
         return Parlour::Types::Raw.new(from_yaml.class.to_s) \
           if [Symbol, Float, Integer].include?(from_yaml.class)
 
-        return handle_sord_error(yard.to_s, "#{yard.inspect} does not appear to be a type", item, replace_errors_with_untyped)
+        return handle_sord_error(yard.to_s, "#{yard.inspect} does not appear to be a type", item, config.replace_errors_with_untyped)
       end
     end
 
