@@ -206,7 +206,7 @@ module Sord
             handle_sord_error(parameters.map(&:describe).join, "Invalid hash, must have exactly two types: #{yard.inspect}.", item, config.replace_errors_with_untyped)
           end
         else
-          if Parlour::Types.const_defined?(relative_generic_type)
+          if Parlour::Types.constants.include?(relative_generic_type.to_sym)
             # This generic is built in to parlour, but sord doesn't
             # explicitly know about it.
             Parlour::Types.const_get(relative_generic_type).new(*parameters)

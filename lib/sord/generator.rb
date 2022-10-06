@@ -324,10 +324,11 @@ module Sord
               yieldreturn&.first&.downcase == 'void'
 
             # Create strings
-            params = yieldparams.map do |param|
+            params = yieldparams.map.with_index do |param, i|
               Parlour::Types::Proc::Parameter.new(
-                param.name.gsub('*', ''),
-                TypeConverter.yard_to_parlour(param.types, meth, @type_converter_config)
+                param.name&.gsub('*', '') || "arg#{i}",
+                TypeConverter.yard_to_parlour(param.types, meth, @type_converter_config)                
+                TypeConverter.yard_to_parlour(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
               )
             end
             returns = TypeConverter.yard_to_parlour(yieldreturn, meth, @type_converter_config)
