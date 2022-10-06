@@ -59,6 +59,12 @@ module Sord
       @use_original_initialize_return = options[:use_original_initialize_return]
       @exclude_untyped = options[:exclude_untyped]
 
+      @type_converter_config = TypeConverter::Configuration.new(
+        output_language: @mode,
+        replace_errors_with_untyped: @replace_errors_with_untyped,
+        replace_unresolved_with_untyped: @replace_unresolved_with_untyped,
+      )
+
       # Hook the logger so that messages are added as comments
       Logging.add_hook do |type, msg, item, **opts|
         # Hack: the "exclude untyped" log message needs to print somewhere, but
@@ -147,8 +153,7 @@ module Sord
             TypeConverter.yard_to_parlour(
               return_tags.map(&:types).flatten,
               constant,
-              @replace_errors_with_untyped,
-              @replace_unresolved_with_untyped
+              @type_converter_config,
             )
           end
           @current_object.create_constant(constant_name, type: returns) do |c|
@@ -310,7 +315,7 @@ module Sord
           name = name_and_default.first
 
           if tag
-            TypeConverter.yard_to_parlour(tag.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            TypeConverter.yard_to_parlour(tag.types, meth, @type_converter_config)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
             yieldparams = method_tags(meth, 'yieldparam')
@@ -322,10 +327,10 @@ module Sord
             params = yieldparams.map.with_index do |param, i|
               Parlour::Types::Proc::Parameter.new(
                 param.name&.gsub('*', '') || "arg#{i}",
-                TypeConverter.yard_to_parlour(param.types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                TypeConverter.yard_to_parlour(param.types, meth, @type_converter_config)
               )
             end
-            returns = TypeConverter.yard_to_parlour(yieldreturn, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+            returns = TypeConverter.yard_to_parlour(yieldreturn, meth, @type_converter_config)
 
             # Create proc types, if possible
             if yieldparams.empty? && yieldreturn.nil?
@@ -344,7 +349,7 @@ module Sord
                 && method_tag(meth, 'param').types
 
                 Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-                next TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+                next TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @type_converter_config)
               else
                 Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
                 next Parlour::Types::Untyped.new
@@ -357,7 +362,7 @@ module Sord
               next Parlour::Types::Untyped.new
             end
             inferred_type = TypeConverter.yard_to_parlour(
-              return_types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              return_types, meth, @type_converter_config)
 
             Logging.infer("inferred type of parameter #{name.inspect} as #{inferred_type.describe} using getter's return type", meth)
             inferred_type
@@ -369,7 +374,7 @@ module Sord
               && method_tag(meth, 'param').types
 
               Logging.infer("argument name in single @param inferred as #{parameter_names_and_defaults_to_tags.first.first.first.inspect}", meth)
-              TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              TypeConverter.yard_to_parlour(method_tag(meth, 'param').types, meth, @type_converter_config)
             else
               Logging.omit("no YARD type given for #{name.inspect}, using untyped", meth)
               Parlour::Types::Untyped.new
@@ -386,7 +391,7 @@ module Sord
         elsif return_tags.length == 1 && %w{void nil}.include?(return_tags&.first&.types&.first&.downcase)
           nil
         else
-          TypeConverter.yard_to_parlour(method_tag(meth, 'return').types, meth, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+          TypeConverter.yard_to_parlour(method_tag(meth, 'return').types, meth, @type_converter_config)
         end
 
         rbs_block = nil
@@ -492,7 +497,7 @@ module Sord
             parlour_type = Parlour::Types::Untyped.new
           else
             parlour_type = TypeConverter.yard_to_parlour(
-              yard_types, reader || writer, @replace_errors_with_untyped, @replace_unresolved_with_untyped)
+              yard_types, reader || writer, @type_converter_config)
           end
 
           # Generate attribute
