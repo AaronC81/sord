@@ -523,6 +523,32 @@ describe Sord::Generator do
     RUBY
   end
 
+  it 'handles missing block parameter names' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @yieldparam [Symbol]
+        # @yieldparam [String]
+        # @yieldreturn [void]
+        # @return [void]
+        def self.foo(&blk); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(blk: T.proc.params(arg0: Symbol, arg1: String).void).void }
+        def self.foo(&blk); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        def self.foo: () ?{ (Symbol arg0, String arg1) -> void } -> void
+      end
+    RUBY
+  end
+
   it 'handle multiline comment correctly' do
     YARD.parse_string(<<-RUBY)
       module A
