@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [5.0.0] - 2022-10-06
+### Added
+- If a derived class does not provide tags for a method, but it is overridden from a base class
+  which does, then the base class' documentation will be used to generate types for the derived
+  method.
+- When generating RBS, if a duck type matches one of RBS' built-in interfaces, this type will be
+  generated instead. (For example, `#to_s` will generate the type `_ToS`.)
+- Added the `--hide-private` flag, which will omit outputting items with private visibility.
+- To improve resolution, types for gems are now loaded from the RBS collection.
+- If you are using custom YARD tags, Sord can now be made aware of these by passing the `--tags`
+  option.
+
+### Changed
+- **Breaking change**: Support for versions of Ruby prior to 2.7 has been dropped.
+- When Sord runs YARD automatically, it no longer generates HTML documentation, since this isn't
+  necessary for Sord's analysis. If you were relying on this as part of your workflow, then this
+  could be a **breaking change**.
+
+### Fixed
+- Duck-typed methods ending with `?` or `!`, and operator methods like `#[]=`, are now correctly
+  recognised as duck types.
+- Fixed an exception when referring to built-in types with root namespace (`::Array<Foo>`) syntax.
+- `@yieldparams` without a parameter name no longer cause an exception, and instead use default
+  names of the pattern: `arg0`, `arg1`, ...
+
 ## [4.0.0] - 2022-07-19
 ### Added
 - Constants are now assigned types when generating RBS, using `@return`.
