@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [5.0.1] - 2023-05-02
+### Fixed
+- Use `File#exist?` instead of `File#exists?`, for Ruby 3.2 support. Thanks @matmorel!
+
 ## [5.0.0] - 2022-10-06
 ### Added
 - If a derived class does not provide tags for a method, but it is overridden from a base class
