@@ -30,10 +30,9 @@ module Sord
       end
       add_rbs_objects_to_paths(all_decls, hash)
 
-      file_exist = RUBY_VERSION[0].to_i > 2 ? :exist? : :exists?
       gem_paths = Bundler.load.specs.map(&:full_gem_path)
       gem_paths.each do |path|
-        next unless File.method(file_exist).call("#{path}/rbi")
+        next unless File.exist?("#{path}/rbi")
 
         Dir["#{path}/rbi/**/*.rbi"].each do |sigfile|
           tree = Parlour::TypeLoader.load_file(sigfile)
