@@ -2017,4 +2017,27 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'works with YARD\'s overload tag' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # @overload x(a, b)
+        #   @param a [String]
+        #   @param b [Integer]
+        #   @return [void]
+        def x(*args); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        sig { params(a: String, b: Integer).void }
+        def x(a, b); end
+      end
+    RUBY
+  end
 end

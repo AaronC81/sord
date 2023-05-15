@@ -294,6 +294,13 @@ module Sord
           next
         end
 
+        # If the method has YARD's @overload tags, use the information
+        # of the first one
+        # NOTE: This code does not handle the second and subsequent @overload tags
+        if !meth.tags("overload").empty?
+          meth = meth.tags("overload").first
+        end
+        
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
 
