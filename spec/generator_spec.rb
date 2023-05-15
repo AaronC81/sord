@@ -2040,4 +2040,34 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  it 'works with YARD\'s overload tag with toplevel return tag' do
+    YARD.parse_string(<<-RUBY)
+      class A
+        # Comment for method x
+        # @overload x(a, b)
+        #   Overload comment
+        #   @param a [String]
+        #   @param b [Integer]
+        # @return [Integer] example integer
+        def x(*args); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        # Comment for method x
+        # Overload comment
+        # 
+        # _@param_ `a`
+        # 
+        # _@param_ `b`
+        # 
+        # _@return_ — example integer
+        sig { params(a: String, b: Integer).returns(Integer) }
+        def x(a, b); end
+      end
+    RUBY
+  end
 end
