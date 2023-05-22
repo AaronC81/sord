@@ -22,13 +22,13 @@ module Sord
     end
 
     def self.load_gem_objects(hash)
-      all_decls = []
+      env = RBS::Environment.new
       begin
-        RBS::CLI::LibraryOptions.new.loader.load(env: all_decls)
+        RBS::CLI::LibraryOptions.new.loader.load(env: env)
       rescue RBS::Collection::Config::CollectionNotAvailable
         Sord::Logging.warn("Could not load RBS collection - run rbs collection install for dependencies")
       end
-      add_rbs_objects_to_paths(all_decls, hash)
+      add_rbs_objects_to_paths(env, hash)
 
       gem_paths = Bundler.load.specs.map(&:full_gem_path)
       gem_paths.each do |path|
@@ -41,13 +41,22 @@ module Sord
       end
     end
 
-    def self.add_rbs_objects_to_paths(all_decls, names_to_paths, path=[])
+    def self.add_rbs_objects_to_paths(env, names_to_paths, path=[])
+      case env
+      when RBS::Environment
+        declarations = env.declarations
+      when Array
+        declarations = env
+      else
+        raise TypeError, "env"
+      end
+
       klasses = [
         RBS::AST::Declarations::Module,
         RBS::AST::Declarations::Class,
         RBS::AST::Declarations::Constant
       ]
-      all_decls.each do |decl|
+      declarations.each do |decl|
         next unless klasses.include?(decl.class)
         name = decl.name.to_s
         new_path = path + [name]
