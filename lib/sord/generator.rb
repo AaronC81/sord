@@ -294,6 +294,15 @@ module Sord
           next
         end
 
+        # If the method has YARD's "@overload" tags, the information of the
+        # first one is merged into meth object
+        # NOTE: This code does not handle the second and subsequent @overload tags
+        if meth.tag("overload")
+          meth.parameters = meth.tag("overload").parameters
+          meth.tag("overload").tags.each { |tag| meth.add_tag(tag) }
+          meth.docstring += meth.tag("overload").docstring
+        end
+        
         # Sort parameters
         meth.parameters.reverse.sort! { |pair1, pair2| sort_params(pair1, pair2) }
 
