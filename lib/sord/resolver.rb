@@ -70,14 +70,21 @@ module Sord
       klasses = [
         Parlour::RbiGenerator::Constant,
         Parlour::RbiGenerator::ModuleNamespace,
-        Parlour::RbiGenerator::ClassNamespace
+        Parlour::RbiGenerator::ClassNamespace,
+        Parlour::RbiGenerator::Namespace
+      ]
+      child_only_classes = [
+        Parlour::RbiGenerator::Namespace
       ]
       nodes.each do |node|
-        next unless klasses.include?(node.class)
-        new_path = path + [node.name]
-        names_to_paths[node.name] ||= Set.new
-        names_to_paths[node.name] << new_path.join('::')
-        add_rbi_objects_to_paths(node.children, names_to_paths, new_path) if node.respond_to?(:children)
+        if klasses.include?(node.class)
+          new_path = path + [node.name]
+          unless child_only_classes.include?(node.class)
+            names_to_paths[node.name] ||= Set.new
+            names_to_paths[node.name] << new_path.join('::')
+          end
+          add_rbi_objects_to_paths(node.children, names_to_paths, new_path) if node.respond_to?(:children)
+        end
       end
     end
 
