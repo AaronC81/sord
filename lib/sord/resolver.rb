@@ -30,7 +30,7 @@ module Sord
       end
       add_rbs_objects_to_paths(env, hash)
 
-      gem_paths = Bundler.load.specs.map(&:full_gem_path)
+      gem_paths = Bundler.load.specs.map(&:full_gem_path) + ["#{Dir.pwd}/sorbet"]
       gem_paths.each do |path|
         next unless File.exist?("#{path}/rbi")
 
