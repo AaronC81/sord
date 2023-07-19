@@ -30,14 +30,9 @@ module Sord
       end
       add_rbs_objects_to_paths(env, hash)
 
-      gem_paths = Bundler.load.specs.map(&:full_gem_path)
-      gem_paths.each do |path|
-        next unless File.exist?("#{path}/rbi")
-
-        Dir["#{path}/rbi/**/*.rbi"].each do |sigfile|
-          tree = Parlour::TypeLoader.load_file(sigfile)
-          add_rbi_objects_to_paths(tree.children, hash)
-        end
+      Dir["#{Dir.pwd}/sorbet/rbi/**/*.rbi"].each do |sigfile|
+        tree = Parlour::TypeLoader.load_file(sigfile)
+        add_rbi_objects_to_paths(tree.children, hash)
       end
     end
 
