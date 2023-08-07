@@ -201,7 +201,7 @@ describe Sord::TypeConverter do
         expect(yard_to_parlour_default('Class<String>')).to eq Types::Class.new('String')
       end
 
-      pending 'converts Class types with multiple parameters' do
+      it 'converts Class types with multiple parameters' do
         expect(yard_to_parlour_default('Class<String, Integer>')).to eq \
           Types::Union.new([
             Types::Class.new('String'),
