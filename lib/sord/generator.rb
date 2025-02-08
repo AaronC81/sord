@@ -4,6 +4,7 @@ require 'sord/type_converter'
 require 'sord/logging'
 require 'parlour'
 require 'rainbow'
+require 'parser/current'
 
 module Sord
   # Converts the current working directory's YARD registry into an type
@@ -141,7 +142,25 @@ module Sord
         # Add the constant to the current object being generated.
         case @mode
         when :rbi
-          @current_object.create_constant(constant_name, value: "T.let(#{constant.value}, T.untyped)") do |c|
+          # Parse so we can set up constant with correct heredoc syntax
+          kwargs = {}
+          value_node = Parser::CurrentRuby.parse(constant.value)
+          loc = value_node.loc
+          if loc.instance_of? Parser::Source::Map::Heredoc
+            #
+            # heredocs in Ruby come after the full expression is complete.  e.g.,
+            # puts(>>FOO)
+            #   bar
+            # FOO
+            #
+            # so if we want to wrap them in a T.let, we need to parse out the expression vs the rest
+            kwargs[:heredocs] = constant.value[loc.heredoc_body.begin_pos...loc.heredoc_end.end_pos]
+            expression = loc.expression
+            value = constant.value[expression.begin_pos...expression.end_pos]
+          else
+            value = constant.value
+          end
+          @current_object.create_constant(constant_name, value: "T.let(#{value}, T.untyped)", **kwargs) do |c|
             c.add_comments(constant.docstring.all.split("\n"))
           end
         when :rbs
