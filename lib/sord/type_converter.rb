@@ -193,8 +193,10 @@ module Sord
         relative_generic_type = generic_type.start_with?('::') \
           ? generic_type[2..-1] : generic_type
 
-        parameters = split_type_parameters(type_parameters)
-          .map { |x| yard_to_parlour(x, item, config) }
+        parameters_type = yard_to_parlour(split_type_parameters(type_parameters),
+                                          item, config)
+        parameters = parameters_type.is_a?(Parlour::Types::Union) ? parameters_type.types : [parameters_type]
+
         if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
           Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
         elsif relative_generic_type == 'Class' && parameters.length == 1

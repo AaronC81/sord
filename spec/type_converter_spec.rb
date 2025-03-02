@@ -72,6 +72,8 @@ describe Sord::TypeConverter do
           Types::Nilable.new(Types::Union.new(['String', 'Integer']))
         expect(yard_to_parlour_default(['String', 'nil'])).to eq \
           Types::Nilable.new('String')
+        expect(yard_to_parlour_default('Array<String, nil>')).to eq \
+          Types::Array.new(Types::Nilable.new('String'))
       end
     end
 
