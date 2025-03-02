@@ -149,6 +149,11 @@ describe Sord::TypeConverter do
         expect(yard_to_parlour_default('Hash<String=>Symbol>')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String=>Symbol}')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String => Symbol}')).to eq Types::Hash.new('String', 'Symbol')
+        expect(yard_to_parlour_default('Hash{String, Integer => Symbol, Float}')).to eq \
+          Types::Hash.new(
+            Types::Union.new(['String', 'Integer']),
+            Types::Union.new(['Symbol', 'Float'])
+        )
         expect(yard_to_parlour_default('Hash<Hash{String => Symbol}, Hash<Array<Symbol>, Integer>>')).to eq \
           Types::Hash.new(
             Types::Hash.new('String', 'Symbol'),
