@@ -81,7 +81,6 @@ module Sord
 
       # Hook the logger so that warnings are collected
       Logging.add_hook do |type, msg, item|
-        # TODO: is it possible to get line numbers here?
         warnings << [msg, item, 0] if type == :warn
       end
     end
@@ -670,7 +669,13 @@ module Sord
         Logging.warn("Please edit the file to fix these errors.")
         Logging.warn("Alternatively, edit your YARD documentation so that your types are valid and re-run Sord.")
         warnings.each do |(msg, item, _)|
-          puts "        (#{Rainbow(item&.path).bold}) #{msg}"
+          message = if item
+                      (filename, line), = item.files
+                      "        #{Rainbow("(#{item.path}) #{filename}:#{line}:").bold} #{msg}"
+                    else
+                      "        #{msg}"
+                   end
+          puts message
         end
       end
     rescue
