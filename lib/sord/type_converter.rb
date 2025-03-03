@@ -199,8 +199,12 @@ module Sord
           .map { |x| yard_to_parlour(x, item, config) }
         if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
           Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
-        elsif relative_generic_type == 'Class' && parameters.length == 1
-          Parlour::Types::Class.new(parameters.first)
+        elsif relative_generic_type == 'Class'
+          if parameters.length == 1
+            Parlour::Types::Class.new(parameters.first)
+          else
+            Parlour::Types::Union.new(parameters.map { |x| Parlour::Types::Class.new(x) })
+          end
         elsif relative_generic_type == 'Hash'
           if parameters.length == 2
             Parlour::Types::Hash.new(*parameters)

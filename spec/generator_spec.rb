@@ -2085,4 +2085,26 @@ END
       end
     RUBY
   end
+
+  it 'works even if the parent class has the same name' do
+    YARD.parse_string(<<-RUBY)
+      class X
+      end
+
+      module M
+        class X < ::X
+        end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class X
+      end
+
+      module M
+        class X < ::X
+        end
+      end
+    RUBY
+  end
 end
