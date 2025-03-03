@@ -75,7 +75,7 @@ module Sord
 
       message = if item
         (filename, line), = item.files
-        "#{filename}:#{line}: #{header} (#{Rainbow(item.path).bold}) #{msg}"
+        "#{header} #{Rainbow("(#{item.path}) #{filename}:#{line}:").bold} #{msg}"
       else
         "#{header} #{msg}"
       end
