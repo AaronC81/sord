@@ -24,7 +24,7 @@ module Sord
     # Matches valid method names.
     # From: https://stackoverflow.com/a/4379197/2626000
     METHOD_NAME_REGEX =
-      /(?:[a-z_]\w*[?!=]?|\[\]=?|<<|>>|\*\*|[!~+\*\/%&^|-]|[<>]=?|<=>|={2,3}|![=~]|=~)/i 
+      /(?:[a-z_]\w*[?!=]?|\[\]=?|<<|>>|\*\*|[!~+\*\/%&^|-]|[<>]=?|<=>|={2,3}|![=~]|=~)/i
 
     # Match duck types which require the object implement one or more methods,
     # like '#foo', '#foo & #bar', '#foo&#bar&#baz', and '#foo&#bar&#baz&#foo_bar'.
@@ -76,13 +76,15 @@ module Sord
         end
 
         # Handle hash rockets as separators.
-        # e.g. Hash<Symbol => String>
+        # e.g. Hash<Symbol => String> or Hash<Symbol, String => Integer>
         if params[character_pointer] == '=' && params[character_pointer + 1] == '>'
           if current_bracketing_level == 0
             character_pointer += 1
             result << buffer.strip
             buffer = ""
-            should_buffer = false
+            # commas are higher precedence
+            result = [result] if result.length > 1
+            return [result.first, split_type_parameters(params[character_pointer+1..-1].strip)]
           end
         end
 
