@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'sorbet-runtime'
   spec.add_dependency 'commander', '~> 5.0'
   spec.add_dependency "parser"
-  spec.add_dependency 'parlour', '~> 9.0'
+  spec.add_dependency 'parlour', '~> 9.1'
   spec.add_dependency 'rbs', '~> 3.0'
 
   spec.add_development_dependency "bundler", "~> 2.0"
