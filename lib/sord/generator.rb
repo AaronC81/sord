@@ -601,8 +601,10 @@ module Sord
       return if @hide_private && item.visibility == :private
       count_namespace
 
-      superclass = nil
-      superclass = item.superclass.path.to_s if item.type == :class && item.superclass.to_s != "Object"
+      if item.type == :class && item.superclass.to_s != "Object"
+        prefix = "::" if item.name.to_s == item.superclass.path
+        superclass = "#{prefix}#{item.superclass.path}"
+      end
 
       parent = @current_object
       @current_object = item.type == :class \
