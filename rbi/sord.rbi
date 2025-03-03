@@ -1,7 +1,7 @@
 # typed: strong
 # typed: strong
 module Sord
-  VERSION = T.let('5.0.0', T.untyped)
+  VERSION = T.let('7.0.0', T.untyped)
 
   # Handles writing logs to stdout and any other classes which request them.
   module Logging
@@ -178,12 +178,12 @@ module Sord
     sig { params(hash: T.untyped).returns(T.untyped) }
     def self.load_gem_objects(hash); end
 
-    # sord omit - no YARD type given for "all_decls", using untyped
+    # sord omit - no YARD type given for "env", using untyped
     # sord omit - no YARD type given for "names_to_paths", using untyped
     # sord omit - no YARD type given for "path", using untyped
     # sord omit - no YARD return type given, using untyped
-    sig { params(all_decls: T.untyped, names_to_paths: T.untyped, path: T.untyped).returns(T.untyped) }
-    def self.add_rbs_objects_to_paths(all_decls, names_to_paths, path = []); end
+    sig { params(env: T.untyped, names_to_paths: T.untyped, path: T.untyped).returns(T.untyped) }
+    def self.add_rbs_objects_to_paths(env, names_to_paths, path = []); end
 
     # sord omit - no YARD type given for "nodes", using untyped
     # sord omit - no YARD type given for "names_to_paths", using untyped
@@ -253,6 +253,7 @@ module Sord
     def add_constants(item); end
 
     # sord warn - YARD::CodeObjects::NamespaceObject wasn't able to be resolved to a constant in this project
+    # sord warn - Parlour::TypedObject wasn't able to be resolved to a constant in this project
     # Adds comments to an object based on a docstring.
     # 
     # _@param_ `item`
@@ -415,6 +416,7 @@ module Sord
     def self.split_type_parameters(params); end
 
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
+    # sord warn - Parlour::Types::Type wasn't able to be resolved to a constant in this project
     # Converts a YARD type into a Parlour type.
     # 
     # _@param_ `yard` — The YARD type.
@@ -425,7 +427,9 @@ module Sord
     sig { params(yard: T.any(T::Boolean, T::Array[T.untyped], String), item: YARD::CodeObjects::Base, config: Configuration).returns(Parlour::Types::Type) }
     def self.yard_to_parlour(yard, item, config); end
 
+    # sord warn - Parlour::Types::Type wasn't able to be resolved to a constant in this project
     # sord warn - YARD::CodeObjects::Base wasn't able to be resolved to a constant in this project
+    # sord warn - Parlour::Types::Type wasn't able to be resolved to a constant in this project
     # Handles SORD_ERRORs.
     # 
     # _@param_ `name`
@@ -445,6 +449,7 @@ module Sord
     end
     def self.handle_sord_error(name, log_warning, item, replace_errors_with_untyped); end
 
+    # sord warn - Parlour::Types::Type wasn't able to be resolved to a constant in this project
     # Given a YARD duck type string, attempts to convert it to one of a list of pre-defined RBS
     # built-in interfaces.
     # 
