@@ -206,6 +206,14 @@ describe Sord::TypeConverter do
         expect(yard_to_parlour_default('Class<String>')).to eq Types::Class.new('String')
       end
 
+      it 'converts Class types with multiple parameters' do
+        expect(yard_to_parlour_default('Class<String, Integer>')).to eq \
+          Types::Union.new([
+            Types::Class.new('String'),
+            Types::Class.new('Integer'),
+          ])
+      end
+
       context 'with user defined generic' do
         it 'handles single parameter' do
           expect(yard_to_parlour_default('Wrapper<String>')).to eq \
