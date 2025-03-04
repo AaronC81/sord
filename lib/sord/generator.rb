@@ -681,10 +681,8 @@ module Sord
         end
       end
     rescue
-      Logging.error($!)
-      $@.each do |line|
-        puts "         #{line}"
-      end
+      Logging.error("An internal error occurred while running Sord: #{$!}")
+      raise
     end
 
     # Given two pairs of arrays representing method parameters, in the form
