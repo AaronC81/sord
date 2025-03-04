@@ -14,6 +14,8 @@ jobs:
         ruby-version: 3.4 # Use latest for best chance of dependencies resolving
     - name: Install dependencies
       run: bundle install
+    - name: Install example dependencies
+      run: apt-get install libldap2-dev libidn11-dev # Dependencies for `addressable`
     - name: Run examples (RBI)
       run: bundle exec rake examples:seed[rbi]
     - name: Run examples (RBS)
