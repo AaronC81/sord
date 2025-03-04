@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: bundle install
     - name: Install example dependencies
-      run: apt-get install libldap2-dev libidn11-dev # Dependencies for `addressable`
+      run: sudo apt-get install libldap2-dev libidn11-dev # Dependencies for `addressable`
     - name: Run examples (RBI)
       run: bundle exec rake examples:seed[rbi]
     - name: Run examples (RBS)
