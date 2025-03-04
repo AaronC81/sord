@@ -19,85 +19,138 @@ REPOS = {
   zeitwerk: 'https://github.com/fxn/zeitwerk'
 }
 
+# Thrown by tasks to present a "friendly" error message and abort the task.
+class TaskError < StandardError
+end
+
+# Handles Sord examples, including checkout and running Sord to generate types.
+class ExampleRunner
+  attr_reader :mode, :mode_arg, :clean
+  alias clean? clean
+
+  # @return [<Symbol>] Names of gems where Sord failed.
+  attr_accessor :failed_examples
+
+  # @param [String] mode "rbi" or "rbs".
+  # @param [Boolean] clean Run Sord with additional options to generate minimal type output.
+  def initialize(mode:, clean: false)
+    @mode = mode
+    @clean = clean
+
+    if mode == 'rbi'
+      @mode_arg = '--rbi'
+    elsif mode == 'rbs'
+      @mode_arg = '--rbs'
+    else
+      raise TaskError, 'please specify \'rbi\' or \'rbs\'!'
+    end
+
+    @failed_examples = []
+  end
+
+  # Create the `sord_examples` directory, ready for checkouts.
+  # @raise [TaskError] If it already exists.
+  def create_examples_dir
+    if File.directory?(File.join(__dir__, 'sord_examples'))
+      raise TaskError, 'sord_examples directory already exists, please delete the directory or run a reseed!'
+    end
+
+    FileUtils.mkdir 'sord_examples'
+  end
+
+  # Check that the `sord_examples` directory exists.
+  # @raise [TaskError] If it doesn't.
+  def validate_examples_dir
+    unless File.directory?(File.join(__dir__, 'sord_examples'))
+      raise TaskError, 'The sord_examples directory does not exist. Have you run the seed task?'
+    end
+  end
+
+  # Check out a repository, add Sord to its Gemfile, and install its dependencies.
+  # @param [Symbol] name Name of the checkout.
+  # @param [String] url Git URL.
+  def prepare_checkout(name, url)
+    Dir.chdir(File.join(__dir__, 'sord_examples')) do
+      puts "Cloning #{name}..."
+      system("git clone #{url} --depth=1")
+
+      Dir.chdir(name.to_s) do
+        # Add sord to gemfile.
+        `echo "gem 'sord', path: '../../'" >> Gemfile`
+
+        # Run bundle install.
+        system('bundle install')
+      end
+    end
+  end
+
+  # Run Sord on a checked-out repository.
+  # @param [Symbol] name Name of the checkout.
+  def generate_types(name)
+    puts "Generating rbi for #{name}..."
+
+    Dir.chdir(File.join(__dir__, 'sord_examples', name.to_s)) do
+      if clean?
+        system("bundle exec sord ../#{name}.#{mode} #{mode_arg} --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
+      else
+        system("bundle exec sord ../#{name}.#{mode} #{mode_arg}")
+      end
+
+      if $?.success?
+        puts "#{name}.#{mode} generated!"
+      else
+        puts "Sord exited with error"
+        failed_examples << name
+      end
+    end
+  end
+
+  # Check that all Sord executions were successful.
+  # @raise [TaskError] If any failed.
+  def validate_sord_success
+    if failed_examples.any?
+      raise TaskError, "Not all Sord runs were successful: #{failed_examples.map(&:to_s).join(', ')}"
+    end
+  end
+end
+
 namespace :examples do
   require 'fileutils'
   require 'rainbow'
 
   desc "Clone git repositories and run Sord on them as examples"
   task :seed, [:mode, :clean] do |t, args|
-    if File.directory?('sord_examples')
-      puts Rainbow('sord_examples directory already exists, please delete the directory or run a reseed!').red
-      exit
-    end
+    examples = ExampleRunner.new(**args)
+    examples.create_examples_dir
 
-    if args[:mode] == 'rbi'
-      mode_arg = '--rbi'
-    elsif args[:mode] == 'rbs'
-      mode_arg = '--rbs'
-    else
-      puts Rainbow('please specify \'rbi\' or \'rbs\'!').red
-      exit
-    end
-
-    FileUtils.mkdir 'sord_examples'
-    FileUtils.cd 'sord_examples'
-    
     Bundler.with_clean_env do
-      # Shallow clone each of the repositories, then bundle install and run sord.
       REPOS.each do |name, url|
-        puts "Cloning #{name}..."
-        system("git clone #{url} --depth=1")
-        FileUtils.cd name.to_s
-        # Add sord to gemfile.
-        `echo "gem 'sord', path: '../../'" >> Gemfile`
-        # Run bundle install.
-        system('bundle install')
-        # Generate sri
-        puts "Generating rbi for #{name}..."
-        if args[:clean]
-          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
-        else
-          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg}")
-        end
-        puts "#{name}.#{args[:mode]} generated!"
-        FileUtils.cd '..'
+        examples.prepare_checkout(name, url)
+        examples.generate_types(name)
       end
     end
+    examples.validate_sord_success
 
     puts Rainbow("Seeding complete!").green
+
+  rescue TaskError => e
+    abort Rainbow(e.to_s).red
   end
 
   desc 'Regenerate the rbi files in sord_examples.'
   task :reseed, [:mode, :clean] do |t, args|
-    if Dir.exist?('sord_examples')
-      FileUtils.cd 'sord_examples'
-    else
-      raise Rainbow("The sord_examples directory does not exist. Have you run the seed task?").red.bold
-    end
-
-    if args[:mode] == 'rbi'
-      mode_arg = '--rbi'
-    elsif args[:mode] == 'rbs'
-      mode_arg = '--rbs'
-    else
-      puts Rainbow('please specify \'rbi\' or \'rbs\'!').red
-      exit
-    end
+    examples = ExampleRunner.new(**args)
+    examples.validate_examples_dir
 
     REPOS.keys.each do |name|
-      FileUtils.cd name.to_s
-      puts "Regenerating rbi file for #{name}..."
-      Bundler.with_clean_env do
-        if args[:clean]
-          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-regenerate --no-sord-comments --replace-errors-with-untyped --replace-unresolved-with-untyped")
-        else
-          system("bundle exec sord ../#{name}.#{args[:mode]} #{mode_arg} --no-regenerate")
-        end
-      end
-      FileUtils.cd '..'
+      examples.generate_types(name)
     end
+    examples.validate_sord_success
 
     puts Rainbow("Re-seeding complete!").green
+
+  rescue TaskError => e
+    abort Rainbow(e.to_s).red
   end
   
   desc 'Delete the sord_examples directory to allow the seeder to run again.'
