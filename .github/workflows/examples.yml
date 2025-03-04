@@ -1,0 +1,20 @@
+name: Run Sord on examples
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.4 # Use latest for best chance of dependencies resolving
+    - name: Install dependencies
+      run: bundle install
+    - name: Run examples (RBI)
+      run: bundle exec rake examples:seed[rbi]
+    - name: Run examples (RBS)
+      run: bundle exec rake examples:seed[rbs]
