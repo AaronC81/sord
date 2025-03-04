@@ -19,14 +19,17 @@ REPOS = {
   zeitwerk: 'https://github.com/fxn/zeitwerk'
 }
 
-# Thrown by tasks when some of the input arguments or state is invalid.
-class ValidationError < StandardError
+# Thrown by tasks to present a "friendly" error message and abort the task.
+class TaskError < StandardError
 end
 
 # Handles Sord examples, including checkout and running Sord to generate types.
 class ExampleRunner
   attr_reader :mode, :mode_arg, :clean
   alias clean? clean
+
+  # @return [<Symbol>] Names of gems where Sord failed.
+  attr_accessor :failed_examples
 
   # @param [String] mode "rbi" or "rbs".
   # @param [Boolean] clean Run Sord with additional options to generate minimal type output.
@@ -39,25 +42,27 @@ class ExampleRunner
     elsif mode == 'rbs'
       @mode_arg = '--rbs'
     else
-      raise ValidationError, 'please specify \'rbi\' or \'rbs\'!'
+      raise TaskError, 'please specify \'rbi\' or \'rbs\'!'
     end
+
+    @failed_examples = []
   end
 
   # Create the `sord_examples` directory, ready for checkouts.
-  # @raise [ValidationError] If it already exists.
+  # @raise [TaskError] If it already exists.
   def create_examples_dir
     if File.directory?(File.join(__dir__, 'sord_examples'))
-      raise ValidationError, 'sord_examples directory already exists, please delete the directory or run a reseed!'
+      raise TaskError, 'sord_examples directory already exists, please delete the directory or run a reseed!'
     end
 
     FileUtils.mkdir 'sord_examples'
   end
 
   # Check that the `sord_examples` directory exists.
-  # @raise [ValidationError] If it doesn't.
+  # @raise [TaskError] If it doesn't.
   def validate_examples_dir
     unless File.directory?(File.join(__dir__, 'sord_examples'))
-      raise ValidationError, 'The sord_examples directory does not exist. Have you run the seed task?'
+      raise TaskError, 'The sord_examples directory does not exist. Have you run the seed task?'
     end
   end
 
@@ -91,7 +96,20 @@ class ExampleRunner
         system("bundle exec sord ../#{name}.#{mode} #{mode_arg}")
       end
 
-      puts "#{name}.#{mode} generated!"
+      if $?.success?
+        puts "#{name}.#{mode} generated!"
+      else
+        puts "Sord exited with error"
+        failed_examples << name
+      end
+    end
+  end
+
+  # Check that all Sord executions were successful.
+  # @raise [TaskError] If any failed.
+  def validate_sord_success
+    if failed_examples.any?
+      raise TaskError, "Not all Sord runs were successful: #{failed_examples.map(&:to_s).join(', ')}"
     end
   end
 end
@@ -111,10 +129,11 @@ namespace :examples do
         examples.generate_types(name)
       end
     end
+    examples.validate_sord_success
 
     puts Rainbow("Seeding complete!").green
 
-  rescue ValidationError => e
+  rescue TaskError => e
     abort Rainbow(e.to_s).red
   end
 
@@ -126,10 +145,11 @@ namespace :examples do
     REPOS.keys.each do |name|
       examples.generate_types(name)
     end
+    examples.validate_sord_success
 
     puts Rainbow("Re-seeding complete!").green
 
-  rescue ValidationError => e
+  rescue TaskError => e
     abort Rainbow(e.to_s).red
   end
   
