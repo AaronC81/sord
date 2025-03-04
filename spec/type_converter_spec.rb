@@ -149,6 +149,11 @@ describe Sord::TypeConverter do
         expect(yard_to_parlour_default('Hash<String=>Symbol>')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String=>Symbol}')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String => Symbol}')).to eq Types::Hash.new('String', 'Symbol')
+        expect(yard_to_parlour_default('Hash{String, Integer => Symbol, Float}')).to eq \
+          Types::Hash.new(
+            Types::Union.new(['String', 'Integer']),
+            Types::Union.new(['Symbol', 'Float'])
+        )
         expect(yard_to_parlour_default('Hash<Hash{String => Symbol}, Hash<Array<Symbol>, Integer>>')).to eq \
           Types::Hash.new(
             Types::Hash.new('String', 'Symbol'),
@@ -199,6 +204,14 @@ describe Sord::TypeConverter do
 
       it 'converts Class types' do
         expect(yard_to_parlour_default('Class<String>')).to eq Types::Class.new('String')
+      end
+
+      it 'converts Class types with multiple parameters' do
+        expect(yard_to_parlour_default('Class<String, Integer>')).to eq \
+          Types::Union.new([
+            Types::Class.new('String'),
+            Types::Class.new('Integer'),
+          ])
       end
 
       context 'with user defined generic' do

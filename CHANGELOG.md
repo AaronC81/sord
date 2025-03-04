@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [7.0.0] - 2025-03-03
+### Added
+- Messages now show the file and line number that the message originated from. (Thanks @apiology)
+- Sord will now recognise `Class<T, E>` as an equivalent of `Class<T>, Class<E>`, similar to the
+  existing behaviour for `Array`. (Thanks @tomoasleep)
+
+### Changed
+- **Breaking change**: Now uses Commander 5.0 to support Ruby 3.3. This increases the minimum
+  required Ruby version to 3.0.
+- **Breaking change**: Parlour version has been bumped significantly, from 5.0 to 9.1. This may be
+  relevant if you're using other Parlour plugins alongside Sord.
+
+### Fixed
+- Sord now generates correct RBI when heredoc strings are used in constants. (Thanks @apiology)
+- Fixed error when using as a Parlour plugin, but without any custom tags defined. (Thanks
+  @dsisnero)
+- Fixed incorrect precedence when union types were nested inside hashes. (Thanks @apiology)
+- Sord now adds `::` when required, to disambiguate nested namespaces from top-level ones. (Thanks
+  @sinsoku)
+
 ## [6.0.0] - 2023-05-02
 ### Changed
 - **Breaking change**: Now targets RBS 3.0

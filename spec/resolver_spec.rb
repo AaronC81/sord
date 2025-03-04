@@ -163,6 +163,6 @@ describe Sord::Resolver do
 
   it 'resolves included gem rbi files' do
     subject.prepare
-    expect(subject.path_for('Parlour::TypeLoader')).to eq 'Parlour::TypeLoader'
+    expect(subject.path_for('ResolverTest::TestClass')).to eq 'ResolverTest::TestClass'
   end
 end

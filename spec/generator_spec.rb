@@ -1117,6 +1117,13 @@ describe Sord::Generator do
         EXAMPLE_UNTYPED_CONSTANT = 'Foo'
         # @return [String]
         EXAMPLE_TYPED_CONSTANT = 'Bar'
+        EXAMPLE_UNTYPED_CONSTANT_WITH_HEREDOC = <<END
+Baz
+END
+        # @return [String]
+        EXAMPLE_TYPED_CONSTANT_WITH_HEREDOC = <<END
+Bing
+END
       end
     RUBY
 
@@ -1125,6 +1132,12 @@ describe Sord::Generator do
       class A
         EXAMPLE_UNTYPED_CONSTANT = T.let('Foo', T.untyped)
         EXAMPLE_TYPED_CONSTANT = T.let('Bar', T.untyped)
+        EXAMPLE_UNTYPED_CONSTANT_WITH_HEREDOC = T.let(<<END, T.untyped)
+Baz
+END
+        EXAMPLE_TYPED_CONSTANT_WITH_HEREDOC = T.let(<<END, T.untyped)
+Bing
+END
       end
     RUBY
 
@@ -1132,6 +1145,8 @@ describe Sord::Generator do
       class A
         EXAMPLE_UNTYPED_CONSTANT: untyped
         EXAMPLE_TYPED_CONSTANT: String
+        EXAMPLE_UNTYPED_CONSTANT_WITH_HEREDOC: untyped
+        EXAMPLE_TYPED_CONSTANT_WITH_HEREDOC: String
       end
     RUBY
   end
@@ -2067,6 +2082,28 @@ describe Sord::Generator do
         # _@return_ — example integer
         sig { params(a: String, b: Integer).returns(Integer) }
         def x(a, b); end
+      end
+    RUBY
+  end
+
+  it 'works even if the parent class has the same name' do
+    YARD.parse_string(<<-RUBY)
+      class X
+      end
+
+      module M
+        class X < ::X
+        end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class X
+      end
+
+      module M
+        class X < ::X
+        end
       end
     RUBY
   end

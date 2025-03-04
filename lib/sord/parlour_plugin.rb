@@ -80,6 +80,7 @@ module Sord
     end
 
     def add_custom_tags
+      return unless options[:tags]
       return if options[:tags].empty?
 
       options[:tags].each do |tag|

@@ -74,7 +74,8 @@ module Sord
       return unless enabled_types.include?(kind)
 
       message = if item
-        "#{header} (#{Rainbow(item.path).bold}) #{msg}"
+        (filename, line), = item.files
+        "#{header} #{Rainbow("(#{item.path}) #{filename}:#{line}:").bold} #{msg}"
       else
         "#{header} #{msg}"
       end
