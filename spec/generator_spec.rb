@@ -1151,6 +1151,32 @@ END
     RUBY
   end
 
+  it 'gracefully handles malformed expressions as constants' do
+    # This isn't something we expect to happen very often, but we at least want to know Sord itself
+    # doesn't blow up.
+    
+    # This string is valid Ruby syntax, but `parser` rejects it intentionally
+    # See https://github.com/whitequark/parser/issues/283
+    YARD.parse_string(<<-RUBY)
+      class A
+        MALFORMED = "\\xFF"
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      class A
+        MALFORMED = T.let("\\xFF", T.untyped)
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      class A
+        MALFORMED: untyped
+      end
+    RUBY
+  end
+
   it 'does not generate constants from included classes' do
     YARD.parse_string(<<-RUBY)
       class A
