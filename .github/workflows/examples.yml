@@ -19,4 +19,4 @@ jobs:
     - name: Run examples (RBI)
       run: bundle exec rake examples:seed[rbi]
     - name: Run examples (RBS)
-      run: bundle exec rake examples:seed[rbs]
+      run: bundle exec rake examples:reseed[rbs]
