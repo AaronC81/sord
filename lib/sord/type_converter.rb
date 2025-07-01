@@ -199,6 +199,17 @@ module Sord
           .map { |x| yard_to_parlour(x, item, config) }
         if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
           Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
+        elsif relative_generic_type == 'generic'
+          if parameters.length == 1
+            # used by solargraph to indicate a type variable.  Until
+            # Parlour needs to support separate namespaces, convert to
+            # the same namespaces as raw types:
+            yard_to_parlour(parameters.first, nil, config)
+          else
+            handle_sord_error(parameters.map(&:describe).join,
+                              "Invalid generic<>, must have exactly one type variable: #{yard.inspect}.", item,
+                              config.replace_errors_with_untyped)
+          end
         elsif relative_generic_type == 'Class'
           if parameters.length == 1
             Parlour::Types::Class.new(parameters.first)
