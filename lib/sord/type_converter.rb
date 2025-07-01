@@ -204,7 +204,7 @@ module Sord
             # used by solargraph to indicate a type variable.  Until
             # Parlour needs to support separate namespaces, convert to
             # the same namespaces as raw types:
-            yard_to_parlour(parameters.first, nil, config)
+            parameters.first
           else
             handle_sord_error(parameters.map(&:describe).join,
                               "Invalid generic<>, must have exactly one type variable: #{yard.inspect}.", item,
