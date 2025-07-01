@@ -250,6 +250,16 @@ describe Sord::TypeConverter do
       end
     end
 
+    context 'with a solargraph-style type variable' do
+      it 'handles type variables by converting back to RBS-style unified namespace' do
+        expect(yard_to_parlour_default('generic<Foo>')).to eq Types::Raw.new('Foo')
+      end
+
+      it 'handles generic<> with more than one argument' do
+        expect(yard_to_parlour_default('generic<F, T>')).to eq Types::Raw.new('SORD_ERROR_FT')
+      end
+    end
+
     context 'when given an untyped generic' do
       it 'handles Hash correctly' do
         expect(yard_to_parlour_default('Hash')).to eq Types::Hash.new(Types::Untyped.new, Types::Untyped.new)
@@ -339,7 +349,7 @@ describe Sord::TypeConverter do
         Sord::TypeConverter::Configuration.new(
           output_language: :rbs,
           replace_errors_with_untyped: false,
-          replace_unresolved_with_untyped: false,  
+          replace_unresolved_with_untyped: false,
         )
       end
 
