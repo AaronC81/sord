@@ -131,6 +131,8 @@ module Sord
         Parlour::Types::Untyped.new
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         Parlour::Types::Boolean.new
+      when "undefined" # solargraph convention
+        Parlour::Types::Untyped.new
       when 'self'
         Parlour::Types::Self.new
       when Array
