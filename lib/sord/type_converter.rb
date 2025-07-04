@@ -129,6 +129,8 @@ module Sord
       case yard
       when nil # Type not specified
         Parlour::Types::Untyped.new
+      when "nil"
+        Parlour::Types::Raw.new('NilClass')
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         Parlour::Types::Boolean.new
       when 'self'
@@ -195,10 +197,11 @@ module Sord
         relative_generic_type = generic_type.start_with?('::') \
           ? generic_type[2..-1] : generic_type
 
-        parameters = split_type_parameters(type_parameters)
+        yard_parameters = split_type_parameters(type_parameters)
+        parameters = yard_parameters
           .map { |x| yard_to_parlour(x, item, config) }
-        if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && parameters.length > 1
-          Parlour::Types.const_get(relative_generic_type).new(Parlour::Types::Union.new(parameters))
+        if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && yard_parameters.length > 1
+          Parlour::Types.const_get(relative_generic_type).new(yard_to_parlour(yard_parameters, item, config))
         elsif relative_generic_type == 'Class'
           if parameters.length == 1
             Parlour::Types::Class.new(parameters.first)

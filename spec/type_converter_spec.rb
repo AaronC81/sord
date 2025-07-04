@@ -77,6 +77,7 @@ describe Sord::TypeConverter do
 
     context 'with literals' do
       it 'converts literals to their types' do
+        expect(yard_to_parlour_default('nil')).to eq Types::Raw.new('NilClass')
         expect(yard_to_parlour_default([':up', ':down'])).to eq Types::Raw.new('Symbol')
         expect(yard_to_parlour_default(['String', ':up', ':down'])).to eq \
           Types::Union.new(['String', 'Symbol'])
@@ -132,6 +133,11 @@ describe Sord::TypeConverter do
           Types::Array.new(Types::Union.new(['String', 'Integer']))
       end
 
+      it 'handles nil is one of multiple arguments in a one-argument type parameter' do
+        expect(yard_to_parlour_default('Array<String, nil>')).to eq \
+          Types::Array.new(Types::Nilable.new('String'))
+      end
+
       it 'handles whitespace' do
         expect(yard_to_parlour_default('Array < String >')).to eq Types::Array.new('String')
       end
@@ -148,6 +154,7 @@ describe Sord::TypeConverter do
       it 'handles correctly-formed two-argument type parameters with hash rockets' do
         expect(yard_to_parlour_default('Hash<String=>Symbol>')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String=>Symbol}')).to eq Types::Hash.new('String', 'Symbol')
+        expect(yard_to_parlour_default('Hash{String=>String}')).to eq Types::Hash.new('String', 'String')
         expect(yard_to_parlour_default('Hash{String => Symbol}')).to eq Types::Hash.new('String', 'Symbol')
         expect(yard_to_parlour_default('Hash{String, Integer => Symbol, Float}')).to eq \
           Types::Hash.new(
@@ -339,7 +346,7 @@ describe Sord::TypeConverter do
         Sord::TypeConverter::Configuration.new(
           output_language: :rbs,
           replace_errors_with_untyped: false,
-          replace_unresolved_with_untyped: false,  
+          replace_unresolved_with_untyped: false,
         )
       end
 
