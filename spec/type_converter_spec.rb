@@ -58,6 +58,12 @@ describe Sord::TypeConverter do
       end
     end
 
+    context 'with undefined' do
+      it 'translates to untyped' do
+        expect(yard_to_parlour_default('undefined')).to eq Types::Untyped.new
+      end
+    end
+
     context 'with multiple types' do
       it 'unwraps it if it contains one item' do
         expect(yard_to_parlour_default(['String'])).to eq Types::Raw.new('String')
@@ -339,7 +345,7 @@ describe Sord::TypeConverter do
         Sord::TypeConverter::Configuration.new(
           output_language: :rbs,
           replace_errors_with_untyped: false,
-          replace_unresolved_with_untyped: false,  
+          replace_unresolved_with_untyped: false,
         )
       end
 
