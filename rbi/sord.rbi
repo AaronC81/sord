@@ -1,7 +1,7 @@
 # typed: strong
 # typed: strong
 module Sord
-  VERSION = T.let('7.0.0', T.untyped)
+  VERSION = T.let('7.1.0', T.untyped)
 
   # Handles writing logs to stdout and any other classes which request them.
   module Logging

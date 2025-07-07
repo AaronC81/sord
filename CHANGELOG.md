@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [7.1.0] - 2025-07-07
+### Added
+- `nil` can be used as an alias for `NilClass` in more places in YARD types. (Thanks @apiology)
+- The Solargraph convention `undefined` can now be used as an "untyped" type. (Thanks @apiology)
+
+### Changed
+- If a constant's value does not parse successfully, type information can still be generated for
+  that constant, and Sord emits a warning. Previously, this would cause a fatal exception.
+- The version restriction on the RBS gem has been relaxed, to permit usage of 4.x versions.
+  RBS 3.x can still be used as before.
+  (Thanks @apiology)
+
+### Fixed
+- Sord now correctly resolves namespaces when classes have a namespace, e.g. `class X::Y`.
+  (Thanks @dorner)
+
 ## [7.0.0] - 2025-03-03
 ### Added
 - Messages now show the file and line number that the message originated from. (Thanks @apiology)
