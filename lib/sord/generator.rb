@@ -299,6 +299,17 @@ module Sord
       method.overridden_method.tag(tag_name)
     end
 
+    # The names of type variables this method needs to declare in its own
+    # signature: those named by a solargraph-style `@generic` tag on the
+    # method itself. A `@generic` tag on the method's owning namespace is
+    # handled separately, as a type_member/class-level type parameter on the
+    # namespace itself (see #add_namespace) - not a per-method declaration.
+    # @param method [YARD::CodeObjects::MethodObject]
+    # @return [Array<Symbol>]
+    def generic_type_parameter_names(method)
+      method_tags(method, 'generic').map { |tag| tag.name.to_s.strip.to_sym }
+    end
+
     # Given a YARD NamespaceObject, add lines defining its methods and their
     # signatures to the current file.
     # @param [YARD::CodeObjects::NamespaceObject] item
@@ -471,7 +482,8 @@ module Sord
             meth.name.to_s,
             parameters: parlour_params,
             returns: returns,
-            class_method: meth.scope == :class
+            class_method: meth.scope == :class,
+            type_parameters: generic_type_parameter_names(meth)
           ) do |m|
             add_comments(meth, m)
           end
@@ -481,7 +493,8 @@ module Sord
             [Parlour::RbsGenerator::MethodSignature.new(
               parlour_params, returns, block: rbs_block && !rbs_block.is_a?(Parlour::Types::Untyped) \
                 ? Parlour::RbsGenerator::Block.new(rbs_block, false)
-                : nil
+                : nil,
+              type_parameters: generic_type_parameter_names(meth)
             )],
             class_method: meth.scope == :class
           ) do |m|
@@ -612,11 +625,31 @@ module Sord
         superclass = "#{prefix}#{item.superclass.path}"
       end
 
+      # A solargraph-style @generic tag directly on this class/module makes
+      # it generic: a real Sorbet type_member per name for :rbi, or a
+      # type_parameters: entry in the class/module header for :rbs.
+      type_variable_names = item.tags('generic').map { |tag| tag.name.to_s.strip.to_sym }
+
       parent = @current_object
-      @current_object = item.type == :class \
-        ? parent.create_class(item.name.to_s, superclass: superclass)
-        : parent.create_module(item.name.to_s)
+      @current_object =
+        if item.type == :class
+          if @mode == :rbs
+            parent.create_class(item.name.to_s, superclass: superclass, type_parameters: type_variable_names)
+          else
+            parent.create_class(item.name.to_s, superclass: superclass)
+          end
+        else
+          if @mode == :rbs
+            parent.create_module(item.name.to_s, type_parameters: type_variable_names)
+          else
+            parent.create_module(item.name.to_s)
+          end
+        end
       @current_object.add_comments(item.docstring.all.split("\n"))
+
+      if @mode == :rbi
+        type_variable_names.each { |name| @current_object.create_type_member(name.to_s) }
+      end
 
       add_mixins(item)
       add_methods(item)

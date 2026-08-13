@@ -3,6 +3,19 @@ require 'yaml'
 require 'sord/logging'
 require 'sord/resolver'
 require 'parlour'
+require 'yard/tags/library'
+
+# Declares the @generic tag (Solargraph's convention for naming a type
+# variable on a class/module) so YARD doesn't discard it as unknown, using
+# the same factory as the yard-solargraph plugin's own registration
+# (:with_types_and_name, matching @generic's `[Bound] Name` grammar - bounds
+# aren't otherwise supported by sord, but this determines which of tag.name
+# vs tag.text holds the variable's name). If yard-solargraph is loaded too,
+# whichever registers last wins for the process that actually parses the
+# docs (e.g. a separate `yard doc` invocation before `sord gen
+# --no-regenerate`) - since both use this factory, the parsed result is the
+# same either way.
+YARD::Tags::Library.define_tag('Generic Type Variable', :generic, :with_types_and_name)
 
 module Sord
   # Contains methods to convert YARD types to Parlour types.
@@ -200,10 +213,38 @@ module Sord
           ? generic_type[2..-1] : generic_type
 
         yard_parameters = split_type_parameters(type_parameters)
+
+        if relative_generic_type == 'generic' && yard_parameters.length == 1
+          case type_variable_scope(yard_parameters.first, item)
+          when :method
+            # Sorbet/RBS represent a reference to a method-scoped type
+            # variable specially (T.type_parameter(:U) / bare U bound by the
+            # method's own [U] (...) signature).
+            return Parlour::Types::TypeVariable.new(yard_parameters.first)
+          when :namespace
+            # A class/module-scoped type variable is a real constant (RBI's
+            # `X = type_member`) or a name bound by the class/module's own
+            # header (RBS's `class Box[T]`); either way it's referenced with
+            # a bare name, like any other type.
+            return Parlour::Types::Raw.new(yard_parameters.first)
+          end
+        end
+
         parameters = yard_parameters
           .map { |x| yard_to_parlour(x, item, config) }
         if SINGLE_ARG_GENERIC_TYPES.include?(relative_generic_type) && yard_parameters.length > 1
           Parlour::Types.const_get(relative_generic_type).new(yard_to_parlour(yard_parameters, item, config))
+        elsif relative_generic_type == 'generic'
+          if parameters.length == 1
+            # used by solargraph to indicate a type variable.  Until
+            # Parlour needs to support separate namespaces, convert to
+            # the same namespaces as raw types:
+            parameters.first
+          else
+            handle_sord_error(parameters.map(&:describe).join,
+                              "Invalid generic<>, must have exactly one type variable: #{yard.inspect}.", item,
+                              config.replace_errors_with_untyped)
+          end
         elsif relative_generic_type == 'Class'
           if parameters.length == 1
             Parlour::Types::Class.new(parameters.first)
@@ -261,6 +302,30 @@ module Sord
 
         return handle_sord_error(yard.to_s, "#{yard.inspect} does not appear to be a type", item, config.replace_errors_with_untyped)
       end
+    end
+
+    # Checks whether the given name has been declared as a type variable via
+    # a solargraph-style `@generic` tag on the given item, or the item's
+    # owning namespace, and reports which: this determines how a reference to
+    # it must be rendered (see the `generic<...>` handling above). A tag on
+    # the item itself takes priority over one on its namespace.
+    #
+    # @param [String] name
+    # @param [YARD::CodeObjects::Base, nil] item
+    # @return [:method, :namespace, nil]
+    def self.type_variable_scope(name, item)
+      return nil unless item
+
+      if item.respond_to?(:tags) && item.tags(:generic).any? { |tag| tag.name.to_s.strip == name }
+        return :method
+      end
+
+      if item.respond_to?(:namespace) && item.namespace.respond_to?(:tags) &&
+          item.namespace.tags(:generic).any? { |tag| tag.name.to_s.strip == name }
+        return :namespace
+      end
+
+      nil
     end
 
     # Handles SORD_ERRORs.
