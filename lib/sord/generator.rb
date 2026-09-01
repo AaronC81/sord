@@ -349,7 +349,8 @@ module Sord
           name = name_and_default.first
 
           if tag
-            TypeConverter.yard_to_parlour(tag.types, meth, @type_converter_config)
+            type = TypeConverter.yard_to_parlour(tag.types, meth, @type_converter_config)
+            unwrap_splat_param_type(type, name)
           elsif name.start_with? '&'
             # Find yieldparams and yieldreturn
             yieldparams = method_tags(meth, 'yieldparam')
@@ -730,6 +731,24 @@ module Sord
       }
 
       return pair_type_order[pair1_type] <=> pair_type_order[pair2_type]
+    end
+
+    # YARD documents a splat/double-splat's collected type (Array<String>
+    # for *args, Hash{K=>V} for **kwargs), but RBI/RBS splat syntax wants
+    # each individual vararg/kwarg value's type. Strips exactly one
+    # Array/Hash layer to convert between the two; anything else (a normal
+    # parameter, or a type not wrapped in Array/Hash) passes through as-is.
+    # @param [Parlour::Types::Type] type
+    # @param [String] name
+    # @return [Parlour::Types::Type]
+    def unwrap_splat_param_type(type, name)
+      if name.start_with?('**')
+        type.is_a?(Parlour::Types::Hash) ? type.value : type
+      elsif name.start_with?('*')
+        type.is_a?(Parlour::Types::Array) ? type.element : type
+      else
+        type
+      end
     end
 
     # Removes the last character of a default parameter value if it begins with

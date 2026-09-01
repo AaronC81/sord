@@ -569,7 +569,7 @@ describe Sord::Generator do
         # 
         # _@return_ — comment with multiple
         # line
-        sig { params(x: Integer, y: T::Array[String]).void }
+        sig { params(x: Integer, y: String).void }
         def foo(x, *y); end
       end
     RUBY
@@ -582,7 +582,7 @@ describe Sord::Generator do
         # 
         # _@return_ — comment with multiple
         # line
-        def foo: (Integer x, *::Array[String] y) -> void
+        def foo: (Integer x, *String y) -> void
       end
     RUBY
   end
@@ -603,7 +603,7 @@ describe Sord::Generator do
         # _@param_ `x`
         # 
         # _@param_ `y`
-        sig { params(x: Integer, y: T::Array[String]).void }
+        sig { params(x: Integer, y: String).void }
         def foo(x, *y); end
       end
     RUBY
@@ -613,7 +613,7 @@ describe Sord::Generator do
         # _@param_ `x`
         # 
         # _@param_ `y`
-        def foo: (Integer x, *::Array[String] y) -> void
+        def foo: (Integer x, *String y) -> void
       end
     RUBY
   end
@@ -1648,6 +1648,132 @@ END
                  c: untyped,
                  **untyped rest
                ) -> untyped
+      end
+    RUBY
+  end
+
+  it 'unwraps the collected Array/Hash @param type on splat and double-splat parameters' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param args [Array<Object>]
+        def w(*args); end
+
+        # @param kwargs [Hash{Symbol => Object}]
+        def x(**kwargs); end
+
+        # @param kwargs [Hash<Symbol, Object>]
+        def v(**kwargs); end
+
+        # @param kwargs [Hash]
+        def y(**kwargs); end
+
+        # @param args [Array<Array<String>>]
+        def z(*args); end
+
+        # @param exclude [Array<String>]
+        def bar(*exclude); end
+
+        # @param task_selectors [Array<Array<Symbol, Array>>]
+        def merge_task_selectors(*task_selectors); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        sig { params(args: Object).returns(T.untyped) }
+        def w(*args); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        sig { params(kwargs: Object).returns(T.untyped) }
+        def x(**kwargs); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        sig { params(kwargs: Object).returns(T.untyped) }
+        def v(**kwargs); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        sig { params(kwargs: T.untyped).returns(T.untyped) }
+        def y(**kwargs); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        sig { params(args: T::Array[String]).returns(T.untyped) }
+        def z(*args); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `exclude`
+        sig { params(exclude: String).returns(T.untyped) }
+        def bar(*exclude); end
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `task_selectors`
+        sig { params(task_selectors: T::Array[T.any(Symbol, T::Array[T.untyped])]).returns(T.untyped) }
+        def merge_task_selectors(*task_selectors); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        def w: (*Object args) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        def x: (**Object kwargs) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        def v: (**Object kwargs) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `kwargs`
+        def y: (**untyped kwargs) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        def z: (*::Array[String] args) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `exclude`
+        def bar: (*String exclude) -> untyped
+
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `task_selectors`
+        def merge_task_selectors: (*::Array[(Symbol | ::Array[untyped])] task_selectors) -> untyped
+      end
+    RUBY
+  end
+
+  it 'leaves a normal parameter\'s Array @param type unaffected by the splat unwrap' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param args [Array<Object>]
+        def normal(args); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        sig { params(args: T::Array[Object]).returns(T.untyped) }
+        def normal(args); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # sord omit - no YARD return type given, using untyped
+        # _@param_ `args`
+        def normal: (::Array[Object] args) -> untyped
       end
     RUBY
   end
