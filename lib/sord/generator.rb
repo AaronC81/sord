@@ -561,30 +561,12 @@ module Sord
           when :rbs
             if attr_loc == :class
               # RBS doesn't support class attr_accessors so create individual methods
-
-              if reader
-                @current_object.create_method(
-                  name.to_s,
-                  [Parlour::RbsGenerator::MethodSignature.new([], parlour_type)],
-                  class_method: true
-                ) do |m|
-                  add_comments(reader, m)
-                end
-              end
-
-              if writer
-                @current_object.create_method(
-                  "#{name}=",
-                  [Parlour::RbsGenerator::MethodSignature.new([Parlour::RbsGenerator::Parameter.new(
-                    "value",
-                    type: parlour_type,
-                    required: true
-                  )], parlour_type)],
-                  class_method: true
-                ) do |m|
-                  add_comments(writer, m)
-                end
-              end
+              add_rbs_attribute_methods(name, reader, writer, parlour_type, class_method: true)
+            elsif overrides_ancestor_attribute?(item, name)
+              # An RBS attribute also declares an instance variable, which
+              # can't change type from the one an ancestor declares, so
+              # declare only the methods
+              add_rbs_attribute_methods(name, reader, writer, parlour_type, class_method: false)
             else
               @current_object.create_attribute(
                 name.to_s,
@@ -596,6 +578,51 @@ module Sord
             end
           end
         end
+      end
+    end
+
+    # Adds RBS methods for an attribute's reader and/or writer.
+    # @param [Symbol] name
+    # @param [YARD::CodeObjects::MethodObject, nil] reader
+    # @param [YARD::CodeObjects::MethodObject, nil] writer
+    # @param [Parlour::Types::Type] parlour_type
+    # @param [Boolean] class_method
+    # @return [void]
+    def add_rbs_attribute_methods(name, reader, writer, parlour_type, class_method:)
+      if reader
+        @current_object.create_method(
+          name.to_s,
+          [Parlour::RbsGenerator::MethodSignature.new([], parlour_type)],
+          class_method: class_method
+        ) do |m|
+          add_comments(reader, m)
+        end
+      end
+
+      if writer
+        @current_object.create_method(
+          "#{name}=",
+          [Parlour::RbsGenerator::MethodSignature.new([Parlour::RbsGenerator::Parameter.new(
+            "value",
+            type: parlour_type,
+            required: true
+          )], parlour_type)],
+          class_method: class_method
+        ) do |m|
+          add_comments(writer, m)
+        end
+      end
+    end
+
+    # Whether an ancestor of a namespace declares an instance attribute
+    # with the given name.
+    # @param [YARD::CodeObjects::NamespaceObject] item
+    # @param [Symbol] name
+    # @return [Boolean]
+    def overrides_ancestor_attribute?(item, name)
+      item.inheritance_tree(true).drop(1).any? do |ancestor|
+        ancestor.is_a?(YARD::CodeObjects::NamespaceObject) &&
+          ancestor.attributes[:instance].key?(name)
       end
     end
 

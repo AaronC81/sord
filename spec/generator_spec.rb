@@ -1840,6 +1840,69 @@ END
       RUBY
     end
 
+    it 'are generated as methods in RBS when overriding a superclass attribute' do
+      YARD.parse_string(<<-RUBY)
+        class A
+          # @return [Numeric]
+          attr_reader :x
+
+          # @return [Numeric]
+          attr_accessor :y
+        end
+
+        class B < A
+          # @return [Integer]
+          attr_reader :x
+
+          # @return [Integer]
+          attr_accessor :y
+
+          # @return [String]
+          attr_reader :z
+        end
+      RUBY
+
+      expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        # typed: strong
+        class A
+          sig { returns(Numeric) }
+          attr_reader :x
+
+          sig { returns(Numeric) }
+          attr_accessor :y
+        end
+
+        class B < A
+          sig { returns(Integer) }
+          attr_reader :x
+
+          sig { returns(Integer) }
+          attr_accessor :y
+
+          sig { returns(String) }
+          attr_reader :z
+        end
+      RUBY
+
+      expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+        class A
+          attr_reader x: Numeric
+
+          attr_accessor y: Numeric
+        end
+
+        class B < A
+          def x: () -> Integer
+
+          def y: () -> Integer
+
+          def y=: (Integer value) -> Integer
+
+          attr_reader z: String
+        end
+      RUBY
+    end
+
     it 'preserve comments' do
       YARD.parse_string(<<-RUBY)
         module A
