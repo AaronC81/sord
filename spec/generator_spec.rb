@@ -462,7 +462,7 @@ describe Sord::Generator do
     expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       module A
         # _@param_ `x`
-        def foo: (String x) ?{ (Integer a, Float b) -> bool } -> bool
+        def foo: (String x) { (Integer a, Float b) -> bool } -> bool
       end
     RUBY
   end
@@ -493,7 +493,7 @@ describe Sord::Generator do
     expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       module A
         # _@param_ `x`
-        def foo: (String x) ?{ (Integer a, Float b) -> bool } -> bool
+        def foo: (String x) { (Integer a, Float b) -> bool } -> bool
       end
     RUBY
   end
@@ -518,7 +518,7 @@ describe Sord::Generator do
 
     expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       module A
-        def self.foo: () ?{ (Symbol foo) -> void } -> void
+        def self.foo: () { (Symbol foo) -> void } -> void
       end
     RUBY
   end
@@ -544,7 +544,32 @@ describe Sord::Generator do
 
     expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
       module A
-        def self.foo: () ?{ (Symbol arg0, String arg1) -> void } -> void
+        def self.foo: () { (Symbol arg0, String arg1) -> void } -> void
+      end
+    RUBY
+  end
+
+  it 'makes blocks optional when @yield starts with Optional' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @yield Optional. Called with each item
+        # @yieldparam [Integer] item
+        # @return [void]
+        def foo(&blk); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        sig { params(blk: T.nilable(T.proc.params(item: Integer).void)).void }
+        def foo(&blk); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        def foo: () ?{ (Integer item) -> void } -> void
       end
     RUBY
   end

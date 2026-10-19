@@ -27,6 +27,7 @@ Sord has the following features:
   - Support for ordered list types (`[Array(Integer, Symbol)]` becomes `[Integer, Symbol]`)
   - Support for boolean types (`[true, false]` becomes `T::Boolean`/`bool`)
   - Support for `&block` parameters documented with `@yieldparam` and `@yieldreturn`
+    (blocks are required unless the `@yield` text starts with "Optional")
 
 ## Usage
 
