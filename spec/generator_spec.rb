@@ -549,6 +549,49 @@ describe Sord::Generator do
     RUBY
   end
 
+  it 'keeps block parameters without yield tags' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param message [Object, nil]
+        # @return [void]
+        def foo(message = nil, &block); end
+      end
+    RUBY
+
+    expect(rbi_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      # typed: strong
+      module A
+        # _@param_ `message`
+        sig { params(message: T.nilable(Object), block: T.untyped).void }
+        def foo(message = nil, &block); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `message`
+        def foo: (?Object? message) ?{ (*untyped args) -> untyped } -> void
+      end
+    RUBY
+  end
+
+  it 'handles block parameters documented with a non-proc type' do
+    YARD.parse_string(<<-RUBY)
+      module A
+        # @param &block [Proc]
+        # @return [void]
+        def foo(&block); end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module A
+        # _@param_ `&block`
+        def foo: () ?{ (*untyped args) -> untyped } -> void
+      end
+    RUBY
+  end
+
   it 'handle multiline comment correctly' do
     YARD.parse_string(<<-RUBY)
       module A
@@ -1647,7 +1690,7 @@ END
                  ?b: untyped,
                  c: untyped,
                  **untyped rest
-               ) -> untyped
+               ) ?{ (*untyped args) -> untyped } -> untyped
       end
     RUBY
   end

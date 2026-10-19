@@ -447,7 +447,13 @@ module Sord
               )
             when :rbs
               if name.start_with?('&')
-                rbs_block = type
+                # RBS blocks need a proc type; accept any block otherwise
+                rbs_block = type.is_a?(Parlour::Types::Proc) \
+                  ? type
+                  : Parlour::Types::Proc.new(
+                      [Parlour::Types::Proc::Parameter.new('*args', Parlour::Types::Untyped.new)],
+                      Parlour::Types::Untyped.new
+                    )
                 nil
               else
                 Parlour::RbsGenerator::Parameter.new(
@@ -479,9 +485,7 @@ module Sord
           @current_object.create_method(
             meth.name.to_s,
             [Parlour::RbsGenerator::MethodSignature.new(
-              parlour_params, returns, block: rbs_block && !rbs_block.is_a?(Parlour::Types::Untyped) \
-                ? Parlour::RbsGenerator::Block.new(rbs_block, false)
-                : nil
+              parlour_params, returns, block: rbs_block && Parlour::RbsGenerator::Block.new(rbs_block, false)
             )],
             class_method: meth.scope == :class
           ) do |m|
