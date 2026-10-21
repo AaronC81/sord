@@ -130,7 +130,7 @@ module Sord
       when nil # Type not specified
         Parlour::Types::Untyped.new
       when "nil"
-        Parlour::Types::Raw.new('NilClass')
+        Parlour::Types::Nil.new
       when  "bool", "Bool", "boolean", "Boolean", "true", "false"
         Parlour::Types::Boolean.new
       when "undefined" # solargraph convention

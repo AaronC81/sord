@@ -77,6 +77,8 @@ class ExampleRunner
       Dir.chdir(name.to_s) do
         # Add sord to gemfile.
         `echo "gem 'sord', path: '../../'" >> Gemfile`
+        # TEMPORARY: same parlour pin as sord's Gemfile; remove with it.
+        `echo "gem 'parlour', git: 'https://github.com/apiology/parlour', branch: 'add-nil-type'" >> Gemfile`
 
         # Run bundle install.
         system('bundle install')
