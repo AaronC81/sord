@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # rugged fails to link libgit2 on ubuntu-26.04
     continue-on-error: false
     steps:
     - uses: actions/checkout@v2
